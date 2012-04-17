@@ -12,3 +12,5 @@ Planned Features
 * Listing output
 
 Basically, everything you'd expect in a professional-grade assembler.
+
+The goal of .orgASM is to be able to successfully assemble [this](http://pastebin.com/raw.php?i=W3WTDC09) file.
