@@ -1,0 +1,73 @@
+﻿# Table format:
+# type value key
+# value is a hex number that corresponds to the key
+# key is a specially formatted key:
+# _ is required whitespace
+# - is optional whitespace
+# %a is the "a" value
+# %b is the "b" value
+# $n is a literal value that is to be output after the instruction
+# "n" may increment from zero.
+# type is the type of entry: o for opcode, a and b for parameters.  n is a non-basic opcode.
+# In binary, these correspond to bbbbbbaaaaaaoooo
+#opcodes
+o 1 SET_%a-,-%b
+o 2 ADD_%a-,-%b
+o 3 SUB_%a-,-%b
+o 4 MUL_%a-,-%b
+o 5 DIV_%a-,-%b
+o 6 MOD_%a-,-%b
+o 7 SHL_%a-,-%b
+o 8 SHR_%a-,-%b
+o 9 AND_%a-,-%b
+o a BOR_%a-,-%b
+o b XOR_%a-,-%b
+o c IFE_%a-,-%b
+o d IFN_%a-,-%b
+o e IFG_%a-,-%b
+o f IFB_%a-,-%b
+#non-basic
+n 1 JSR_$0
+#values
+a,b 0 A
+a,b 1 B
+a,b 2 C
+a,b 3 X
+a,b 4 Y
+a,b 5 Z
+a,b 6 I
+a,b 7 J
+a,b 8 [-A-]
+a,b 9 [-B-]
+a,b A [-C-]
+a,b B [-X-]
+a,b C [-Y-]
+a,b D [-Z-]
+a,b E [-I-]
+a,b F [-J-]
+a,b 10 [-$0-+-A-]
+a,b 11 [-$0-+-B-]
+a,b 12 [-$0-+-C-]
+a,b 13 [-$0-+-X-]
+a,b 14 [-$0-+-Y-]
+a,b 15 [-$0-+-Z-]
+a,b 16 [-$0-+-I-]
+a,b 17 [-$0-+-J-]
+#same as above, alternate synatx
+a,b 10 [-A-+-$0-]
+a,b 11 [-B-+-$0-]
+a,b 12 [-C-+-$0-]
+a,b 13 [-X-+-$0-]
+a,b 14 [-Y-+-$0-]
+a,b 15 [-Z-+-$0-]
+a,b 16 [-I-+-$0-]
+a,b 17 [-J-+-$0-]
+a,b 18 POP
+a,b 19 PEEK
+a,b 1A PUSH
+a,b 1B SP
+a,b 1C PC
+a,b 1D O
+a,b 1E [-$0-]
+a,b 1F $0
+# 0x20-0x3F is not included in this document
