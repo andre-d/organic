@@ -240,7 +240,7 @@ namespace orgASM
                             value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
                             if (opcode.appendedValues.Length > 0 && ParseValue(opcode.appendedValues[0]) != null)
                             {
-                                if (ParseValue(opcode.appendedValues[0]).Value <= 0x1F)
+                                if (ParseValue(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
                                 {
                                     // Compress the appended value into the opcode
                                     // TODO: Support for writing to literals (fails silenty on DCPU)
@@ -320,6 +320,9 @@ namespace orgASM
                 int valueIndex = 0;
                 bool requiredWhitespaceMet = false;
                 bool matchFound = true;
+                match.appendedValues = new string[0];
+                if (match.value == 0x1E)
+                    System.Diagnostics.Debugger.Break();
                 for (int i = 0; i < opcode.Key.Length && valueIndex < value.Length; i++)
                 {
                     match.match = opcode.Key;
@@ -387,6 +390,8 @@ namespace orgASM
                         else
                         {
                             int delimiter = value.IndexOf(',', valueIndex);
+                            if (delimiter == -1)
+                                delimiter = value.IndexOf(']', valueIndex);
                             if (delimiter == -1)
                             {
                                 matchFound = false;
