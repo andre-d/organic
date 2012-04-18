@@ -321,8 +321,6 @@ namespace orgASM
                 bool requiredWhitespaceMet = false;
                 bool matchFound = true;
                 match.appendedValues = new string[0];
-                if (match.value == 0x1E)
-                    System.Diagnostics.Debugger.Break();
                 for (int i = 0; i < opcode.Key.Length && valueIndex < value.Length; i++)
                 {
                     match.match = opcode.Key;
