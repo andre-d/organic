@@ -183,14 +183,14 @@ namespace orgASM
                         else
                         {
                             value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                            if (opcode.appendedValues.Length > 0 && ParseValue(opcode.appendedValues[0]) != null)
+                            if (opcode.appendedValues.Length > 0 && ParseExpression(opcode.appendedValues[0]) != null)
                             {
-                                if (ParseValue(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
+                                if (ParseExpression(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
                                 {
                                     // Compress the appended value into the opcode
                                     // TODO: Support for writing to literals (fails silenty on DCPU)
                                     value[0] &= 0x3FF;
-                                    value[0] |= (ushort)(0x20 + ParseValue(opcode.appendedValues[0]) << 10);
+                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]) << 10);
                                     appendedValuesStartIndex++;
                                 }
                             }
@@ -199,7 +199,7 @@ namespace orgASM
                         bool invalidParameter = false;
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                         {
-                            ushort? parameter = ParseValue(opcode.appendedValues[j]);
+                            ushort? parameter = ParseExpression(opcode.appendedValues[j]);
                             if (parameter == null)
                             {
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
@@ -252,6 +252,7 @@ namespace orgASM
                     noList = false;
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
+                else if (directive == "region" || directive == "endregion") ; // Allowed but ignored
                 else if (directive.StartsWith("org")) // .orgASM's namesake :)
                 {
                     if (parameters.Length == 1)
@@ -260,7 +261,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                     else
                     {
-                        ushort? value = ParseValue(parameters[1]);
+                        ushort? value = ParseExpression(parameters[1]);
                         if (value == null)
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         else
@@ -300,7 +301,7 @@ namespace orgASM
                             }
                             else if (parameters.Length > 2)
                             {
-                                ushort? value = ParseValue(parameters[2]);
+                                ushort? value = ParseExpression(parameters[2]);
                                 if (value != null)
                                 {
                                     Values.Add(parameters[1].ToLower(), value.Value);
@@ -325,14 +326,84 @@ namespace orgASM
 
         #region Helper Code
 
-        private ushort? ParseValue(string value)
+        /// <summary>
+        /// Given an expression, it will parse it and return the result as a nullable ushort
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public ushort? ParseExpression(string value)
         {
-            if (Values.ContainsKey(value.ToLower()))
-                return Values[value.ToLower()];
-            int val;
-            if (int.TryParse(value, out val))
-                return (ushort)val;
+            value = value.Trim();
+            if (!HasOperators(value))
+            {
+                // Parse value
+                ushort result;
+                if (value.StartsWith("0d"))
+                    value = value.Substring(2);
+                if (value.StartsWith("'")) // Character
+                {
+                    if (value.Length < 3)
+                        return null;
+                    value = value.Substring(1, value.Length - 2).Unescape();
+                    if (value == null)
+                        return null;
+                    if (value.Length != 1)
+                        return null;
+                    return Encoding.ASCII.GetBytes(value)[0];
+                }
+                else if (value.StartsWith("0x")) // Hex
+                {
+                    value = value.Substring(2);
+                    if (!ushort.TryParse(value, NumberStyles.HexNumber, null, out result))
+                        return null;
+                    else
+                        return result;
+                }
+                else if (value.StartsWith("0b")) // Binary
+                {
+                    value = value.Substring(2);
+                    return ParseBinary(value);
+                }
+                else if (value.StartsWith("0o"))
+                {
+                    value = value.Substring(2);
+                    try
+                    {
+                        return Convert.ToUInt16(value, 8);
+                    }
+                    catch { return null; }
+                }
+                else if (ushort.TryParse(value, out result)) // Decimal
+                {
+                    return result;
+                }
+                else // Defined value or error
+                {
+                    if (Values.ContainsKey(value.ToLower()))
+                        return Values[value.ToLower()];
+                    else
+                        return null;
+                }
+            }
+
+            // Parse expression
             return null;
+        }
+
+        private ushort? ParseBinary(string value)
+        {
+            ushort mask = 1;
+            ushort result = 0;
+            foreach (char c in value)
+            {
+                if (c == '1')
+                    result |= mask;
+                else if (c == '0') ;
+                else
+                    return null;
+                mask <<= 1;
+            }
+            return result;
         }
 
         private bool HasOperators(string value)
@@ -364,7 +435,7 @@ namespace orgASM
 
         private StringMatch MatchString(string value, Dictionary<string, byte> keys)
         {
-            value = value.Trim().ToUpper();
+            value = value.Trim();
             StringMatch match = new StringMatch();
             match.appendedValues = new string[0];
             foreach (var opcode in keys)
@@ -455,7 +526,7 @@ namespace orgASM
                     }
                     else
                     {
-                        if (value[valueIndex] != opcode.Key[i])
+                        if (value.ToUpper()[valueIndex] != opcode.Key[i])
                         {
                             matchFound = false;
                             break;
