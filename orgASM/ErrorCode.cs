@@ -13,6 +13,9 @@ namespace orgASM
         InvalidOpcode = 3,
         InvalidParameter = 4,
         IllegalExpression = 5,
-        InvalidDirective = 6
+        InvalidDirective = 6,
+        InsufficientParamters = 7,
+        TooManyParamters = 8,
+        UncoupledEnd = 9,
     }
 }

@@ -21,6 +21,7 @@ namespace orgASM
         private Dictionary<string, byte> OpcodeTable;
         private Dictionary<string, byte> NonBasicOpcodeTable;
         private Dictionary<string, byte> ValueTable;
+        private Stack<bool> IfStack;
         private List<int> References;
         private bool noList;
 
@@ -42,6 +43,7 @@ namespace orgASM
             OpcodeTable = new Dictionary<string, byte>();
             NonBasicOpcodeTable = new Dictionary<string, byte>();
             ValueTable = new Dictionary<string, byte>();
+            IfStack = new Stack<bool>();
             noList = false;
 
             LoadTable();
@@ -89,6 +91,7 @@ namespace orgASM
         {
             FileNames.Push(FileName);
             LineNumbers.Push(0);
+            IfStack.Push(true);
 
             List<ListEntry> output = new List<ListEntry>();
 
@@ -99,23 +102,77 @@ namespace orgASM
                 int ln = LineNumbers.Pop();
                 LineNumbers.Push(++ln);
 
-                string line = lines[i].TrimComments();
+                string line = lines[i].TrimComments().TrimExcessWhitespace();
                 if (string.IsNullOrEmpty(line))
                     continue;
+                if (line.Contains(".equ") && !line.StartsWith(".equ")) // TASM compatibility
+                {
+                    line = ".equ" + line.Replace(".equ", "").TrimExcessWhitespace();
+                }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
                     // Parse preprocessor directives
                     string directive = line.Substring(1);
-                    if (directive == "nolist")
-                        noList = true;
-                    else if (directive == "list")
-                        noList = false;
-                    else
+                    string[] parameters = directive.Split(' ');
+                    if (directive == "endif" || directive == "end")
                     {
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidDirective));
+                        if (IfStack.Count == 1)
+                        {
+                            output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.UncoupledEnd));
+                            continue;
+                        }
+                        IfStack.Pop();
                         continue;
                     }
-                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
+                    if (IfStack.Peek())
+                    {
+                        if (directive == "nolist")
+                            noList = true;
+                        else if (directive == "list")
+                            noList = false;
+                        else if (directive.StartsWith("ifdef"))
+                        {
+                            if (parameters.Length == 1)
+                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InsufficientParamters));
+                            else if (parameters.Length > 2)
+                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.TooManyParamters));
+                            else
+                            {
+                                if (Values.ContainsKey(parameters[1].ToLower()))
+                                    IfStack.Push(true);
+                                else
+                                    IfStack.Push(false);
+                            }
+                        }
+                        else if (directive.StartsWith("equ") || directive.StartsWith("define"))
+                        {
+                            if (parameters.Length > 1)
+                            {
+                                if (Values.ContainsKey(parameters[1]))
+                                {
+                                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
+                                    continue;
+                                }
+                            }
+                            if (parameters.Length == 2)
+                                Values.Add(parameters[1].ToLower(), 1);
+                            else if (parameters.Length > 2)
+                            {
+                                ushort? value = ParseValue(parameters[2]);
+                                if (value != null)
+                                    Values.Add(parameters[1], value.Value);
+                                else
+                                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
+                            }
+                            else
+                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InsufficientParamters));
+                        }
+                        else
+                        {
+                            output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidDirective));
+                        }
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
+                    }
                 }
                 else if (line.StartsWith(":") || line.EndsWith(":"))
                 {
@@ -139,6 +196,8 @@ namespace orgASM
                 }
                 else
                 {
+                    if (!IfStack.Peek())
+                        continue;
                     // Search through macros
                     // TODO
 
@@ -218,13 +277,39 @@ namespace orgASM
 
         private ushort? ParseValue(string value)
         {
-            // TODO: Arithmetic
             if (Values.ContainsKey(value.ToLower()))
                 return Values[value.ToLower()];
             int val;
             if (int.TryParse(value, out val))
                 return (ushort)val;
             return null;
+        }
+
+        private bool HasOperators(string value)
+        {
+            foreach (string s in new string[] { "*", "/", "+", "-", "<<", ">>", "|", "^", "&", "~", "%", "==", "!=", ">", "<", ">=", "<=" })
+            {
+                if (!value.Contains(s))
+                    continue;
+                bool instring = false, inchar = false;
+                int index = 0;
+                foreach (char c in value)
+                {
+                    if (c == s[index] && !instring && !inchar)
+                    {
+                        if (index == s.Length - 1)
+                            return false;
+                        index++;
+                    }
+                    else
+                        index = 0;
+                    if (c == '"')
+                        instring = !instring;
+                    if (c == '\'')
+                        inchar = !inchar;
+                }
+            }
+            return false;
         }
 
         private StringMatch MatchString(string value, Dictionary<string, byte> keys)
@@ -365,11 +450,6 @@ namespace orgASM
                 else
                     Console.WriteLine(ListEntry.GetFriendlyErrorMessage(listentry));
 
-            }
-            Console.WriteLine("Label addresses:");
-            foreach (var label in assembler.Values)
-            {
-                Console.WriteLine(label.Key + ": 0x" + label.Value.ToString("x"));
             }
             Console.ReadKey(true);
         }

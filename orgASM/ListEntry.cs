@@ -70,6 +70,15 @@ namespace orgASM
                 case ErrorCode.InvalidDirective:
                     message += "Invalid preprocessor directive.";
                     break;
+                case ErrorCode.InsufficientParamters:
+                    message += "Insufficient parameters.";
+                    break;
+                case ErrorCode.TooManyParamters:
+                    message += "Too many parameters.";
+                    break;
+                case ErrorCode.UncoupledEnd:
+                    message += "Uncoupled END directive.";
+                    break;
                 default:
                     message += Entry.ErrorCode.ToString() + ".";
                     break;
