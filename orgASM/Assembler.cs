@@ -117,6 +117,7 @@ namespace orgASM
                         continue;
                     }
                     Values.Add(line.ToLower(), currentAddress);
+                    output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek()));
                 }
                 else
                 {
@@ -172,10 +173,11 @@ namespace orgASM
                             }
                         }
 
-                        for (int j = appendedValuesStartIndex; i < opcode.appendedValues.Length; i++)
+                        for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                             value = value.Concat(new ushort[] { ParseValue(opcode.appendedValues[j]) }).ToArray();
 
                         output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), value));
+                        currentAddress += (ushort)value.Length;
                     }
                 }
             }
@@ -321,8 +323,13 @@ namespace orgASM
             sr.Close();
             foreach (var listentry in output)
             {
-                if (listentry.ErrorCode == ErrorCode.Success && listentry.Output.Length != 0)
-                    Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output));
+                if (listentry.ErrorCode == ErrorCode.Success)
+                {
+                    if (listentry.Output != null && listentry.Output.Length > 0)
+                        Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output));
+                    else
+                        Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + ")");
+                }
                 else
                     Console.WriteLine(ListEntry.GetFriendlyErrorMessage(listentry));
 

@@ -13,4 +13,4 @@ invalid label:
 label1: ; Duplicate
 	DIV A,I
 	SET PC, pop
-	JSR 0
+	JSR label3
