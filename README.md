@@ -49,7 +49,7 @@ All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
 .orgASM offers several pre-processor directives to ease use.  These may be used with either "." or "#".
 
-***.org \[origin]**: Sets the origin to \[origin]
+**.org \[origin]**: Sets the origin to \[origin]
 
 **.dat \[data]** and **.dw \[data]**: Outputs [data] directly to the listing.
 
