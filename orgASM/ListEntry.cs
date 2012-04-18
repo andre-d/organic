@@ -28,17 +28,26 @@ namespace orgASM
             this.Output = Output;
         }
 
-        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, bool Listed)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, bool Listed, WarningCode WarningCode)
             : this(LineValue, File, LineNumber, Address)
         {
             this.Output = Output;
             this.Listed = Listed;
+            this.WarningCode = WarningCode;
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, ErrorCode ErrorCode)
             : this(LineValue, File, LineNumber, Output, Address)
         {
             this.Output = Output;
+            this.ErrorCode = ErrorCode;
+        }
+
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, WarningCode WarningCode)
+            : this(LineValue, File, LineNumber, Output, Address)
+        {
+            this.Output = Output;
+            this.WarningCode = WarningCode;
         }
 
         public string Code;
@@ -46,6 +55,7 @@ namespace orgASM
         public int LineNumber;
         public ushort[] Output;
         public ErrorCode ErrorCode;
+        public WarningCode WarningCode;
         public bool Listed;
         public ushort Address;
 
@@ -73,6 +83,19 @@ namespace orgASM
                     return "Uncoupled END directive.";
                 default:
                     return Entry.ErrorCode.ToString() + ".";
+            }
+        }
+
+        public static string GetFriendlyWarningMessage(ListEntry Entry)
+        {
+            switch (Entry.WarningCode)
+            {
+                case WarningCode.RedundantStatement:
+                    return "Redundant statement.";
+                case WarningCode.AssignToLiteral:
+                    return "Attempted to assign to a literal.";
+                default:
+                    return Entry.WarningCode.ToString() + ".";
             }
         }
     }

@@ -164,6 +164,7 @@ namespace orgASM
                     else
                     {
                         StringMatch valueA = null, valueB = null;
+                        WarningCode warning = WarningCode.None;
                         if (!nonBasic)
                         {
                             if (opcode.valueA != null)
@@ -177,6 +178,10 @@ namespace orgASM
                             }
                             opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
                             opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
+                            if (valueA.value == valueB.value)
+                                warning = WarningCode.RedundantStatement;
+                            if (valueA.appendedValues.Length != 0)
+                                warning = WarningCode.AssignToLiteral;
                         }
                         ushort[] value = new ushort[1];
 
@@ -217,7 +222,7 @@ namespace orgASM
                         if (invalidParameter)
                             continue;
 
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList, warning));
                         if (!noList)
                             currentAddress += (ushort)value.Length;
                     }

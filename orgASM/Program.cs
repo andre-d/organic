@@ -67,6 +67,17 @@ namespace orgASM
                         tsb.WriteAt("Error: " + ListEntry.GetFriendlyErrorMessage(listentry), maxLength + 8);
                         outputFile.WriteLine(tsb.Value);
                     }
+                    if (listentry.WarningCode != WarningCode.None)
+                    {
+                        tsb = new TabifiedStringBuilder();
+                        tsb.WriteAt(listentry.FileName + " (line " + listentry.LineNumber + "): ", 0);
+                        if (listentry.Listed)
+                            tsb.WriteAt("[0x" + LongHex(listentry.Address) + "] ", maxLength);
+                        else
+                            tsb.WriteAt("[NOLIST] ", maxLength);
+                        tsb.WriteAt("Warning: " + ListEntry.GetFriendlyWarningMessage(listentry), maxLength + 8);
+                        outputFile.WriteLine(tsb.Value);
+                    }
                     tsb = new TabifiedStringBuilder();
                     tsb.WriteAt(listentry.FileName + " (line " + listentry.LineNumber + "): ", 0);
                     if (listentry.Listed)

@@ -16,6 +16,13 @@ namespace orgASM
         InvalidDirective = 6,
         InsufficientParamters = 7,
         TooManyParamters = 8,
-        UncoupledEnd = 9,
+        UncoupledEnd = 9
+    }
+
+    public enum WarningCode
+    {
+        None = 0,
+        RedundantStatement = 1,
+        AssignToLiteral = 2
     }
 }

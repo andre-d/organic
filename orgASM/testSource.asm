@@ -27,6 +27,8 @@ label1: ; Duplicate
 	DIV A,I
 	SET PC, pop
 	JSR label3
+	SET A, A
+	SET 10, A
 #ifdef TEST
 	SET A, 1
 #end
