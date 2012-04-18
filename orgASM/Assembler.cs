@@ -22,6 +22,7 @@ namespace orgASM
         private Dictionary<string, byte> NonBasicOpcodeTable;
         private Dictionary<string, byte> ValueTable;
         private List<int> References;
+        private bool noList;
 
         /// <summary>
         /// Values (such as labels and equates) found in the code
@@ -41,6 +42,7 @@ namespace orgASM
             OpcodeTable = new Dictionary<string, byte>();
             NonBasicOpcodeTable = new Dictionary<string, byte>();
             ValueTable = new Dictionary<string, byte>();
+            noList = false;
 
             LoadTable();
 
@@ -106,6 +108,7 @@ namespace orgASM
                     string directive = line.Substring(1);
                     if (directive == "nolist")
                     {
+                        noList = true;
                     }
                     else
                     {
