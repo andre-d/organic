@@ -10,7 +10,6 @@
 
 *Planned Features*:
 
-* .dw/.dat
 * Relative addressing
 * Backreferences
 * Macros
