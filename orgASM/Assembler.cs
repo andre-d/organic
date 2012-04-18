@@ -107,7 +107,7 @@ namespace orgASM
                     continue;
                 if (line.Contains(".equ") && !line.StartsWith(".equ")) // TASM compatibility
                 {
-                    line = ".equ" + line.Replace(".equ", "").TrimExcessWhitespace();
+                    line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
                 }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
@@ -146,7 +146,7 @@ namespace orgASM
                         {
                             if (parameters.Length > 1)
                             {
-                                if (Values.ContainsKey(parameters[1]))
+                                if (Values.ContainsKey(parameters[1].ToLower()))
                                 {
                                     output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
                                     continue;
