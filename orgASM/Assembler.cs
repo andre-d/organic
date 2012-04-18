@@ -218,7 +218,8 @@ namespace orgASM
                             continue;
 
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList));
-                        currentAddress += (ushort)value.Length;
+                        if (!noList)
+                            currentAddress += (ushort)value.Length;
                     }
                 }
             }
