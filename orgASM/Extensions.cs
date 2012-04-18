@@ -23,6 +23,38 @@ namespace orgASM
             return value.Trim();
         }
 
+        public static string[] SafeSplit(this string value, params char[] characters)
+        {
+            string[] result = new string[1];
+            result[0] = "";
+            bool inString = false, inChar = false;
+            foreach (char c in value)
+            {
+                bool foundChar = false;
+                if (!inString && !inChar)
+                {
+                    foreach (char haystack in characters)
+                    {
+                        if (c == haystack)
+                        {
+                            foundChar = true;
+                            result = result.Concat(new string[] { "" }).ToArray();
+                            break;
+                        }
+                    }
+                }
+                if (!foundChar)
+                {
+                    result[result.Length - 1] += c;
+                    if (c == '"' && !inChar)
+                        inString = !inString;
+                    if (c == '\'' && !inString)
+                        inChar = !inChar;
+                }
+            }
+            return result;
+        }
+
         public static string TrimExcessWhitespace(this string value)
         {
             string newvalue = "";

@@ -36,3 +36,4 @@ label1: ; Duplicate
 #ifdef
 #ifdef TOO MANY PARAMETERS
 #end
+	.dat 0, 1, 0x2, 0x03, 'b', "Hello\nworld!"

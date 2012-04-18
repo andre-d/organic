@@ -111,6 +111,10 @@ namespace orgASM
                 {
                     line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
                 }
+                if (line.StartsWith("dat ")) // notchcode compatibility
+                {
+                    line = ".dat " + line.Remove(3);
+                }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
                     // Parse preprocessor directives
@@ -242,7 +246,8 @@ namespace orgASM
             }
             else if (IfStack.Peek())
             {
-                if (directive == "nolist")
+                if (directive == "region" || directive == "endregion") { } // Allowed but ignored
+                else if (directive == "nolist")
                 {
                     noList = true;
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
@@ -252,7 +257,39 @@ namespace orgASM
                     noList = false;
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
-                else if (directive == "region" || directive == "endregion") ; // Allowed but ignored
+                else if (directive.StartsWith("dat") || directive.StartsWith("dw"))
+                {
+                    if (parameters.Length == 1)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    else
+                    {
+                        string[] dataStrings = directive.Substring(directive.IndexOf(" ")).SafeSplit(',');
+                        List<ushort> binOutput = new List<ushort>();
+                        foreach (string data in dataStrings)
+                        {
+                            if (data.Trim().StartsWith("\""))
+                            {
+                                if (!data.Trim().EndsWith("\""))
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                else
+                                {
+                                    string str = data.Trim().Substring(1, data.Trim().Length - 2).Unescape();
+                                    foreach (byte b in Encoding.ASCII.GetBytes(str))
+                                        binOutput.Add(b);
+                                }
+                            }
+                            else
+                            {
+                                ushort? value = ParseExpression(data.Trim());
+                                if (value == null)
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                else
+                                    binOutput.Add(value.Value);
+                            }
+                        }
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
+                    }
+                }
                 else if (directive.StartsWith("org")) // .orgASM's namesake :)
                 {
                     if (parameters.Length == 1)

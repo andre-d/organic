@@ -50,19 +50,21 @@ All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
 .orgASM offers several pre-processor directives to ease use.  These may be used with either "." or "#".
 
-***.org \[origin]***: Sets the origin to \[origin]
+***.org \[origin]**: Sets the origin to \[origin]
 
-***.nolist***: Stops assembly until .list
+**.dat \[data]** and **.dw \[data]**: Outputs [data] directly to the listing.
 
-***.list***: Resumes assembly after .nolist
+**.nolist**: Stops assembly until .list
 
-***.region*** and ***.endregion***: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
+**.list**: Resumes assembly after .nolist
 
-***.equ \[key] (value)*** and ***.define \[key] (value)***: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
+**.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
 
-***.ifdef \[key]***: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+**.equ \[key] (value)** and **.define \[key] (value)***: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
 
-***.endif*** and ***.end***: Closes a matching .if* statement.
+**.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.endif** and **.end**: Closes a matching .if* statement.
 
 Compiling .orgASM
 -----------------
