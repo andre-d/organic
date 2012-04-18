@@ -73,12 +73,17 @@ namespace orgASM
 
         #endregion
 
+        public List<ListEntry> Assemble(string code)
+        {
+            return Assemble(code, "sourceFile");
+        }
+
         /// <summary>
         /// Assembles the provided code.
         /// This will use the current directory to fetch include files and such.
         /// </summary>
         /// <returns>A listing for the code</returns>
-        public List<ListEntry> Assemble(string code, string FileName = "sourceFile")
+        public List<ListEntry> Assemble(string code, string FileName)
         {
             FileNames.Push(FileName);
             LineNumbers.Push(0);
@@ -98,6 +103,16 @@ namespace orgASM
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
                     // Parse preprocessor directives
+                    string directive = line.Substring(1);
+                    if (directive == "nolist")
+                    {
+                    }
+                    else
+                    {
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidDirective));
+                        continue;
+                    }
+                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
                 }
                 else if (line.StartsWith(":") || line.EndsWith(":"))
                 {
@@ -108,16 +123,16 @@ namespace orgASM
                         line = line.Remove(line.Length - 1);
                     if (line.Contains(' ') || line.Contains('\t'))
                     {
-                        output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.WhitespaceInLabel));
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.WhitespaceInLabel));
                         continue;
                     }
                     if (Values.ContainsKey(line.ToLower()))
                     {
-                        output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
                         continue;
                     }
                     Values.Add(line.ToLower(), currentAddress);
-                    output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek()));
+                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
                 }
                 else
                 {
@@ -134,7 +149,7 @@ namespace orgASM
                     }
                     if (opcode == null)
                     {
-                        output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidOpcode));
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidOpcode));
                         continue;
                     }
                     else
@@ -148,7 +163,7 @@ namespace orgASM
                                 valueB = MatchString(opcode.valueB, ValueTable);
                             if (valueA == null || valueB == null)
                             {
-                                output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidParameter));
+                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidParameter));
                                 continue;
                             }
                             opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
@@ -181,13 +196,13 @@ namespace orgASM
                             ushort? parameter = ParseValue(opcode.appendedValues[j]);
                             if (parameter == null)
                             {
-                                output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
+                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
                             }
                             else
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
                         }
 
-                        output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), value));
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), value));
                         currentAddress += (ushort)value.Length;
                     }
                 }
@@ -330,7 +345,7 @@ namespace orgASM
         {
             Assembler assembler = new Assembler();
             StreamReader sr = new StreamReader(args[0]); // TODO: properly parse args
-            var output = assembler.Assemble(sr.ReadToEnd());
+            var output = assembler.Assemble(sr.ReadToEnd(), args[0]);
             sr.Close();
             foreach (var listentry in output)
             {

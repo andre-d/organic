@@ -58,6 +58,9 @@ namespace orgASM
                 case ErrorCode.IllegalExpression:
                     message += "Illegal expression.";
                     break;
+                case ErrorCode.InvalidDirective:
+                    message += "Invalid preprocessor directive.";
+                    break;
                 default:
                     message += Entry.ErrorCode.ToString() + ".";
                     break;
