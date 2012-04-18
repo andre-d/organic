@@ -1,6 +1,7 @@
 ﻿; Test file for .orgASM
 .equ TEST 14
 TEST2 .equ 18
+TSET .equ 12 ; Duplicate
 #nolist
 	ADD B, A
 .list

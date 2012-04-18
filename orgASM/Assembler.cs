@@ -117,11 +117,9 @@ namespace orgASM
                     if (directive == "endif" || directive == "end")
                     {
                         if (IfStack.Count == 1)
-                        {
                             output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.UncoupledEnd));
-                            continue;
-                        }
-                        IfStack.Pop();
+                        else
+                            IfStack.Pop();
                         continue;
                     }
                     if (IfStack.Peek())
@@ -160,7 +158,7 @@ namespace orgASM
                             {
                                 ushort? value = ParseValue(parameters[2]);
                                 if (value != null)
-                                    Values.Add(parameters[1], value.Value);
+                                    Values.Add(parameters[1].ToLower(), value.Value);
                                 else
                                     output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
                             }
