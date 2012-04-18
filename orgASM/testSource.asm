@@ -13,16 +13,17 @@ TEST .equ 12 ; Duplicate
 	sEt a, TEST
 label1:
 :label2
-	SET A, B ; Comment "te'st"
+	SET A,B ; Comment "te'st"
 	SET pop, A
-	SET A, [B]
-	SET B, [0]
+	SET A,    [B]
+	SET B	, [0]
 	SET C, [A+2]
 	ADD A, B
 label3:
 invalid label:
 	IFB A, Z
 	MUL notaregister, b
+	INVALIDOPCODE A, Z
 label1: ; Duplicate
 	DIV A,I
 	SET PC, pop
