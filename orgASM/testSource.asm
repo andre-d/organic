@@ -1,8 +1,10 @@
 ﻿; Test file for .orgASM
-.org 10
 .equ TEST 14
 TEST2 .equ 18
 TEST .equ 12 ; Duplicate
+
+.org 5
+
 #nolist
 	ADD B, A
 	SET PC, 10
