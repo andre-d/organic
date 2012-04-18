@@ -7,83 +7,73 @@ namespace orgASM
 {
     public class ListEntry
     {
-        public ListEntry(string LineValue, string File, int LineNumber)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort Address)
         {
-            this.LineValue = LineValue;
-            this.File = File;
+            this.Code = LineValue;
+            this.FileName = File;
             this.LineNumber = LineNumber;
             this.Listed = true;
+            this.Address = Address;
         }
 
-        public ListEntry(string LineValue, string File, int LineNumber, ErrorCode ErrorCode)
-            : this(LineValue, File, LineNumber)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort Address, ErrorCode ErrorCode)
+            : this(LineValue, File, LineNumber, Address)
         {
             this.ErrorCode = ErrorCode;
         }
 
-        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output)
-            : this(LineValue, File, LineNumber)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address)
+            : this(LineValue, File, LineNumber, Address)
         {
             this.Output = Output;
         }
 
-        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, bool Listed)
-            : this(LineValue, File, LineNumber)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, bool Listed)
+            : this(LineValue, File, LineNumber, Address)
         {
             this.Output = Output;
             this.Listed = Listed;
         }
 
-        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ErrorCode ErrorCode)
-            : this(LineValue, File, LineNumber, Output)
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, ErrorCode ErrorCode)
+            : this(LineValue, File, LineNumber, Output, Address)
         {
             this.Output = Output;
         }
 
-        public string LineValue;
-        public string File;
+        public string Code;
+        public string FileName;
         public int LineNumber;
         public ushort[] Output;
         public ErrorCode ErrorCode;
         public bool Listed;
+        public ushort Address;
 
         public static string GetFriendlyErrorMessage(ListEntry Entry)
         {
-            string message = Entry.File + " (line " + Entry.LineNumber + "): Error: ";
             switch (Entry.ErrorCode)
             {
                 case ErrorCode.WhitespaceInLabel:
-                    message += "Whitespace is not allowed in labels.";
-                    break;
+                    return "Whitespace is not allowed in labels.";
                 case ErrorCode.DuplicateName:
-                    message += "Duplicate name.";
-                    break;
+                    return "Duplicate name.";
                 case ErrorCode.InvalidOpcode:
-                    message += "Invalid opcode.";
-                    break;
+                    return "Invalid opcode.";
                 case ErrorCode.InvalidParameter:
-                    message += "Invalid parameter.";
-                    break;
+                    return "Invalid parameter.";
                 case ErrorCode.IllegalExpression:
-                    message += "Illegal expression.";
-                    break;
+                    return "Illegal expression.";
                 case ErrorCode.InvalidDirective:
-                    message += "Invalid preprocessor directive.";
-                    break;
+                    return "Invalid preprocessor directive.";
                 case ErrorCode.InsufficientParamters:
-                    message += "Insufficient parameters.";
-                    break;
+                    return "Insufficient parameters.";
                 case ErrorCode.TooManyParamters:
-                    message += "Too many parameters.";
-                    break;
+                    return "Too many parameters.";
                 case ErrorCode.UncoupledEnd:
-                    message += "Uncoupled END directive.";
-                    break;
+                    return "Uncoupled END directive.";
                 default:
-                    message += Entry.ErrorCode.ToString() + ".";
-                    break;
+                    return Entry.ErrorCode.ToString() + ".";
             }
-            return message;
         }
     }
 }

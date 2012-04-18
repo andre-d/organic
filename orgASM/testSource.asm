@@ -1,9 +1,11 @@
 ﻿; Test file for .orgASM
+.org 10
 .equ TEST 14
 TEST2 .equ 18
 TEST .equ 12 ; Duplicate
 #nolist
 	ADD B, A
+	SET PC, 10
 .list
 	SET A, 10 + 7 * 4
 	sEt a, TEST

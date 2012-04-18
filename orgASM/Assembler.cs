@@ -112,85 +112,28 @@ namespace orgASM
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
                     // Parse preprocessor directives
-                    string directive = line.Substring(1);
-                    string[] parameters = directive.Split(' ');
-                    if (directive == "endif" || directive == "end")
-                    {
-                        if (IfStack.Count == 1)
-                            output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.UncoupledEnd));
-                        else
-                            IfStack.Pop();
-                        continue;
-                    }
-                    if (IfStack.Peek())
-                    {
-                        if (directive == "nolist")
-                            noList = true;
-                        else if (directive == "list")
-                            noList = false;
-                        else if (directive.StartsWith("ifdef"))
-                        {
-                            if (parameters.Length == 1)
-                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InsufficientParamters));
-                            else if (parameters.Length > 2)
-                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.TooManyParamters));
-                            else
-                            {
-                                if (Values.ContainsKey(parameters[1].ToLower()))
-                                    IfStack.Push(true);
-                                else
-                                    IfStack.Push(false);
-                            }
-                        }
-                        else if (directive.StartsWith("equ") || directive.StartsWith("define"))
-                        {
-                            if (parameters.Length > 1)
-                            {
-                                if (Values.ContainsKey(parameters[1].ToLower()))
-                                {
-                                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
-                                    continue;
-                                }
-                            }
-                            if (parameters.Length == 2)
-                                Values.Add(parameters[1].ToLower(), 1);
-                            else if (parameters.Length > 2)
-                            {
-                                ushort? value = ParseValue(parameters[2]);
-                                if (value != null)
-                                    Values.Add(parameters[1].ToLower(), value.Value);
-                                else
-                                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
-                            }
-                            else
-                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InsufficientParamters));
-                        }
-                        else
-                        {
-                            output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidDirective));
-                        }
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
-                    }
+                    ParseDirectives(output, line);
                 }
                 else if (line.StartsWith(":") || line.EndsWith(":"))
                 {
                     // Parse labels
+                    string label = line;
                     if (line.StartsWith(":"))
-                        line = line.Substring(1);
+                        label = label.Substring(1);
                     else
-                        line = line.Remove(line.Length - 1);
-                    if (line.Contains(' ') || line.Contains('\t'))
+                        label = label.Remove(line.Length - 1);
+                    if (label.Contains(' ') || label.Contains('\t'))
                     {
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.WhitespaceInLabel));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.WhitespaceInLabel));
                         continue;
                     }
-                    if (Values.ContainsKey(line.ToLower()))
+                    if (Values.ContainsKey(label.ToLower()))
                     {
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.DuplicateName));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
                         continue;
                     }
-                    Values.Add(line.ToLower(), currentAddress);
-                    output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek()));
+                    Values.Add(label.ToLower(), currentAddress);
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
                 else
                 {
@@ -209,7 +152,7 @@ namespace orgASM
                     }
                     if (opcode == null)
                     {
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidOpcode));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidOpcode));
                         continue;
                     }
                     else
@@ -223,7 +166,7 @@ namespace orgASM
                                 valueB = MatchString(opcode.valueB, ValueTable);
                             if (valueA == null || valueB == null)
                             {
-                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidParameter));
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidParameter));
                                 continue;
                             }
                             opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
@@ -256,13 +199,13 @@ namespace orgASM
                             ushort? parameter = ParseValue(opcode.appendedValues[j]);
                             if (parameter == null)
                             {
-                                output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                             }
                             else
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
                         }
 
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), value, !noList));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList));
                         currentAddress += (ushort)value.Length;
                     }
                 }
@@ -270,6 +213,87 @@ namespace orgASM
 
             return output;
         }
+
+        #region Preprocessor Directives
+
+        private void ParseDirectives(List<ListEntry> output, string line)
+        {
+            string directive = line.Substring(1);
+            string[] parameters = directive.Split(' ');
+            if (directive == "endif" || directive == "end")
+            {
+                if (IfStack.Count == 1)
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledEnd));
+                else
+                    IfStack.Pop();
+            }
+            else if (IfStack.Peek())
+            {
+                if (directive == "nolist")
+                    noList = true;
+                else if (directive == "list")
+                    noList = false;
+                else if (directive.StartsWith("org")) // .orgASM's namesake :)
+                {
+                    if (parameters.Length == 1)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    else if (parameters.Length > 2)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
+                    else
+                    {
+                        ushort? value = ParseValue(parameters[1]);
+                        if (value == null)
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                        else
+                            currentAddress = value.Value;
+                    }
+                }
+                else if (directive.StartsWith("ifdef"))
+                {
+                    if (parameters.Length == 1)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    else if (parameters.Length > 2)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
+                    else
+                    {
+                        if (Values.ContainsKey(parameters[1].ToLower()))
+                            IfStack.Push(true);
+                        else
+                            IfStack.Push(false);
+                    }
+                }
+                else if (directive.StartsWith("equ") || directive.StartsWith("define"))
+                {
+                    if (parameters.Length > 1)
+                    {
+                        if (Values.ContainsKey(parameters[1].ToLower()))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
+                    }
+                    else
+                    {
+                        if (parameters.Length == 2)
+                            Values.Add(parameters[1].ToLower(), 1);
+                        else if (parameters.Length > 2)
+                        {
+                            ushort? value = ParseValue(parameters[2]);
+                            if (value != null)
+                                Values.Add(parameters[1].ToLower(), value.Value);
+                            else
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                        }
+                        else
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    }
+                }
+                else
+                {
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidDirective));
+                }
+                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+            }
+        }
+
+        #endregion
 
         #region Helper Code
 
@@ -436,23 +460,43 @@ namespace orgASM
             StreamReader sr = new StreamReader(args[0]); // TODO: properly parse args
             var output = assembler.Assemble(sr.ReadToEnd(), args[0]);
             sr.Close();
+            StreamWriter outputFile = new StreamWriter(args[1]);
+            int maxLength = 0;
             foreach (var listentry in output)
             {
-                if (listentry.ErrorCode == ErrorCode.Success)
-                {
-                    if (listentry.Output != null && listentry.Output.Length > 0)
-                        if (listentry.Listed)
-                            Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output));
-                        else
-                            Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output) + " [unlisted]");
-                    else
-                        Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + ")");
-                }
-                else
-                    Console.WriteLine(ListEntry.GetFriendlyErrorMessage(listentry));
-
+                int length = listentry.FileName.Length + listentry.LineNumber.ToString().Length + 11;
+                if (length > maxLength)
+                    maxLength = length;
             }
-            Console.ReadKey(true);
+            foreach (var listentry in output)
+            {
+                TabifiedStringBuilder tsb = new TabifiedStringBuilder();
+                tsb.WriteAt(listentry.FileName + ": (line " + listentry.LineNumber + "): ", 0);
+                if (listentry.Listed)
+                    tsb.WriteAt("[0x" + LongHex(listentry.Address) + "] ", maxLength);
+                else
+                    tsb.WriteAt("[nolist] ", maxLength);
+                if (listentry.Output != null)
+                    tsb.WriteAt(DumpArray(listentry.Output), maxLength + 9);
+                tsb.WriteAt(listentry.Code, maxLength + 22);
+                outputFile.WriteLine(tsb.Value);
+            }
+            outputFile.Close();
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                StreamReader reader = new StreamReader(args[1]);
+                Console.Write(reader.ReadToEnd());
+                reader.Close();
+                Console.ReadKey(true);
+            }
+        }
+
+        private static string LongHex(ushort p)
+        {
+            string value = p.ToString("x");
+            while (value.Length < 4)
+                value = "0" + value;
+            return value.ToUpper();
         }
 
         static string DumpArray(ushort[] array)
@@ -460,7 +504,7 @@ namespace orgASM
             string output = "";
             foreach (ushort u in array)
             {
-                string val = u.ToString("x");
+                string val = u.ToString("x").ToUpper();
                 while (val.Length < 4)
                     val = "0" + val;
                 output += " " + val;
