@@ -107,9 +107,9 @@ namespace orgASM
                     // Parse preprocessor directives
                     string directive = line.Substring(1);
                     if (directive == "nolist")
-                    {
                         noList = true;
-                    }
+                    else if (directive == "list")
+                        noList = false;
                     else
                     {
                         output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), ErrorCode.InvalidDirective));
@@ -205,7 +205,7 @@ namespace orgASM
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
                         }
 
-                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), value));
+                        output.Add(new ListEntry(lines[i].TrimComments(), FileNames.Peek(), LineNumbers.Peek(), value, !noList));
                         currentAddress += (ushort)value.Length;
                     }
                 }
@@ -355,7 +355,10 @@ namespace orgASM
                 if (listentry.ErrorCode == ErrorCode.Success)
                 {
                     if (listentry.Output != null && listentry.Output.Length > 0)
-                        Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output));
+                        if (listentry.Listed)
+                            Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output));
+                        else
+                            Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + "):\t" + DumpArray(listentry.Output) + " [unlisted]");
                     else
                         Console.WriteLine(listentry.File + " (line " + listentry.LineNumber + ")");
                 }

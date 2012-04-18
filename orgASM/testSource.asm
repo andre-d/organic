@@ -1,7 +1,7 @@
 ﻿; Test file for .orgASM
 
 #nolist
-
+	ADD B, A
 .list
 	SET A, 10 + 7 * 4
 	sEt a, 0

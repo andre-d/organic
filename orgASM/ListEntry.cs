@@ -12,6 +12,7 @@ namespace orgASM
             this.LineValue = LineValue;
             this.File = File;
             this.LineNumber = LineNumber;
+            this.Listed = true;
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ErrorCode ErrorCode)
@@ -26,6 +27,13 @@ namespace orgASM
             this.Output = Output;
         }
 
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, bool Listed)
+            : this(LineValue, File, LineNumber)
+        {
+            this.Output = Output;
+            this.Listed = Listed;
+        }
+
         public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ErrorCode ErrorCode)
             : this(LineValue, File, LineNumber, Output)
         {
@@ -37,6 +45,7 @@ namespace orgASM
         public int LineNumber;
         public ushort[] Output;
         public ErrorCode ErrorCode;
+        public bool Listed;
 
         public static string GetFriendlyErrorMessage(ListEntry Entry)
         {
