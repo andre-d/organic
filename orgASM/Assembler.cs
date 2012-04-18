@@ -163,18 +163,29 @@ namespace orgASM
                         else
                         {
                             value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                            if (opcode.appendedValues.Length > 0 && ParseValue(opcode.appendedValues[0]) <= 0x1F)
+                            if (opcode.appendedValues.Length > 0 && ParseValue(opcode.appendedValues[0]) != null)
                             {
-                                // Compress the appended value into the opcode
-                                // TODO: Support for writing to literals (fails silenty on DCPU)
-                                value[0] &= 0x3FF;
-                                value[0] |= (ushort)(0x20 + ParseValue(opcode.appendedValues[0]) << 10);
-                                appendedValuesStartIndex++;
+                                if (ParseValue(opcode.appendedValues[0]).Value <= 0x1F)
+                                {
+                                    // Compress the appended value into the opcode
+                                    // TODO: Support for writing to literals (fails silenty on DCPU)
+                                    value[0] &= 0x3FF;
+                                    value[0] |= (ushort)(0x20 + ParseValue(opcode.appendedValues[0]) << 10);
+                                    appendedValuesStartIndex++;
+                                }
                             }
                         }
 
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
-                            value = value.Concat(new ushort[] { ParseValue(opcode.appendedValues[j]) }).ToArray();
+                        {
+                            ushort? parameter = ParseValue(opcode.appendedValues[j]);
+                            if (parameter == null)
+                            {
+                                output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), ErrorCode.IllegalExpression));
+                            }
+                            else
+                                value = value.Concat(new ushort[] { parameter.Value }).ToArray();
+                        }
 
                         output.Add(new ListEntry(lines[i], FileNames.Peek(), LineNumbers.Peek(), value));
                         currentAddress += (ushort)value.Length;
@@ -187,7 +198,7 @@ namespace orgASM
 
         #region Helper Code
 
-        private ushort ParseValue(string value)
+        private ushort? ParseValue(string value)
         {
             // TODO: Arithmetic
             if (Values.ContainsKey(value.ToLower()))
@@ -195,7 +206,7 @@ namespace orgASM
             int val;
             if (int.TryParse(value, out val))
                 return (ushort)val;
-            return 0xFFFF;
+            return null;
         }
 
         private StringMatch MatchString(string value, Dictionary<string, byte> keys)

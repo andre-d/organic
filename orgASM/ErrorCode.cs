@@ -12,5 +12,6 @@ namespace orgASM
         DuplicateName = 2,
         InvalidOpcode = 3,
         InvalidParameter = 4,
+        IllegalExpression = 5
     }
 }

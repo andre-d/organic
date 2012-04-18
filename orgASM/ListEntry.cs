@@ -55,6 +55,9 @@ namespace orgASM
                 case ErrorCode.InvalidParameter:
                     message += "Invalid parameter.";
                     break;
+                case ErrorCode.IllegalExpression:
+                    message += "Illegal expression.";
+                    break;
                 default:
                     message += Entry.ErrorCode.ToString() + ".";
                     break;
