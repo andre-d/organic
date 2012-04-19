@@ -100,7 +100,8 @@ You may create any number of labels called "$".  These are relative labels.  You
 
         SET A, $++ ; References the relative label before SET C, B
     $:
-        SET B, $- ; References this address
+        ADD A, B
+        SET B, $- ; References the previous relative label, before ADD A, B
     $:
         SET C, B
     
