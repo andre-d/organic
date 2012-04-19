@@ -40,7 +40,7 @@ namespace orgASM
                 else if (value.StartsWith("0x")) // Hex
                 {
                     value = value.Substring(2);
-                    if (!ushort.TryParse(value, NumberStyles.HexNumber, null, out result))
+                    if (!ushort.TryParse(value.Replace("_", ""), NumberStyles.HexNumber, null, out result))
                         return null;
                     else
                     {
@@ -50,18 +50,18 @@ namespace orgASM
                 else if (value.StartsWith("0b")) // Binary
                 {
                     value = value.Substring(2);
-                    return ParseBinary(value);
+                    return ParseBinary(value.Replace("_", ""));
                 }
                 else if (value.StartsWith("0o"))
                 {
                     value = value.Substring(2);
                     try
                     {
-                        return Convert.ToUInt16(value, 8);
+                        return Convert.ToUInt16(value.Replace("_", ""), 8);
                     }
                     catch { return null; }
                 }
-                else if (ushort.TryParse(value, out result)) // Decimal
+                else if (ushort.TryParse(value.Replace("_", ""), out result)) // Decimal
                 {
                     return result;
                 }
