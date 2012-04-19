@@ -10,6 +10,7 @@ TEST .equ 12 ; Duplicate
 	SET PC, 0x8000
 .list
 	SET A, 10 + 'b' - 0b101101 * 0x14 / (0o7 << TEST) | (4 >> (10 & 13)) ^ ~10
+	SET PC, label1 ; Forward-referencing
 label1:
 :label2
 	SET A,B ; Comment "te'st"

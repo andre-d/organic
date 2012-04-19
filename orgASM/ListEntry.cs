@@ -63,8 +63,8 @@ namespace orgASM
         {
             switch (Entry.ErrorCode)
             {
-                case ErrorCode.WhitespaceInLabel:
-                    return "Whitespace is not allowed in labels.";
+                case ErrorCode.InvalidLabel:
+                    return "Labels must be alphanumeric and start with a letter.";
                 case ErrorCode.DuplicateName:
                     return "Duplicate name.";
                 case ErrorCode.InvalidOpcode:

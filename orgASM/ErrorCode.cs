@@ -8,7 +8,7 @@ namespace orgASM
     public enum ErrorCode
     {
         Success = 0,
-        WhitespaceInLabel = 1,
+        InvalidLabel = 1,
         DuplicateName = 2,
         InvalidOpcode = 3,
         InvalidParameter = 4,

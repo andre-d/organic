@@ -166,7 +166,7 @@ namespace orgASM
             {
                 if (c == '1')
                     result |= mask;
-                else if (c == '0') ;
+                else if (c == '0') { }
                 else
                     return null;
                 mask <<= 1;
