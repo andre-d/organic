@@ -104,6 +104,7 @@ You may create any number of labels called "$".  These are relative labels.  You
         SET B, $- ; References the previous relative label, before ADD A, B
     $:
         SET C, B
+        SET PC, $ ; $ alone references the current address.  This is an infinite loop.
     
 Please note that relative addressing is different than the "$" constant, which refers to the address of the current line.
 
