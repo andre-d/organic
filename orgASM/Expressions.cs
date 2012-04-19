@@ -67,7 +67,36 @@ namespace orgASM
                 }
                 else if (value == "$")
                 {
+                    if (LineNumbers.Count == 0)
+                        return null;
                     return currentAddress;
+                }
+                else if (value.StartsWith("$")) // Relative label
+                {
+                    if (LineNumbers.Count == 0)
+                        return null;
+                    value = value.Substring(1);
+                    int currentIndex = -1;
+                    for (int i = 0; i < RelativeLabels.Count; i++)
+                    {
+                        if (RelativeLabels.ElementAt(i).Key > LineNumbers.Peek())
+                        {
+                            currentIndex = i - 1;
+                            break;
+                        }
+                    }
+                    foreach (char c in value)
+                    {
+                        if (c == '+')
+                            currentIndex++;
+                        else if (c == '-')
+                            currentIndex--;
+                    }
+                    if (currentIndex < 0)
+                        return null;
+                    if (currentIndex > RelativeLabels.Count)
+                        return null;
+                    return RelativeLabels.ElementAt(currentIndex).Value;
                 }
                 else // Defined value or error
                 {
@@ -232,11 +261,11 @@ namespace orgASM
             {
                 if (!value.Contains(s))
                     continue;
-                bool instring = false, inchar = false;
+                bool instring = false, inchar = false, inrelative = false;
                 int index = 0;
                 foreach (char c in value)
                 {
-                    if (c == s[index] && !instring && !inchar)
+                    if (c == s[index] && !instring && !inchar && !inrelative)
                     {
                         if (index == s.Length - 1)
                             return true;
@@ -244,6 +273,10 @@ namespace orgASM
                     }
                     else
                         index = 0;
+                    if (inrelative && !(c == '+' || c == '-'))
+                        inrelative = false;
+                    if (c == '$' && !instring && !inchar)
+                        inrelative = true;
                     if (c == '"')
                         instring = !instring;
                     if (c == '\'')

@@ -21,8 +21,8 @@ namespace orgASM
         private Dictionary<string, byte> OpcodeTable;
         private Dictionary<string, byte> NonBasicOpcodeTable;
         private Dictionary<string, byte> ValueTable;
+        private Dictionary<int, ushort> RelativeLabels; // line, value
         private Stack<bool> IfStack;
-        private List<int> References;
         private bool noList;
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace orgASM
             LoadTable();
 
             Values = new Dictionary<string, ushort>();
-            References = new List<int>();
+            RelativeLabels = new Dictionary<int, ushort>();
 
             LineNumbers = new Stack<int>();
             FileNames = new Stack<string>();
@@ -125,6 +125,11 @@ namespace orgASM
                         label = label.Substring(1);
                     else
                         label = label.Remove(line.Length - 1);
+                    if (label == "$")
+                    {
+                        RelativeLabels.Add(LineNumbers.Peek(), currentAddress); // TODO: root line number instead
+                        continue;
+                    }
                     if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
                     {
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
