@@ -53,18 +53,19 @@ namespace orgASM
         public string Code;
         public string FileName;
         public int LineNumber;
+        public int RootLineNumber;
         public ushort[] Output;
         public ErrorCode ErrorCode;
         public WarningCode WarningCode;
         public bool Listed;
         public ushort Address;
 
-        public static string GetFriendlyErrorMessage(ListEntry Entry)
+        public static string GetFriendlyErrorMessage(ErrorCode Entry)
         {
-            switch (Entry.ErrorCode)
+            switch (Entry)
             {
                 case ErrorCode.InvalidLabel:
-                    return "Labels must be alphanumeric and start with a letter.";
+                    return "Invalid label name.";
                 case ErrorCode.DuplicateName:
                     return "Duplicate name.";
                 case ErrorCode.InvalidOpcode:
@@ -82,20 +83,20 @@ namespace orgASM
                 case ErrorCode.UncoupledEnd:
                     return "Uncoupled END directive.";
                 default:
-                    return Entry.ErrorCode.ToString() + ".";
+                    return Entry.ToString() + ".";
             }
         }
 
-        public static string GetFriendlyWarningMessage(ListEntry Entry)
+        public static string GetFriendlyWarningMessage(WarningCode Entry)
         {
-            switch (Entry.WarningCode)
+            switch (Entry)
             {
                 case WarningCode.RedundantStatement:
                     return "Redundant statement.";
                 case WarningCode.AssignToLiteral:
                     return "Attempted to assign to a literal.";
                 default:
-                    return Entry.WarningCode.ToString() + ".";
+                    return Entry.ToString() + ".";
             }
         }
     }

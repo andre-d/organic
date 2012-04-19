@@ -8,7 +8,7 @@ namespace orgASM
     /// <summary>
     /// Used to build strings with different portions always appearing at the same location
     /// </summary>
-    public class TabifiedStringBuilder
+    internal class TabifiedStringBuilder
     {
         public string Value { get; set; }
 
@@ -17,7 +17,7 @@ namespace orgASM
             Value = "";
         }
 
-        public void WriteAt(string content, int position)
+        public void WriteAt(int position, string content)
         {
             while (Value.Length < position)
                 Value += " ";

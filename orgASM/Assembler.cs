@@ -125,10 +125,18 @@ namespace orgASM
                         label = label.Substring(1);
                     else
                         label = label.Remove(line.Length - 1);
-                    if (label.Contains(' ') || label.Contains('\t'))
+                    if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
                     {
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
                         continue;
+                    }
+                    foreach (char c in label)
+                    {
+                        if (!char.IsLetterOrDigit(c))
+                        {
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
+                            continue;
+                        }
                     }
                     if (Values.ContainsKey(label.ToLower()))
                     {

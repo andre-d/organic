@@ -18,11 +18,61 @@ Using .orgASM
 
 On Linux, make sure that you have "mono-complete" installed, and prepend any commands to run .orgASM with "mono", similar to running Java programs.
 
-To compile an assembly file with .orgASM, use the following syntax from the command line:
+### Command Line Usage
 
-    orgASM.exe inputfile outputfile
+Usage: orgASM.exe [parameters] [input file] [output file]
 
-.orgASM will assemble your inputfile and produce a listing in outputfile.  At the present time, binary output is not supported; the assember is the current focus.
+[output file] is optional, and [input file].bin will be used if it is not specified.
+
+### Parameters
+
+**--help**
+
+Displays usage information.
+
+Shorthand: -h, -?, /h, /?
+
+**--output-file [filename]**
+
+An alternative way to specify the output file.
+
+Shorthand: -o
+
+**--input-file [filename]**
+
+An alternative way to specify the input file.
+
+Shorthand: -i
+
+**--equate [key] [value]**
+
+Specifies an equate to use at assembly-time.  Same as .equ in-code.
+
+Shorthand: -e
+
+**--listing [filename]**
+
+Specifies a file to output a code listing to.
+
+Shorthand: -l
+
+**--big-endian**
+
+Switches output to big-endian mode, the reverse of notchian syntax.
+
+Shorthand: -b
+
+**--quiet**
+
+Will not output errors or warnings.
+
+Shorthand: -q
+
+**--verbose**
+
+Will output a listing to the console.
+
+Shorthand: -v
 
 Syntax
 ------
@@ -74,3 +124,8 @@ Compiling .orgASM
 *Linux*: Install "mono-complete".  "xbuild" from the root directory of the project.
 
 *Mac*: Install mono (I don't know how to do this on Mac).  "xbuild" from the root directory of the project.
+
+Getting Involved
+----------------
+
+Feel free to fork and submit pull requests with your changes.  You'll have good results with small, focused pull requests, rather than broad, sweeping ones.  You can also submit issues for bugs or feature requests.  You may email me as well at sir@cmpwn.com.  If you need general help with DCPU-16 assembly, join #0x10c-dev on Freenode.
