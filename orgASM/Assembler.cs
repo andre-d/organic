@@ -403,6 +403,9 @@ namespace orgASM
                     if (passTwo)
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
+                else if (directive.StartsWith("include"))
+                {
+                }
                 else if ((directive.StartsWith("dat") || directive.StartsWith("dw")) && passTwo)
                 {
                     if (parameters.Length == 1)

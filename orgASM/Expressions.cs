@@ -65,6 +65,10 @@ namespace orgASM
                 {
                     return result;
                 }
+                else if (value == "$")
+                {
+                    return currentAddress;
+                }
                 else // Defined value or error
                 {
                     if (Values.ContainsKey(value.ToLower()))

@@ -19,6 +19,8 @@ label1:
 	SET B	, [0]
 	SET C, [A+2]
 	ADD A, B
+	.org 0x8000
+	SET A, $+0x20
 label3:
 invalid label:
 	IFB A, Z
