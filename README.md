@@ -96,7 +96,7 @@ All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
 ### Relative Addressing
 
-You may create any number of labels called "$".  These are relative labels.  Can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
+You may create any number of labels called "$".  These are relative labels.  You can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
 
         SET A, $++ ; References the relative label before SET C, B
     $:
