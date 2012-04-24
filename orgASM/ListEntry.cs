@@ -5,6 +5,9 @@ using System.Text;
 
 namespace orgASM
 {
+    /// <summary>
+    /// Represents an entry in a listing output from assembling code.
+    /// </summary>
     public class ListEntry
     {
         public ListEntry(string LineValue, string File, int LineNumber, ushort Address)
@@ -50,16 +53,48 @@ namespace orgASM
             this.WarningCode = WarningCode;
         }
 
+        /// <summary>
+        /// The trimmed and uncommented code that was parsed.
+        /// </summary>
         public string Code;
+        /// <summary>
+        /// The name of the file the code is contained in.
+        /// </summary>
         public string FileName;
+        /// <summary>
+        /// The line number in the file the code is contained in.
+        /// </summary>
         public int LineNumber;
-        public int RootLineNumber;
+        /// <summary>
+        /// The assembled output.
+        /// </summary>
         public ushort[] Output;
+        /// <summary>
+        /// The error produced by assembling this code.
+        /// </summary>
         public ErrorCode ErrorCode;
+        /// <summary>
+        /// The warning produced by assembling this code.
+        /// </summary>
         public WarningCode WarningCode;
+        /// <summary>
+        /// True if this code is listed, false if not.  This changes with #nolist and #list.
+        /// </summary>
         public bool Listed;
+        /// <summary>
+        /// The address this code is located at.
+        /// </summary>
         public ushort Address;
+        /// <summary>
+        /// A list of referenced values this code uses, such as label names and equates.
+        /// </summary>
+        public ExpressionResult Expression;
 
+        /// <summary>
+        /// Given an error code, this returns a user-friendly message.
+        /// </summary>
+        /// <param name="Entry"></param>
+        /// <returns></returns>
         public static string GetFriendlyErrorMessage(ErrorCode Entry)
         {
             switch (Entry)
@@ -82,11 +117,20 @@ namespace orgASM
                     return "Too many parameters.";
                 case ErrorCode.UncoupledEnd:
                     return "Uncoupled END directive.";
+                case ErrorCode.FileNotFound:
+                    return "File not found.";
+                case ErrorCode.UndefinedReference:
+                    return "Undefined reference.";
                 default:
                     return Entry.ToString() + ".";
             }
         }
 
+        /// <summary>
+        /// Given a warningcode, this returns a user-friendly message.
+        /// </summary>
+        /// <param name="Entry"></param>
+        /// <returns></returns>
         public static string GetFriendlyWarningMessage(WarningCode Entry)
         {
             switch (Entry)

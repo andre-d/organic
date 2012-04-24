@@ -21,6 +21,7 @@ namespace orgASM
             string inputFile = null;
             string outputFile = null;
             string listingFile = null;
+            string pipe = null;
             bool bigEndian = false, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
             for (int i = 0; i < args.Length; i++)
@@ -51,8 +52,8 @@ namespace orgASM
                                 break;
                             case "-e":
                             case "--equate":
-                                ushort? result = assembler.ParseExpression(args[i + 2]);
-                                if (result == null)
+                                ExpressionResult result = assembler.ParseExpression(args[i + 2]);
+                                if (!result.Successful)
                                 {
                                     Console.WriteLine("Error: " + ListEntry.GetFriendlyErrorMessage(ErrorCode.IllegalExpression));
                                     return;
@@ -72,6 +73,11 @@ namespace orgASM
                             case "--quiet":
                             case "-q":
                                 quiet = true;
+                                break;
+                            case "--pipe":
+                            case "-p":
+                                pipe = args[i + 1];
+                                i++;
                                 break;
                             case "--verbose":
                             case "-v":
@@ -101,24 +107,34 @@ namespace orgASM
                     }
                 }
             }
-            if (inputFile == null)
+            if (inputFile == null && pipe == null)
             {
                 Console.WriteLine("Error: No input file specified.\nUse orgASM.exe --help for usage information.");
                 return;
             }
             if (outputFile == null)
                 outputFile = Path.GetFileNameWithoutExtension(inputFile) + ".bin";
-            if (!File.Exists(inputFile))
+            if (!File.Exists(inputFile) && pipe == null)
             {
                 Console.WriteLine("Error: File not found (" + inputFile + ")");
                 return;
             }
 
-            StreamReader reader = new StreamReader(inputFile);
-            string contents = reader.ReadToEnd();
-            reader.Close();
+            string contents;
+            if (pipe == null)
+            {
+                StreamReader reader = new StreamReader(inputFile);
+                contents = reader.ReadToEnd();
+                reader.Close();
+            }
+            else
+                contents = pipe;
 
-            List<ListEntry> output = assembler.Assemble(contents, inputFile);
+            List<ListEntry> output;
+            if (pipe == null)
+                output = assembler.Assemble(contents, inputFile);
+            else
+                output = assembler.Assemble(contents, "[piped input]");
 
             // Output errors
             if (!quiet)
@@ -168,10 +184,16 @@ namespace orgASM
         private static string CreateListing(List<ListEntry> output)
         {
             string listing = "";
-            int maxLength = 0;
+            int maxLength = 0, maxFileLength = 0;
             foreach (var entry in output)
             {
-                int length = entry.FileName.Length + entry.LineNumber.ToString().Length + 10;
+                int length = entry.FileName.Length + 1;
+                if (length > maxFileLength)
+                    maxFileLength = length;
+            }
+            foreach (var entry in output)
+            {
+                int length = maxFileLength + entry.LineNumber.ToString().Length + 9;
                 if (length > maxLength)
                     maxLength = length;
             }
@@ -183,7 +205,8 @@ namespace orgASM
                 {
                     // Write code line
                     tsb = new TabifiedStringBuilder();
-                    tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                    tsb.WriteAt(0, listentry.FileName);
+                    tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                     if (listentry.Listed)
                         tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                     else
@@ -194,7 +217,8 @@ namespace orgASM
                     for (int i = 0; i < listentry.Output.Length; i += 8)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex((ushort)(listentry.Address + i)) + "] ");
                         else
@@ -213,7 +237,8 @@ namespace orgASM
                     if (listentry.ErrorCode != ErrorCode.Success)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
@@ -224,7 +249,8 @@ namespace orgASM
                     if (listentry.WarningCode != WarningCode.None)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
@@ -233,7 +259,8 @@ namespace orgASM
                         listing += tsb.Value + "\n";
                     }
                     tsb = new TabifiedStringBuilder();
-                    tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                    tsb.WriteAt(0, listentry.FileName);
+                    tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                     if (listentry.Listed)
                         tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                     else

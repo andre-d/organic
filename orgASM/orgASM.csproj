@@ -54,6 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DCPUtable.txt" />
+    <Content Include="testInclude.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testSource.asm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

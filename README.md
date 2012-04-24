@@ -74,6 +74,10 @@ Will output a listing to the console.
 
 Shorthand: -v
 
+**--pipe "[assembly]"**
+
+Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.
+
 Syntax
 ------
 
@@ -127,6 +131,8 @@ Please note that relative addressing is different than the "$" constant, which r
 **.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
 
 **.endif** and **.end**: Closes a matching .if* statement.
+
+**.include "[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.
 
 Compiling .orgASM
 -----------------

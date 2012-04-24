@@ -34,6 +34,11 @@ namespace orgASM
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes all values for this assembler.  Assembler is designed to handle
+        /// one assembly per instance.  If you intend to assemble several times, create
+        /// new instances of this class each time.
+        /// </summary>
         public Assembler()
         {
             // All default values for the assembler
@@ -79,6 +84,12 @@ namespace orgASM
 
         #region Assembler
 
+        /// <summary>
+        /// Assembles the provided code.
+        /// This will use the current directory to fetch include files and such.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public List<ListEntry> Assemble(string code)
         {
             return Assemble(code, "sourceFile");
@@ -114,8 +125,43 @@ namespace orgASM
                 }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
-                    // Parse preprocessor directives
-                    ParseDirectives(output, line, false);
+                    // #include has to be handled in this method
+                    if (line.StartsWith("#include ") || line.StartsWith(".include "))
+                    {
+                        string includedFileName = line.Substring(line.IndexOf(" ") + 1);
+                        includedFileName = includedFileName.Trim('"', '\'');
+                        if (!File.Exists(includedFileName))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        else
+                        {
+                            using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
+                            {
+                                StreamReader sr = new StreamReader(includedFile);
+                                string contents = sr.ReadToEnd();
+                                sr.Close();
+
+                                string[] newSource = contents.Replace("\r", "").Split('\n');
+                                string[] newLines = new string[newSource.Length + lines.Length];
+                                Array.Copy(lines, newLines, i);
+                                Array.Copy(newSource, 0, newLines, i, newSource.Length);
+                                newLines[i + newSource.Length] = "#endfile";
+                                Array.Copy(lines, i + 1, newLines, i + newSource.Length + 1, lines.Length - i - 1);
+                                lines = newLines;
+                            }
+                            FileNames.Push(includedFileName);
+                            LineNumbers.Push(1);
+                        }
+                    }
+                    else if (line == "#endfile" || line == ".endfile")
+                    {
+                        FileNames.Pop();
+                        LineNumbers.Pop();
+                    }
+                    else
+                    {
+                        // Parse preprocessor directives
+                        ParseDirectives(output, line);
+                    }
                 }
                 else if (line.StartsWith(":") || line.EndsWith(":"))
                 {
@@ -127,7 +173,7 @@ namespace orgASM
                         label = label.Remove(line.Length - 1);
                     if (label == "$")
                     {
-                        RelativeLabels.Add(LineNumbers.Peek(), currentAddress); // TODO: root line number instead
+                        RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
                         continue;
                     }
                     if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
@@ -150,130 +196,6 @@ namespace orgASM
                     }
                     Values.Add(label.ToLower(), currentAddress);
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
-                }
-                else
-                {
-                    if (!IfStack.Peek())
-                        continue;
-                    // Search through macros
-                    // TODO
-
-                    // Check for OPCodes
-                    var opcode = MatchString(line, OpcodeTable);
-                    bool nonBasic = false;
-                    if (opcode == null)
-                    {
-                        opcode = MatchString(line, NonBasicOpcodeTable);
-                        nonBasic = true;
-                    }
-                    if (opcode == null)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        StringMatch valueA = null, valueB = null;
-                        WarningCode warning = WarningCode.None;
-                        if (!nonBasic)
-                        {
-                            if (opcode.valueA != null)
-                                valueA = MatchString(opcode.valueA, ValueTable);
-                            if (opcode.valueB != null)
-                                valueB = MatchString(opcode.valueB, ValueTable);
-                            if (valueA == null || valueB == null)
-                            {
-                                continue;
-                            }
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
-                            if (valueA.value == valueB.value)
-                                warning = WarningCode.RedundantStatement;
-                            if (valueA.appendedValues.Length != 0)
-                                warning = WarningCode.AssignToLiteral;
-                        }
-                        ushort[] value = new ushort[1];
-
-                        int appendedValuesStartIndex = 0;
-
-                        if (nonBasic)
-                            value[0] = (ushort)((int)(opcode.value) << 4);
-                        else
-                        {
-                            value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                            if (opcode.appendedValues.Length > 0 && ParseExpression(opcode.appendedValues[0]) != null)
-                            {
-                                if (ParseExpression(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
-                                {
-                                    // Compress the appended value into the opcode
-                                    // TODO: Support for writing to literals (fails silenty on DCPU)
-                                    value[0] &= 0x3FF;
-                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]) << 10);
-                                    appendedValuesStartIndex++;
-                                }
-                            }
-                        }
-
-                        bool invalidParameter = false;
-                        for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
-                        {
-                            ushort? parameter = ParseExpression(opcode.appendedValues[j]);
-                            if (parameter == null)
-                            {
-                                invalidParameter = true;
-                                break;
-                            }
-                            else
-                                value = value.Concat(new ushort[] { parameter.Value }).ToArray();
-                        }
-
-                        if (invalidParameter)
-                            continue;
-                        if (!noList)
-                            currentAddress += (ushort)value.Length;
-                    }
-                }
-            }
-
-            currentAddress = 0;
-            return new List<ListEntry>(PassTwo(code, FileName).Concat(output).OrderBy(o => o.LineNumber));
-        }
-
-        private List<ListEntry> PassTwo(string code, string FileName)
-        {
-            FileNames = new Stack<string>();
-            LineNumbers = new Stack<int>();
-            FileNames.Push(FileName);
-            LineNumbers.Push(0);
-            IfStack.Push(true);
-
-            List<ListEntry> output = new List<ListEntry>();
-
-            string[] lines = code.Replace("\r", "").Split('\n');
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                int ln = LineNumbers.Pop();
-                LineNumbers.Push(++ln);
-
-                string line = lines[i].TrimComments().TrimExcessWhitespace();
-                if (string.IsNullOrEmpty(line))
-                    continue;
-                if (line.Contains(".equ") && !line.StartsWith(".equ")) // TASM compatibility
-                {
-                    line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
-                }
-                if (line.StartsWith("dat ")) // notchcode compatibility
-                {
-                    line = ".dat " + line.Remove(3);
-                }
-                if (line.StartsWith(".") || line.StartsWith("#"))
-                {
-                    // Parse preprocessor directives
-                    ParseDirectives(output, line);
-                }
-                else if (line.StartsWith(":") || line.EndsWith(":"))
-                {
-                    // Handled in pass one
                 }
                 else
                 {
@@ -326,44 +248,90 @@ namespace orgASM
                         else
                         {
                             value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                            if (opcode.appendedValues.Length > 0 && ParseExpression(opcode.appendedValues[0]) != null)
-                            {
-                                if (ParseExpression(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
-                                {
-                                    // Compress the appended value into the opcode
-                                    // TODO: Support for writing to literals (fails silenty on DCPU)
-                                    value[0] &= 0x3FF;
-                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]) << 10);
-                                    appendedValuesStartIndex++;
-                                }
-                            }
                         }
 
                         bool invalidParameter = false;
+                        ExpressionResult expression = null;
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                         {
-                            ushort? parameter = ParseExpression(opcode.appendedValues[j]);
-                            if (parameter == null)
+                            ExpressionResult parameter = ParseExpression(opcode.appendedValues[j]);
+                            if (!parameter.Successful)
                             {
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 invalidParameter = true;
                                 break;
                             }
                             else
+                            {
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
+                                expression = parameter;
+                            }
                         }
 
                         if (invalidParameter)
                             continue;
 
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList, warning));
+                        output[output.Count - 1].Expression = expression;
                         if (!noList)
                             currentAddress += (ushort)value.Length;
                     }
                 }
             }
 
+            currentAddress = 0;
+
+            // Fix references and optimize code
+            ushort optimizedWords = 0;
+            for (int i = 0; i < output.Count; i++)
+            {
+                output[i].Address -= optimizedWords;
+                if (output[i].Code != null)
+                    if (output[i].Code.StartsWith(".org") || output[i].Code.StartsWith("#org"))
+                        optimizedWords = 0;
+                if (output[i].Expression == null)
+                    continue;
+                for (int j = 0; j < output[i].Expression.References.Length; j++)
+                {
+                    if (output[i].Output.Length > 1)
+                    {
+                        string reference = output[i].Expression.References[j];
+                        if (!Values.ContainsKey(reference.ToLower()))
+                        {
+                            output[i].ErrorCode = ErrorCode.UndefinedReference;
+                            output[i].WarningCode = WarningCode.None;
+                        }
+                        else
+                        {
+                            ushort originalValue = output[i].Output[1];
+                            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
+                            if (value < 0x1F && j == output[i].Expression.References.Length - 1 && false) // TODO: Make values keep track of labels
+                            {
+                                // Optimize to one word shorter
+                                optimizedWords++;
+                                // TODO: Assign to literals
+                                output[i].Output = new ushort[] {
+                                    (ushort)(output[i].Output[0] & ~0xFC00 | (ushort)(value << 10))
+                                };
+                            }
+                            else
+                            {
+                                output[i].Output[1] = value;
+                            }
+                        }
+                    }
+                }
+            }
+
             return output;
+        }
+
+        private int GetRootNumber(Stack<int> LineNumbers)
+        {
+            int res = 0;
+            foreach (int i in LineNumbers)
+                res += i;
+            return res;
         }
 
         #endregion
@@ -372,25 +340,18 @@ namespace orgASM
 
         private void ParseDirectives(List<ListEntry> output, string line)
         {
-            ParseDirectives(output, line, true);
-        }
-
-        private void ParseDirectives(List<ListEntry> output, string line, bool passTwo)
-        {
             string directive = line.Substring(1);
             string[] parameters = directive.Split(' ');
             if (directive == "endif" || directive == "end")
             {
                 if (IfStack.Count == 1)
                 {
-                    if (passTwo)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledEnd));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledEnd));
                 }
                 else
                 {
                     IfStack.Pop();
-                    if (passTwo)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
             }
             else if (IfStack.Peek())
@@ -399,19 +360,14 @@ namespace orgASM
                 else if (directive == "nolist")
                 {
                     noList = true;
-                    if (passTwo)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
                 else if (directive == "list")
                 {
                     noList = false;
-                    if (passTwo)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
-                else if (directive.StartsWith("include"))
-                {
-                }
-                else if ((directive.StartsWith("dat") || directive.StartsWith("dw")) && passTwo)
+                else if ((directive.StartsWith("dat") || directive.StartsWith("dw")))
                 {
                     if (parameters.Length == 1)
                     {
@@ -427,8 +383,7 @@ namespace orgASM
                             {
                                 if (!data.Trim().EndsWith("\""))
                                 {
-                                    if (passTwo)
-                                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 }
                                 else
                                 {
@@ -439,8 +394,8 @@ namespace orgASM
                             }
                             else
                             {
-                                ushort? value = ParseExpression(data.Trim());
-                                if (value == null)
+                                ExpressionResult value = ParseExpression(data.Trim());
+                                if (!value.Successful)
                                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 else
                                     binOutput.Add(value.Value);
@@ -453,27 +408,23 @@ namespace orgASM
                 {
                     if (parameters.Length == 1)
                     {
-                        if (passTwo)
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
                     }
                     else if (parameters.Length > 2)
                     {
-                        if (passTwo)
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                     }
                     else
                     {
-                        ushort? value = ParseExpression(parameters[1]);
+                        ExpressionResult value = ParseExpression(parameters[1]);
                         if (value == null)
                         {
-                            if (passTwo)
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
                         else
                         {
                             currentAddress = value.Value;
-                            if (passTwo)
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                         }
                     }
                 }
@@ -481,13 +432,11 @@ namespace orgASM
                 {
                     if (parameters.Length == 1)
                     {
-                        if (passTwo)
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
                     }
                     else if (parameters.Length > 2)
                     {
-                        if (passTwo)
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                     }
                     else
                     {
@@ -495,46 +444,41 @@ namespace orgASM
                             IfStack.Push(true);
                         else
                             IfStack.Push(false);
-                        if (passTwo)
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                     }
                 }
                 else if (directive.StartsWith("equ") || directive.StartsWith("define"))
                 {
-                    if (passTwo)
+                    if (parameters.Length > 1)
                     {
-                        if (parameters.Length > 1)
+                        if (Values.ContainsKey(parameters[1].ToLower()))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
+                        else
                         {
-                            if (Values.ContainsKey(parameters[1].ToLower()))
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
-                            else
+                            if (parameters.Length == 2)
                             {
-                                if (parameters.Length == 2)
+                                Values.Add(parameters[1].ToLower(), 1);
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            }
+                            else if (parameters.Length > 2)
+                            {
+                                ExpressionResult value = ParseExpression(parameters[2]);
+                                if (value != null)
                                 {
-                                    Values.Add(parameters[1].ToLower(), 1);
+                                    Values.Add(parameters[1].ToLower(), value.Value);
                                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                                 }
-                                else if (parameters.Length > 2)
-                                {
-                                    ushort? value = ParseExpression(parameters[2]);
-                                    if (value != null)
-                                    {
-                                        Values.Add(parameters[1].ToLower(), value.Value);
-                                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
-                                    }
-                                    else
-                                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
-                                }
                                 else
-                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                             }
+                            else
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
                         }
                     }
                 }
                 else
                 {
-                    if (passTwo)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidDirective));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidDirective));
                 }
             }
         }
@@ -650,7 +594,7 @@ namespace orgASM
             return null;
         }
 
-        class StringMatch
+        private class StringMatch
         {
             public string valueA;
             public string valueB;
