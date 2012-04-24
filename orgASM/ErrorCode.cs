@@ -58,7 +58,7 @@ namespace orgASM
         /// <summary>
         /// A referenced label or equate was not defined.
         /// </summary>
-        UnknownReference = 11,
+        UndefinedReference = 11,
     }
 
     /// <summary>

@@ -39,12 +39,21 @@ namespace orgASM
                 if (value.StartsWith("'")) // Character
                 {
                     if (value.Length < 3)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     value = value.Substring(1, value.Length - 2).Unescape();
                     if (value == null)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     if (value.Length != 1)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     expressionResult.Value = (ushort)Encoding.ASCII.GetBytes(value)[0];
                     return expressionResult;
                 }
@@ -52,7 +61,10 @@ namespace orgASM
                 {
                     value = value.Substring(2);
                     if (!ushort.TryParse(value.Replace("_", ""), NumberStyles.HexNumber, null, out result))
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     else
                     {
                         expressionResult.Value = result;
@@ -91,14 +103,20 @@ namespace orgASM
                 else if (value == "$")
                 {
                     if (LineNumbers.Count == 0)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     expressionResult.Value = currentAddress;
                     return expressionResult;
                 }
                 else if (value.StartsWith("$")) // Relative label
                 {
                     if (LineNumbers.Count == 0)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     value = value.Substring(1);
                     int currentIndex = -1;
                     for (int i = 0; i < RelativeLabels.Count; i++)
@@ -117,9 +135,15 @@ namespace orgASM
                             currentIndex--;
                     }
                     if (currentIndex < 0)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     if (currentIndex > RelativeLabels.Count)
-                        return null;
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                     expressionResult.Value = RelativeLabels.ElementAt(currentIndex).Value;
                     return expressionResult;
                 }
@@ -154,7 +178,10 @@ namespace orgASM
                 return expressionResult;
             }
             if (operands == null)
-                return null;
+            {
+                expressionResult.Successful = false;
+                return expressionResult;
+            }
             ExpressionResult left = ParseExpression(operands[0]);
             ExpressionResult right = ParseExpression(operands[2]);
             if (!left.Successful || !right.Successful)
@@ -245,7 +272,11 @@ namespace orgASM
                     }
                 }
                 if (openingParenthesis == -1 || closingParenthesis == -1)
-                    return null;
+                {
+                    var expressionResult = new ExpressionResult();
+                    expressionResult.Successful = false;
+                    return expressionResult;
+                }
                 ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)));
                 if (!subExpression.Successful)
                     return subExpression;

@@ -119,6 +119,8 @@ namespace orgASM
                     return "Uncoupled END directive.";
                 case ErrorCode.FileNotFound:
                     return "File not found.";
+                case ErrorCode.UndefinedReference:
+                    return "Undefined reference.";
                 default:
                     return Entry.ToString() + ".";
             }

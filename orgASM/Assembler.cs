@@ -281,7 +281,7 @@ namespace orgASM
 
             currentAddress = 0;
 
-            // Fix references
+            // Fix references and optimize code
             ushort optimizedWords = 0;
             for (int i = 0; i < output.Count; i++)
             {
@@ -297,7 +297,10 @@ namespace orgASM
                     {
                         string reference = output[i].Expression.References[j];
                         if (!Values.ContainsKey(reference.ToLower()))
-                            output[i].ErrorCode = ErrorCode.UnknownReference;
+                        {
+                            output[i].ErrorCode = ErrorCode.UndefinedReference;
+                            output[i].WarningCode = WarningCode.None;
+                        }
                         else
                         {
                             ushort originalValue = output[i].Output[1];
