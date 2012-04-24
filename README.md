@@ -145,6 +145,11 @@ Compiling .orgASM
 
 *Mac*: Install mono (I don't know how to do this on Mac).  "xbuild" from the root directory of the project.
 
+Using .orgASM as a Library
+--------------------------
+
+.orgASM is coded as a library.  You can directly run the Main method to compile files from your program, or you can use the alternative route of using the Assemble method.  Add a reference to orgASM.exe and you can use the Assemble method to get a List<ListEntry> from any given source code.  You can see the information contained in each ListEntry [here](https://github.com/SirCmpwn/.orgASM/blob/master/orgASM/ListEntry.cs).  It contains the prettified code for that line, the file it's contained in, the line number, the ushort[] output, the error code, warning code, address, and whether or not that line is included in the listing.  If an expression was used in that line, you can access the result of that expression's evaluation.
+
 Getting Involved
 ----------------
 
