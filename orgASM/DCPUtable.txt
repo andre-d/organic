@@ -9,26 +9,73 @@
 # $n is a literal value that is to be output after the instruction
 # "n" may increment from zero.
 # type is the type of entry: o for opcode, a and b for parameters.  n is a non-basic opcode.
-# In binary, these correspond to bbbbbbaaaaaaoooo
-#opcodes
-o 1 SET_%a-,-%b
-o 2 ADD_%a-,-%b
-o 3 SUB_%a-,-%b
-o 4 MUL_%a-,-%b
-o 5 DIV_%a-,-%b
-o 6 MOD_%a-,-%b
-o 7 SHL_%a-,-%b
-o 8 SHR_%a-,-%b
-o 9 AND_%a-,-%b
-o a BOR_%a-,-%b
-o b XOR_%a-,-%b
-o c IFE_%a-,-%b
-o d IFN_%a-,-%b
-o e IFG_%a-,-%b
-o f IFB_%a-,-%b
-#non-basic
-n 1 JSR_$0
-#values
+# In binary, these correspond to aaaaaabbbbbooooo
+########## OPCODES
+o 01 SET_%b-,-%a
+o 02 ADD_%b-,-%a
+o 03 SUB_%b-,-%a
+o 04 MUL_%b-,-%a
+o 05 MLI_%b-,-%a
+o 06 DIV_%b-,-%a
+o 07 DVI_%b-,-%a
+o 08 MOD_%b-,-%a
+o 09 AND_%b-,-%a
+o 0A BOR_%b-,-%a
+o 0B XOR_%b-,-%a
+o 0C SHR_%b-,-%a
+o 0D ASR_%b-,-%a
+o 0E SHL_%b-,-%a
+#o 0F [nop]
+o 10 IFB_%b-,-%a
+o 11 IFC_%b-,-%a
+o 12 IFE_%b-,-%a
+o 13 IFN_%b-,-%a
+o 14 IFG_%b-,-%a
+o 15 IFA_%b-,-%a
+o 16 IFL_%b-,-%a
+o 17 IFU_%b-,-%a
+#o 18 [nop]
+#o 19 [nop]
+#o 1A [nop]
+#o 1B [nop]
+#o 1C [nop]
+#o 1D [nop]
+#o 1E [nop]
+#o 1F [nop]
+########## NONBASIC OPCODES
+#n 00 [nop]
+n 01 JSR_$0
+#n 02 [nop]
+#n 03 [nop]
+#n 04 [nop]
+#n 05 [nop]
+#n 06 [nop]
+#n 07 [nop]
+n 08 INT_$0
+n 09 ING_$0
+n 0A INS_$0
+#n 0B [nop]
+#n 0C [nop]
+#n 0D [nop]
+#n 0E [nop]
+#n 0F [nop]
+n 10 HWN_$0
+n 11 HWQ_$0
+n 12 HWI_$0
+#n 13 [nop]
+#n 14 [nop]
+#n 15 [nop]
+#n 16 [nop]
+#n 17 [nop]
+#n 18 [nop]
+#n 19 [nop]
+#n 1A [nop]
+#n 1B [nop]
+#n 1C [nop]
+#n 1D [nop]
+#n 1E [nop]
+#n 1F [nop]
+########## VALUES
 a,b 0 A
 a,b 1 B
 a,b 2 C
@@ -62,12 +109,16 @@ a,b 14 [-Y-+-$0-]
 a,b 15 [-Z-+-$0-]
 a,b 16 [-I-+-$0-]
 a,b 17 [-J-+-$0-]
+#
 a,b 18 POP
+a,b 18 PUSH
 a,b 19 PEEK
-a,b 1A PUSH
+a,b 19 [-SP-]
+a,b 1A [-SP-+$0-]
+a,b 1A PICK_$0
 a,b 1B SP
 a,b 1C PC
-a,b 1D O
+a,b 1D EX
 a,b 1E [-$0-]
 a,b 1F $0
 # 0x20-0x3F is not included in this document
