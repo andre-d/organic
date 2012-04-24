@@ -127,6 +127,8 @@ namespace orgASM
                             break;
                         }
                     }
+                    if (currentIndex == -1)
+                        currentIndex = RelativeLabels.Count;
                     foreach (char c in value)
                     {
                         if (c == '+')
