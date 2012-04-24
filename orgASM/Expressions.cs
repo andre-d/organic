@@ -8,6 +8,7 @@ namespace orgASM
 {
     public partial class Assembler
     {
+        // TODO: Return ExpressionResult
         /// <summary>
         /// Given an expression, it will parse it and return the result as a nullable ushort
         /// </summary>
@@ -285,5 +286,24 @@ namespace orgASM
             }
             return false;
         }
+    }
+
+    /// <summary>
+    /// The result of evaluating an expression
+    /// </summary>
+    public class ExpressionResult
+    {
+        /// <summary>
+        /// The result of the operation
+        /// </summary>
+        public ushort Result { get; set; }
+        /// <summary>
+        /// True if there were no errors
+        /// </summary>
+        public bool Successful { get; set; }
+        /// <summary>
+        /// A list of referenced values
+        /// </summary>
+        public string[] References { get; set; }
     }
 }

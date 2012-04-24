@@ -7,6 +7,11 @@ namespace orgASM
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Given a string, such as "SET A, B ; test", it removes all comments from that string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string TrimComments(this string value)
         {
             value = value.Trim();
@@ -23,6 +28,13 @@ namespace orgASM
             return value.Trim();
         }
 
+        /// <summary>
+        /// Works the same as String.Split, but will not split if the requested characters are within
+        /// a character or string literal.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="characters"></param>
+        /// <returns></returns>
         public static string[] SafeSplit(this string value, params char[] characters)
         {
             string[] result = new string[1];
@@ -55,6 +67,11 @@ namespace orgASM
             return result;
         }
 
+        /// <summary>
+        /// Removes unneccissary whitespace from a line of code.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string TrimExcessWhitespace(this string value)
         {
             string newvalue = "";
@@ -76,6 +93,12 @@ namespace orgASM
             return newvalue.Trim();
         }
 
+        /// <summary>
+        /// Given a string with escaped characters, this will return the unescaped version.
+        /// Example: "Test\\nstring" becomes "Test\nstring"
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string Unescape(this string value)
         {
             if (value == null)

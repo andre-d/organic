@@ -6,7 +6,7 @@ using System.Text;
 namespace orgASM
 {
     /// <summary>
-    /// Used to build strings with different portions always appearing at the same location
+    /// Used to build strings with different portions always appearing at the same index
     /// </summary>
     internal class TabifiedStringBuilder
     {
