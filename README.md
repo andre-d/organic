@@ -158,7 +158,6 @@ Here's an example listing file:
     example.asm        (line 14): [0x3004] 0011        SET B, A
     example.asm        (line 15): [0x3005] 7C02 0001   ADD A, 1
 
-
 Let's take this apart piece by piece.
 
     example.asm        (line 1):  [0x0000] 0401        SET A, B
