@@ -46,3 +46,19 @@ label1: ; Duplicate
 #ifdef TOO MANY PARAMETERS
 #end
 	.dat 0, 1, 0x2, 0x03, 'b', "Hello\nworld!"
+
+; Test for new features
+	DVI A, 10
+	ASR A, 2
+	IFC A, 2
+	IFG A, 2
+	IFA A, 2
+	IFL A, 2
+	IFU A, 2
+	IFE EX, 10
+	INT 10
+	ING A
+	INS A
+	HWN A
+	HWQ A
+	HWI A

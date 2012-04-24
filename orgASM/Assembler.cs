@@ -236,19 +236,28 @@ namespace orgASM
                             opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
                             if (valueA.value == valueB.value)
                                 warning = WarningCode.RedundantStatement;
-                            if (valueA.appendedValues.Length != 0)
+                            if (valueB.appendedValues.Length != 0)
                                 warning = WarningCode.AssignToLiteral;
+                        }
+                        else
+                        {
+                            if (opcode.valueA != null)
+                                valueA = MatchString(opcode.valueA, ValueTable);
+                            if (valueA == null)
+                            {
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidParameter));
+                                continue;
+                            }
+                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
                         }
                         ushort[] value = new ushort[1];
 
                         int appendedValuesStartIndex = 0;
 
                         if (nonBasic)
-                            value[0] = (ushort)((int)(opcode.value) << 4);
+                            value[0] = (ushort)(((int)(opcode.value) << 4) | ((int)(valueA.value) << 10));
                         else
-                        {
-                            value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                        }
+                            value[0] = (ushort)(opcode.value | ((int)(valueB.value) << 5) | ((int)(valueA.value) << 10));
 
                         bool invalidParameter = false;
                         ExpressionResult expression = null;
