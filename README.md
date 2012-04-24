@@ -139,24 +139,24 @@ Understanding Listings
 
 Here's an example listing file:
 
-example.asm        (line 1):  [0x0000] 0401        SET A, B
-example.asm        (line 2):  [0x0001] 0012        ADD B, A
-example.asm        (line 3):  [0x0002]             label1:
-example.asm        (line 4):  [0x0002] 7C0A 0102   BOR A, 0x102
-example.asm        (line 5):  [0x0004] 040E        IFG A, B
-example.asm        (line 6):  [0x0005] 7DC1 0002   SET PC, label1
-example.asm        (line 7):  [0x0007]             .nolist
-example.asm        (line 8):  [NOLIST] 0811        SET B, C
-example.asm        (line 9):  [0x0007]             .list
-example.asm        (line 10): [0x3000]             .org 0x3000
-example.asm        (line 11): [0x3000] 0801        SET A, C
-example.asm        (line 12): [0x3001] 1822        ADD C, I
-exampleInclude.asm (line 2):  [0x3002] 7DA1 0035   SET PUSH, 0b101011
-exampleInclude.asm (line 3):  [0x3004]             .dat "Hello, world!"
-exampleInclude.asm (line 3):  [0x3004]                 0048 0065 006C 006C 006F 002C 0020 0077
-exampleInclude.asm (line 3):  [0x300C]                 006F 0072 006C 0064 0021
-example.asm        (line 14): [0x3004] 0011        SET B, A
-example.asm        (line 15): [0x3005] 7C02 0001   ADD A, 1
+    example.asm        (line 1):  [0x0000] 0401        SET A, B
+    example.asm        (line 2):  [0x0001] 0012        ADD B, A
+    example.asm        (line 3):  [0x0002]             label1:
+    example.asm        (line 4):  [0x0002] 7C0A 0102   BOR A, 0x102
+    example.asm        (line 5):  [0x0004] 040E        IFG A, B
+    example.asm        (line 6):  [0x0005] 7DC1 0002   SET PC, label1
+    example.asm        (line 7):  [0x0007]             .nolist
+    example.asm        (line 8):  [NOLIST] 0811        SET B, C
+    example.asm        (line 9):  [0x0007]             .list
+    example.asm        (line 10): [0x3000]             .org 0x3000
+    example.asm        (line 11): [0x3000] 0801        SET A, C
+    example.asm        (line 12): [0x3001] 1822        ADD C, I
+    exampleInclude.asm (line 2):  [0x3002] 7DA1 0035   SET PUSH, 0b101011
+    exampleInclude.asm (line 3):  [0x3004]             .dat "Hello, world!"
+    exampleInclude.asm (line 3):  [0x3004]                 0048 0065 006C 006C 006F 002C 0020 0077
+    exampleInclude.asm (line 3):  [0x300C]                 006F 0072 006C 0064 0021
+    example.asm        (line 14): [0x3004] 0011        SET B, A
+    example.asm        (line 15): [0x3005] 7C02 0001   ADD A, 1
 
 
 Let's take this apart piece by piece.
