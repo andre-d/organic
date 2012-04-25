@@ -30,6 +30,11 @@ namespace orgASM
         /// </summary>
         public Dictionary<string, ushort> Values;
 
+        /// <summary>
+        /// Path to search for include files in.
+        /// </summary>
+        public string IncludePath;
+
         #endregion
 
         #region Constructor
@@ -130,8 +135,22 @@ namespace orgASM
                     {
                         string includedFileName = line.Substring(line.IndexOf(" ") + 1);
                         includedFileName = includedFileName.Trim('"', '\'');
+                        if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
+                        {
+                            // Find included file
+                            includedFileName = includedFileName.Trim('<', '>');
+                            string[] paths = IncludePath.Split(';');
+                            foreach (var path in paths)
+                            {
+                                if (File.Exists(Path.Combine(path, includedFileName)))
+                                {
+                                    includedFileName = Path.Combine(path, includedFileName);
+                                    break;
+                                }
+                            }
+                        }
                         if (!File.Exists(includedFileName))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                         else
                         {
                             using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
@@ -356,7 +375,7 @@ namespace orgASM
                 else
                 {
                     IfStack.Pop();
-                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                 }
             }
             else if (directive.StartsWith("elseif") || directive.StartsWith("elif"))
@@ -376,7 +395,7 @@ namespace orgASM
                         {
                             if (result.Value > 0)
                                 IfStack.Push(!IfStack.Pop());
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                         }
                         else
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
@@ -468,7 +487,7 @@ namespace orgASM
                             else
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
                 else if (directive.StartsWith("asciip "))
@@ -500,7 +519,7 @@ namespace orgASM
                             else
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
                 else if (directive.StartsWith("asciic ") || directive.StartsWith("asciiz "))
@@ -532,10 +551,10 @@ namespace orgASM
                             else
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("org")) // .orgASM's namesake :)
+                else if (directive.StartsWith("org ")) // .orgASM's namesake :)
                 {
                     if (parameters.Length == 1)
                     {
@@ -555,11 +574,11 @@ namespace orgASM
                         else
                         {
                             currentAddress = value.Value;
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                         }
                     }
                 }
-                else if (directive.StartsWith("ifdef"))
+                else if (directive.StartsWith("ifdef "))
                 {
                     if (parameters.Length == 1)
                     {
@@ -575,10 +594,10 @@ namespace orgASM
                             IfStack.Push(true);
                         else
                             IfStack.Push(false);
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("ifndef"))
+                else if (directive.StartsWith("ifndef "))
                 {
                     if (parameters.Length == 1)
                     {
@@ -594,7 +613,7 @@ namespace orgASM
                             IfStack.Push(false);
                         else
                             IfStack.Push(true);
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                     }
                 }
                 else if (directive.StartsWith("if "))
@@ -612,13 +631,13 @@ namespace orgASM
                                 IfStack.Push(true);
                             else
                                 IfStack.Push(false);
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                         }
                         else
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                     }
                 }
-                else if (directive.StartsWith("equ") || directive.StartsWith("define"))
+                else if (directive.StartsWith("equ ") || directive.StartsWith("define "))
                 {
                     if (parameters.Length > 1)
                     {
@@ -629,7 +648,7 @@ namespace orgASM
                             if (parameters.Length == 2)
                             {
                                 Values.Add(parameters[1].ToLower(), 1);
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                             }
                             else if (parameters.Length > 2)
                             {
@@ -637,7 +656,7 @@ namespace orgASM
                                 if (value != null)
                                 {
                                     Values.Add(parameters[1].ToLower(), value.Value);
-                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                                 }
                                 else
                                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
@@ -701,7 +720,7 @@ namespace orgASM
                             ushort[] padding = new ushort[length.Value];
                             for (int i = 0; i < padding.Length; i++)
                                 padding[i] = value.Value;
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
                         }
                     }
                     else if (parameters.Length == 1)
@@ -724,7 +743,7 @@ namespace orgASM
                             {
                                 var amount = (ushort)(addr.Value - currentAddress);
                                 ushort[] padding = new ushort[amount];
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress));
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
                                 currentAddress = amount;
                             }
                         }

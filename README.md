@@ -36,11 +36,15 @@ Shorthand: -h, -?, /h, /?
 
 An alternative way to specify the output file.
 
-Shorthand: -o
+Shorthand: -o, --output
 
 **--input-file [filename]**
 
 An alternative way to specify the input file.
+
+**--include [path]**
+
+Adds [path] to the paths to search through for include files.  This only affects files included with <>, such as .include <stdio.asm>.  This is a semicolon-delimited list of directories.
 
 Shorthand: -i
 
@@ -77,6 +81,8 @@ Shorthand: -v
 **--pipe "[assembly]"**
 
 Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.
+
+Shorthand: -p
 
 Syntax
 ------

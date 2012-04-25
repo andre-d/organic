@@ -41,11 +41,11 @@ namespace orgASM
                                 DisplayHelp();
                                 return;
                             case "-o":
+                            case "--output":
                             case "--output-file":
                                 outputFile = args[i + 1];
                                 i++;
                                 break;
-                            case "-i":
                             case "--input-file":
                                 inputFile = args[i + 1];
                                 i++;
@@ -77,6 +77,11 @@ namespace orgASM
                             case "--pipe":
                             case "-p":
                                 pipe = args[i + 1];
+                                i++;
+                                break;
+                            case "--include":
+                            case "-i":
+                                assembler.IncludePath = args[i + 1];
                                 i++;
                                 break;
                             case "--verbose":

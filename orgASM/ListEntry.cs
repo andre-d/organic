@@ -19,6 +19,12 @@ namespace orgASM
             this.Address = Address;
         }
 
+        public ListEntry(string LineValue, string File, int LineNumber, ushort Address, bool Listed)
+            : this(LineValue, File, LineNumber, Address)
+        {
+            this.Listed = Listed;
+        }
+
         public ListEntry(string LineValue, string File, int LineNumber, ushort Address, ErrorCode ErrorCode)
             : this(LineValue, File, LineNumber, Address)
         {
@@ -29,6 +35,13 @@ namespace orgASM
             : this(LineValue, File, LineNumber, Address)
         {
             this.Output = Output;
+        }
+
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, bool Listed)
+            : this(LineValue, File, LineNumber, Address)
+        {
+            this.Output = Output;
+            this.Listed = Listed;
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, bool Listed, WarningCode WarningCode)
