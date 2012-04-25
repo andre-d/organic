@@ -305,7 +305,7 @@ namespace orgASM
                             if (value < 0x1F && j == output[i].Expression.References.Length - 1 && false) // TODO: Make values keep track of labels
                             {
                                 // Optimize to one word shorter
-                                optimizedWords--;
+                                optimizedWords++;
                                 // TODO: Assign to literals
                                 output[i].Output = new ushort[] {
                                     (ushort)(output[i].Output[0] & ~0xFC00 | (ushort)(value << 10))

@@ -1,5 +1,7 @@
 ﻿; Start of include file
-SET A, B
+SET A, TESTEQU
+SET B, B
 .dat "TEST"
 label4:
 SET A, $
+.equ TESTEQU 18

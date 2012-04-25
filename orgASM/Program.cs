@@ -184,10 +184,16 @@ namespace orgASM
         private static string CreateListing(List<ListEntry> output)
         {
             string listing = "";
-            int maxLength = 0;
+            int maxLength = 0, maxFileLength = 0;
             foreach (var entry in output)
             {
-                int length = entry.FileName.Length + entry.LineNumber.ToString().Length + 10;
+                int length = entry.FileName.Length + 1;
+                if (length > maxFileLength)
+                    maxFileLength = length;
+            }
+            foreach (var entry in output)
+            {
+                int length = maxFileLength + entry.LineNumber.ToString().Length + 9;
                 if (length > maxLength)
                     maxLength = length;
             }
@@ -199,7 +205,8 @@ namespace orgASM
                 {
                     // Write code line
                     tsb = new TabifiedStringBuilder();
-                    tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                    tsb.WriteAt(0, listentry.FileName);
+                    tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                     if (listentry.Listed)
                         tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                     else
@@ -210,7 +217,8 @@ namespace orgASM
                     for (int i = 0; i < listentry.Output.Length; i += 8)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex((ushort)(listentry.Address + i)) + "] ");
                         else
@@ -229,7 +237,8 @@ namespace orgASM
                     if (listentry.ErrorCode != ErrorCode.Success)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
@@ -240,7 +249,8 @@ namespace orgASM
                     if (listentry.WarningCode != WarningCode.None)
                     {
                         tsb = new TabifiedStringBuilder();
-                        tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                        tsb.WriteAt(0, listentry.FileName);
+                        tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                         if (listentry.Listed)
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
@@ -249,7 +259,8 @@ namespace orgASM
                         listing += tsb.Value + "\n";
                     }
                     tsb = new TabifiedStringBuilder();
-                    tsb.WriteAt(0, listentry.FileName + " (line " + listentry.LineNumber + "): ");
+                    tsb.WriteAt(0, listentry.FileName);
+                    tsb.WriteAt(maxFileLength, "(line " + listentry.LineNumber + "): ");
                     if (listentry.Listed)
                         tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                     else
