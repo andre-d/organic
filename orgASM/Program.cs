@@ -57,7 +57,7 @@ namespace orgASM
                                     Console.WriteLine("Error: " + ListEntry.GetFriendlyErrorMessage(ErrorCode.IllegalExpression));
                                     return;
                                 }
-                                assembler.Values.Add(args[i + 1], result.Value);
+                                assembler.Values.Add(args[i + 1].ToLower(), result.Value);
                                 i += 2;
                                 break;
                             case "-l":
