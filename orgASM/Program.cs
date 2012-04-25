@@ -22,6 +22,7 @@ namespace orgASM
             string outputFile = null;
             string listingFile = null;
             string pipe = null;
+            string workingDirectory = Directory.GetCurrentDirectory();
             bool bigEndian = false, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
             for (int i = 0; i < args.Length; i++)
@@ -81,7 +82,7 @@ namespace orgASM
                                 break;
                             case "--working-directory":
                             case "-w":
-                                Directory.SetCurrentDirectory(args[++i]);
+                                workingDirectory = args[++i];
                                 break;
                             case "--verbose":
                             case "-v":
@@ -138,10 +139,13 @@ namespace orgASM
                 contents = pipe;
 
             List<ListEntry> output;
+            string wdOld = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(workingDirectory);
             if (pipe == null)
                 output = assembler.Assemble(contents, inputFile);
             else
                 output = assembler.Assemble(contents, "[piped input]");
+            Directory.SetCurrentDirectory(wdOld);
 
             // Output errors
             if (!quiet)

@@ -843,6 +843,8 @@ namespace orgASM
                         {
                             int delimiter = value.IndexOf(',', valueIndex);
                             if (delimiter == -1)
+                                delimiter = value.IndexOf('+', valueIndex);
+                            if (delimiter == -1)
                                 delimiter = value.IndexOf(']', valueIndex);
                             if (delimiter == -1)
                             {
@@ -857,7 +859,7 @@ namespace orgASM
                     }
                     else
                     {
-                        if (value.ToUpper()[valueIndex] != opcode.Key[i])
+                        if (value.ToUpper()[valueIndex] != opcode.Key.ToUpper()[i])
                         {
                             matchFound = false;
                             break;
