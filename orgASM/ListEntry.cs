@@ -31,6 +31,12 @@ namespace orgASM
             this.ErrorCode = ErrorCode;
         }
 
+        public ListEntry(string LineValue, string File, int LineNumber, ushort Address, ErrorCode ErrorCode, bool Listed)
+            : this(LineValue, File, LineNumber, Address, Listed)
+        {
+            this.ErrorCode = ErrorCode;
+        }
+
         public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address)
             : this(LineValue, File, LineNumber, Address)
         {
@@ -54,6 +60,13 @@ namespace orgASM
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, ErrorCode ErrorCode)
             : this(LineValue, File, LineNumber, Output, Address)
+        {
+            this.Output = Output;
+            this.ErrorCode = ErrorCode;
+        }
+
+        public ListEntry(string LineValue, string File, int LineNumber, ushort[] Output, ushort Address, ErrorCode ErrorCode, bool Listed)
+            : this(LineValue, File, LineNumber, Output, Address, Listed)
         {
             this.Output = Output;
             this.ErrorCode = ErrorCode;

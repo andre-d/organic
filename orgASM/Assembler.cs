@@ -150,7 +150,7 @@ namespace orgASM
                             }
                         }
                         if (!File.Exists(includedFileName))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
                         else
                         {
                             using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
