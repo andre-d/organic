@@ -725,6 +725,7 @@ namespace orgASM
                                 var amount = (ushort)(addr.Value - currentAddress);
                                 ushort[] padding = new ushort[amount];
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress));
+                                currentAddress = amount;
                             }
                         }
                     }

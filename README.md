@@ -148,6 +148,10 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.asciip "\[text]"**: Inserts the ASCII string [text], prefixed with its length (Pascal-style string).
 
+**.fill \[length], \[value]** and **.pad \[length], \[value]**: Inserts [value] into the output [length] times.
+
+**.align \[address]**: Pads the output with zeros until currentAddress is equal to [address].
+
 Understanding Listings
 ----------------------
 
