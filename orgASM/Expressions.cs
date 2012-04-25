@@ -14,13 +14,23 @@ namespace orgASM
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public ushort? ParseExpression(string value)
+        public ExpressionResult ParseExpression(string value)
         {
+            ExpressionResult expressionResult = new ExpressionResult();
+            expressionResult.Successful = true;
+            expressionResult.References = new string[0];
             value = value.Trim();
             if (value.Contains("("))
+            {
                 return EvaluateParenthesis(value);
+            }
             if (value.StartsWith("~"))
-                return (ushort)(~ParseExpression(value.Substring(1)));
+            {
+                expressionResult = ParseExpression(value.Substring(1));
+                if (expressionResult.Successful)
+                    expressionResult.Value = (ushort)~expressionResult.Value;
+                return expressionResult;
+            }
             if (!HasOperators(value))
             {
                 // Parse value
@@ -36,7 +46,8 @@ namespace orgASM
                         return null;
                     if (value.Length != 1)
                         return null;
-                    return Encoding.ASCII.GetBytes(value)[0];
+                    expressionResult.Value = (ushort)Encoding.ASCII.GetBytes(value)[0];
+                    return expressionResult;
                 }
                 else if (value.StartsWith("0x")) // Hex
                 {
@@ -45,32 +56,45 @@ namespace orgASM
                         return null;
                     else
                     {
-                        return result;
+                        expressionResult.Value = result;
+                        return expressionResult;
                     }
                 }
                 else if (value.StartsWith("0b")) // Binary
                 {
                     value = value.Substring(2);
-                    return ParseBinary(value.Replace("_", ""));
+                    ushort? binResult = ParseBinary(value.Replace("_", ""));
+                    if (binResult == null)
+                        expressionResult.Successful = false;
+                    else
+                        expressionResult.Value = binResult.Value;
+                    return expressionResult;
                 }
                 else if (value.StartsWith("0o"))
                 {
                     value = value.Substring(2);
                     try
                     {
-                        return Convert.ToUInt16(value.Replace("_", ""), 8);
+                        expressionResult.Value = Convert.ToUInt16(value.Replace("_", ""), 8);
+                        return expressionResult;
                     }
-                    catch { return null; }
+                    catch
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
                 }
                 else if (ushort.TryParse(value.Replace("_", ""), out result)) // Decimal
                 {
-                    return result;
+                    expressionResult.Value = result;
+                    return expressionResult;
                 }
                 else if (value == "$")
                 {
                     if (LineNumbers.Count == 0)
                         return null;
-                    return currentAddress;
+                    expressionResult.Value = currentAddress;
+                    return expressionResult;
                 }
                 else if (value.StartsWith("$")) // Relative label
                 {
@@ -97,69 +121,90 @@ namespace orgASM
                         return null;
                     if (currentIndex > RelativeLabels.Count)
                         return null;
-                    return RelativeLabels.ElementAt(currentIndex).Value;
+                    expressionResult.Value = RelativeLabels.ElementAt(currentIndex).Value;
+                    return expressionResult;
                 }
                 else // Defined value or error
                 {
-                    if (Values.ContainsKey(value.ToLower()))
-                    {
-                        return Values[value.ToLower()];
-                    }
-                    else
-                        return null;
+                    expressionResult.References = expressionResult.References.Concat(
+                        new string[] { value.ToLower() }).ToArray();
                 }
             }
 
             // Parse expression
             string[] operands = GetOperands(value);
             if (string.IsNullOrEmpty(operands[0]) && operands[1] == "-")
-                return (ushort)-ParseExpression(operands[2]);
+            {
+                expressionResult = ParseExpression(operands[2]);
+                return expressionResult;
+            }
             if (operands == null)
                 return null;
-            ushort? left = ParseExpression(operands[0]);
-            ushort? right = ParseExpression(operands[2]);
-            if (left == null || right == null)
-                return null;
+            ExpressionResult left = ParseExpression(operands[0]);
+            ExpressionResult right = ParseExpression(operands[2]);
+            if (!left.Successful || !right.Successful)
+            {
+                expressionResult.Successful = false;
+                return expressionResult;
+            }
             switch (operands[1])
             {
                 case "*":
-                    return (ushort)(left.Value * right.Value);
+                    expressionResult.Value = (ushort)(left.Value * right.Value);
+                    break;
                 case "/":
-                    return (ushort)(left.Value / right.Value);
+                    expressionResult.Value =  (ushort)(left.Value / right.Value);
+                    break;
                 case "+":
-                    return (ushort)(left.Value + right.Value);
+                    expressionResult.Value =  (ushort)(left.Value + right.Value);
+                    break;
                 case "-":
-                    return (ushort)(left.Value - right.Value);
+                    expressionResult.Value =  (ushort)(left.Value - right.Value);
+                    break;
                 case "<<":
-                    return (ushort)(left.Value << right.Value);
+                    expressionResult.Value =  (ushort)(left.Value << right.Value);
+                    break;
                 case ">>":
-                    return (ushort)(left.Value >> right.Value);
+                    expressionResult.Value =  (ushort)(left.Value >> right.Value);
+                    break;
                 case "|":
-                    return (ushort)(left.Value | right.Value);
+                    expressionResult.Value =  (ushort)(left.Value | right.Value);
+                    break;
                 case "^":
-                    return (ushort)(left.Value ^ right.Value);
+                    expressionResult.Value =  (ushort)(left.Value ^ right.Value);
+                    break;
                 case "&":
-                    return (ushort)(left.Value & right.Value);
+                    expressionResult.Value =  (ushort)(left.Value & right.Value);
+                    break;
                 case "%":
-                    return (ushort)(left.Value % right.Value);
+                    expressionResult.Value =  (ushort)(left.Value % right.Value);
+                    break;
                 case "==":
-                    return (ushort)(left.Value == right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value == right.Value ? 1 : 0);
+                    break;
                 case "!=":
-                    return (ushort)(left.Value != right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value != right.Value ? 1 : 0);
+                    break;
                 case "<":
-                    return (ushort)(left.Value < right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value < right.Value ? 1 : 0);
+                    break;
                 case ">":
-                    return (ushort)(left.Value > right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value > right.Value ? 1 : 0);
+                    break;
                 case "<=":
-                    return (ushort)(left.Value <= right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value <= right.Value ? 1 : 0);
+                    break;
                 case ">=":
-                    return (ushort)(left.Value >= right.Value ? 1 : 0);
+                    expressionResult.Value =  (ushort)(left.Value >= right.Value ? 1 : 0);
+                    break;
                 default:
-                    return null;
+                    expressionResult.Successful = false;
+                    return expressionResult;
             }
+            return expressionResult;
         }
 
-        private ushort? EvaluateParenthesis(string value)
+        private ExpressionResult EvaluateParenthesis(string value)
         {
             while (value.Contains("("))
             {
@@ -184,9 +229,9 @@ namespace orgASM
                 }
                 if (openingParenthesis == -1 || closingParenthesis == -1)
                     return null;
-                ushort? subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)));
-                if (subExpression == null)
-                    return null;
+                ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)));
+                if (!subExpression.Successful)
+                    return subExpression;
                 value = value.Remove(openingParenthesis) + subExpression.Value.ToString() + value.Substring(closingParenthesis + 1);
             }
             return ParseExpression(value);
@@ -296,7 +341,7 @@ namespace orgASM
         /// <summary>
         /// The result of the operation
         /// </summary>
-        public ushort Result { get; set; }
+        public ushort Value { get; set; }
         /// <summary>
         /// True if there were no errors
         /// </summary>

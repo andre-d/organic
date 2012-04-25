@@ -256,7 +256,7 @@ namespace orgASM
                                     // TODO: Support for writing to literals (does this already work? dunno)
                                     // TODO: Do this better
                                     value[0] &= 0x3FF;
-                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]) << 10);
+                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]).Value << 10);
                                     appendedValuesStartIndex++;
                                 }
                             }
@@ -265,8 +265,8 @@ namespace orgASM
                         bool invalidParameter = false;
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                         {
-                            ushort? parameter = ParseExpression(opcode.appendedValues[j]);
-                            if (parameter == null)
+                            ExpressionResult parameter = ParseExpression(opcode.appendedValues[j]);
+                            if (!parameter.Successful)
                             {
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 invalidParameter = true;
@@ -354,8 +354,8 @@ namespace orgASM
                             }
                             else
                             {
-                                ushort? value = ParseExpression(data.Trim());
-                                if (value == null)
+                                ExpressionResult value = ParseExpression(data.Trim());
+                                if (!value.Successful)
                                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 else
                                     binOutput.Add(value.Value);
@@ -376,7 +376,7 @@ namespace orgASM
                     }
                     else
                     {
-                        ushort? value = ParseExpression(parameters[1]);
+                        ExpressionResult value = ParseExpression(parameters[1]);
                         if (value == null)
                         {
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
@@ -422,7 +422,7 @@ namespace orgASM
                             }
                             else if (parameters.Length > 2)
                             {
-                                ushort? value = ParseExpression(parameters[2]);
+                                ExpressionResult value = ParseExpression(parameters[2]);
                                 if (value != null)
                                 {
                                     Values.Add(parameters[1].ToLower(), value.Value);

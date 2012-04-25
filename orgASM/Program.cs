@@ -52,8 +52,8 @@ namespace orgASM
                                 break;
                             case "-e":
                             case "--equate":
-                                ushort? result = assembler.ParseExpression(args[i + 2]);
-                                if (result == null)
+                                ExpressionResult result = assembler.ParseExpression(args[i + 2]);
+                                if (!result.Successful)
                                 {
                                     Console.WriteLine("Error: " + ListEntry.GetFriendlyErrorMessage(ErrorCode.IllegalExpression));
                                     return;
