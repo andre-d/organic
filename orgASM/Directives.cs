@@ -104,6 +104,44 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
                     }
                 }
+                else if (directive.StartsWith("echo "))
+                {
+                    if (parameters.Length == 1)
+                    {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    }
+                    else
+                    {
+                        string[] dataStrings = directive.Substring(directive.IndexOf(" ")).SafeSplit(',');
+                        string consoleOutput = "";
+                        foreach (string data in dataStrings)
+                        {
+                            if (data.Trim().StartsWith("\""))
+                            {
+                                if (!data.Trim().EndsWith("\""))
+                                {
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                }
+                                else
+                                {
+                                    string str = data.Trim().Substring(1, data.Trim().Length - 2).Unescape();
+                                    consoleOutput += str;
+                                }
+                            }
+                            else
+                            {
+                                ExpressionResult value = ParseExpression(data.Trim(), true);
+                                if (!value.Successful)
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                else
+                                    consoleOutput += "0x" + value.Value.ToString("x").ToUpper();
+                            }
+                        }
+                        Console.Write(consoleOutput + "\n");
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        output.Add(new ListEntry(consoleOutput, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    }
+                }
                 else if (directive.StartsWith("ascii "))
                 {
                     if (parameters.Length == 1)
@@ -297,7 +335,10 @@ namespace orgASM
                             }
                             else if (parameters.Length > 2)
                             {
-                                ExpressionResult value = ParseExpression(parameters[2]);
+                                string expression = directive.TrimExcessWhitespace();
+                                expression = expression.Substring(expression.IndexOf(' ') + 1);
+                                expression = expression.Substring(expression.IndexOf(' ') + 1);
+                                ExpressionResult value = ParseExpression(expression, true); // TODO: find a way to forward reference
                                 if (value != null)
                                 {
                                     Values.Add(parameters[1].ToLower(), value.Value);

@@ -31,11 +31,11 @@ namespace orgASM
             value = value.Trim();
             if (value.Contains("("))
             {
-                return EvaluateParenthesis(value);
+                return EvaluateParenthesis(value, followReferences);
             }
             if (value.StartsWith("~"))
             {
-                expressionResult = ParseExpression(value.Substring(1));
+                expressionResult = ParseExpression(value.Substring(1), followReferences);
                 if (expressionResult.Successful)
                     expressionResult.Value = (ushort)~expressionResult.Value;
                 return expressionResult;
@@ -274,7 +274,7 @@ namespace orgASM
             return expressionResult;
         }
 
-        private ExpressionResult EvaluateParenthesis(string value)
+        private ExpressionResult EvaluateParenthesis(string value, bool followReferences)
         {
             while (value.Contains("("))
             {
@@ -303,7 +303,7 @@ namespace orgASM
                     expressionResult.Successful = false;
                     return expressionResult;
                 }
-                ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)));
+                ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)), followReferences);
                 if (!subExpression.Successful)
                     return subExpression;
                 value = value.Remove(openingParenthesis) + subExpression.Value.ToString() + value.Substring(closingParenthesis + 1);

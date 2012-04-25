@@ -290,8 +290,12 @@ namespace orgASM
                     else
                         tsb.WriteAt(maxLength, "[NOLIST] ");
                     if (listentry.Output != null)
+                    {
                         tsb.WriteAt(maxLength + 8, DumpArray(listentry.Output));
-                    tsb.WriteAt(maxLength + 21, listentry.Code);
+                        tsb.WriteAt(maxLength + 21, listentry.Code);
+                    }
+                    else
+                        tsb.WriteAt(maxLength + 19, listentry.Code);
                     listing += tsb.Value + "\n";
                 }
             }
