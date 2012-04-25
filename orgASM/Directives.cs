@@ -407,7 +407,8 @@ namespace orgASM
                             for (int i = 0; i < padding.Length; i++)
                                 padding[i] = value.Value;
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
-                            currentAddress += (ushort)padding.Length;
+                            if (!noList)
+                                currentAddress += (ushort)padding.Length;
                         }
                     }
                     else if (parameters.Length == 1)
@@ -431,7 +432,8 @@ namespace orgASM
                                 var amount = (ushort)(addr.Value - currentAddress);
                                 ushort[] padding = new ushort[amount];
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
-                                currentAddress = amount;
+                                if (!noList)
+                                    currentAddress = amount;
                             }
                         }
                     }

@@ -171,6 +171,86 @@ namespace orgASM
                             LineNumbers.Push(1);
                         }
                     }
+                    else if (line.StartsWith("#incbin ") || line.StartsWith(".incbin "))
+                    {
+                        string includedFileName = line.Substring(line.IndexOf(" ") + 1);
+                        includedFileName = includedFileName.Trim('"', '\'');
+                        if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
+                        {
+                            // Find included file
+                            includedFileName = includedFileName.Trim('<', '>');
+                            string[] paths = IncludePath.Split(';');
+                            foreach (var path in paths)
+                            {
+                                if (File.Exists(Path.Combine(path, includedFileName)))
+                                {
+                                    includedFileName = Path.Combine(path, includedFileName);
+                                    break;
+                                }
+                            }
+                        }
+                        if (!File.Exists(includedFileName))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
+                        else
+                        {
+                            using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
+                            {
+                                byte[] rawData = new byte[includedFile.Length];
+                                includedFile.Read(rawData, 0, (int)includedFile.Length);
+
+                                List<ushort> binOutput = new List<ushort>();
+                                foreach (byte b in rawData)
+                                    binOutput.Add(b);
+                                output.Add(new ListEntry(line, includedFileName, LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                                if (!noList)
+                                    currentAddress += (ushort)binOutput.Count;
+                            }
+                        }
+                    }
+                    else if (line.StartsWith("#incpack ") || line.StartsWith(".incpack "))
+                    {
+                        string includedFileName = line.Substring(line.IndexOf(" ") + 1);
+                        includedFileName = includedFileName.Trim('"', '\'');
+                        if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
+                        {
+                            // Find included file
+                            includedFileName = includedFileName.Trim('<', '>');
+                            string[] paths = IncludePath.Split(';');
+                            foreach (var path in paths)
+                            {
+                                if (File.Exists(Path.Combine(path, includedFileName)))
+                                {
+                                    includedFileName = Path.Combine(path, includedFileName);
+                                    break;
+                                }
+                            }
+                        }
+                        if (!File.Exists(includedFileName))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
+                        else
+                        {
+                            using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
+                            {
+                                byte[] rawData = new byte[includedFile.Length];
+                                includedFile.Read(rawData, 0, (int)includedFile.Length);
+
+                                List<ushort> binOutput = new List<ushort>();
+                                ushort working = 0;
+                                for (int j = 0; i < rawData.Length; i++)
+                                {
+                                    working |= (ushort)(rawData[j] << ((j % 2) * 8));
+                                    if (j % 2 == 1)
+                                    {
+                                        binOutput.Add(working);
+                                        working = 0;
+                                    }
+                                }
+                                output.Add(new ListEntry(line, includedFileName, LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                                if (!noList)
+                                    currentAddress += (ushort)binOutput.Count;
+                            }
+                        }
+                    }
                     else if (line == "#endfile" || line == ".endfile")
                     {
                         FileNames.Pop();

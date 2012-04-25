@@ -150,7 +150,11 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
 
-**.include "\[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
+**.incbin "\[file]"**: Includes an external file as raw data, one byte to a word.  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
+
+**.incpack "\[file]"**: Includes an external file as raw data, and packs two bytes to a word.  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
+
+**.include "\[file]"**: Includes an external file.  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
 
 **.list**: Resumes assembly after .nolist
 
