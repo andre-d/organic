@@ -522,7 +522,7 @@ namespace orgASM
                         else
                         {
                             int delimiter = value.IndexOf(',', valueIndex);
-                            if (delimiter == -1)
+                            if (delimiter == -1 && opcode.Value != 0x1E)
                                 delimiter = value.IndexOf('+', valueIndex);
                             if (delimiter == -1)
                                 delimiter = value.IndexOf(']', valueIndex);
