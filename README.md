@@ -74,6 +74,10 @@ Will output a listing to the console.
 
 Shorthand: -v
 
+**--pipe "[assembly]"**
+
+Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.
+
 Syntax
 ------
 

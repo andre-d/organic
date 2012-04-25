@@ -55,6 +55,10 @@ namespace orgASM
         /// A file was referenced in code that was not found on the disk.
         /// </summary>
         FileNotFound = 10,
+        /// <summary>
+        /// A referenced label or equate was not defined.
+        /// </summary>
+        UnknownReference = 11,
     }
 
     /// <summary>

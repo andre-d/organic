@@ -173,7 +173,7 @@ namespace orgASM
                         label = label.Remove(line.Length - 1);
                     if (label == "$")
                     {
-                        RelativeLabels.Add(LineNumbers.Peek(), currentAddress); // TODO: root line number instead
+                        RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
                         continue;
                     }
                     if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
@@ -248,21 +248,10 @@ namespace orgASM
                         else
                         {
                             value[0] = (ushort)(opcode.value | ((int)(valueA.value) << 4) | ((int)(valueB.value) << 10));
-                            if (opcode.appendedValues.Length > 0 && ParseExpression(opcode.appendedValues[0]) != null)
-                            {
-                                if (ParseExpression(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
-                                {
-                                    // Compress the appended value into the opcode
-                                    // TODO: Support for writing to literals (does this already work? dunno)
-                                    // TODO: Do this better
-                                    value[0] &= 0x3FF;
-                                    value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]).Value << 10);
-                                    appendedValuesStartIndex++;
-                                }
-                            }
                         }
 
                         bool invalidParameter = false;
+                        string[] references = new string[0];
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                         {
                             ExpressionResult parameter = ParseExpression(opcode.appendedValues[j]);
@@ -273,13 +262,17 @@ namespace orgASM
                                 break;
                             }
                             else
+                            {
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
+                                references = parameter.References;
+                            }
                         }
 
                         if (invalidParameter)
                             continue;
 
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList, warning));
+                        output[output.Count - 1].References = references;
                         if (!noList)
                             currentAddress += (ushort)value.Length;
                     }
@@ -287,7 +280,53 @@ namespace orgASM
             }
 
             currentAddress = 0;
+
+            // Fix references
+            ushort optimizedWords = 0;
+            for (int i = 0; i < output.Count; i++)
+            {
+                output[i].Address -= optimizedWords;
+                if (output[i].Code != null)
+                    if (output[i].Code.StartsWith(".org") || output[i].Code.StartsWith("#org"))
+                        optimizedWords = 0;
+                if (output[i].References == null)
+                    continue;
+                for (int j = 0; j < output[i].References.Length; j++)
+                {
+                    if (output[i].Output.Length > 1)
+                    {
+                        string reference = output[i].References[j];
+                        if (!Values.ContainsKey(reference.ToLower()))
+                            output[i].ErrorCode = ErrorCode.UnknownReference;
+                        else
+                        {
+                            ushort value = Values[reference.ToLower()];
+                            if (value < 0x1F)
+                            {
+                                // Optimized to one word shorter
+                                // TODO: Assign to literals
+                                output[i].Output = new ushort[] {
+                                    (ushort)(output[i].Output[0] & ~0xFC00 | (ushort)(value << 10))
+                                };
+                            }
+                            else
+                            {
+                                output[i].Output[1] = value;
+                            }
+                        }
+                    }
+                }
+            }
+
             return output;
+        }
+
+        private int GetRootNumber(Stack<int> LineNumbers)
+        {
+            int res = 0;
+            foreach (int i in LineNumbers)
+                res += i;
+            return res;
         }
 
         #endregion
@@ -322,10 +361,6 @@ namespace orgASM
                 {
                     noList = false;
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
-                }
-                else if (directive.StartsWith("include"))
-                {
-                    // TODO
                 }
                 else if ((directive.StartsWith("dat") || directive.StartsWith("dw")))
                 {

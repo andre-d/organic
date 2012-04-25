@@ -66,10 +66,6 @@ namespace orgASM
         /// </summary>
         public int LineNumber;
         /// <summary>
-        /// The global line number of this code when #include adds it to the file.
-        /// </summary>
-        public int RootLineNumber;
-        /// <summary>
         /// The assembled output.
         /// </summary>
         public ushort[] Output;

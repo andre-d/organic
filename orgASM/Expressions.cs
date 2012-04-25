@@ -8,7 +8,6 @@ namespace orgASM
 {
     public partial class Assembler
     {
-        // TODO: Return ExpressionResult
         /// <summary>
         /// Given an expression, it will parse it and return the result as a nullable ushort
         /// </summary>
@@ -128,11 +127,17 @@ namespace orgASM
                 {
                     expressionResult.References = expressionResult.References.Concat(
                         new string[] { value.ToLower() }).ToArray();
+                    return expressionResult;
                 }
             }
 
             // Parse expression
             string[] operands = GetOperands(value);
+            if (operands == null)
+            {
+                expressionResult.Successful = false;
+                return expressionResult;
+            }
             if (string.IsNullOrEmpty(operands[0]) && operands[1] == "-")
             {
                 expressionResult = ParseExpression(operands[2]);
