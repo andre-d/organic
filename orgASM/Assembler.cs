@@ -251,7 +251,7 @@ namespace orgASM
                         }
 
                         bool invalidParameter = false;
-                        string[] references = new string[0];
+                        ExpressionResult expression = null;
                         for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
                         {
                             ExpressionResult parameter = ParseExpression(opcode.appendedValues[j]);
@@ -264,7 +264,7 @@ namespace orgASM
                             else
                             {
                                 value = value.Concat(new ushort[] { parameter.Value }).ToArray();
-                                references = parameter.References;
+                                expression = parameter;
                             }
                         }
 
@@ -272,7 +272,7 @@ namespace orgASM
                             continue;
 
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList, warning));
-                        output[output.Count - 1].References = references;
+                        output[output.Count - 1].Expression = expression;
                         if (!noList)
                             currentAddress += (ushort)value.Length;
                     }
@@ -289,21 +289,23 @@ namespace orgASM
                 if (output[i].Code != null)
                     if (output[i].Code.StartsWith(".org") || output[i].Code.StartsWith("#org"))
                         optimizedWords = 0;
-                if (output[i].References == null)
+                if (output[i].Expression == null)
                     continue;
-                for (int j = 0; j < output[i].References.Length; j++)
+                for (int j = 0; j < output[i].Expression.References.Length; j++)
                 {
                     if (output[i].Output.Length > 1)
                     {
-                        string reference = output[i].References[j];
+                        string reference = output[i].Expression.References[j];
                         if (!Values.ContainsKey(reference.ToLower()))
                             output[i].ErrorCode = ErrorCode.UnknownReference;
                         else
                         {
-                            ushort value = Values[reference.ToLower()];
-                            if (value < 0x1F)
+                            ushort originalValue = output[i].Output[1];
+                            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
+                            if (value < 0x1F && j == output[i].Expression.References.Length - 1 && false) // TODO: Make values keep track of labels
                             {
-                                // Optimized to one word shorter
+                                // Optimize to one word shorter
+                                optimizedWords--;
                                 // TODO: Assign to literals
                                 output[i].Output = new ushort[] {
                                     (ushort)(output[i].Output[0] & ~0xFC00 | (ushort)(value << 10))

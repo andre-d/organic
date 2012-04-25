@@ -88,7 +88,7 @@ namespace orgASM
         /// <summary>
         /// A list of referenced values this code uses, such as label names and equates.
         /// </summary>
-        public string[] References;
+        public ExpressionResult Expression;
 
         /// <summary>
         /// Given an error code, this returns a user-friendly message.

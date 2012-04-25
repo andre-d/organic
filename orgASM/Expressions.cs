@@ -123,6 +123,16 @@ namespace orgASM
                     expressionResult.Value = RelativeLabels.ElementAt(currentIndex).Value;
                     return expressionResult;
                 }
+                else if (value.ToLower() == "true")
+                {
+                    expressionResult.Value = 1;
+                    return expressionResult;
+                }
+                else if (value.ToLower() == "false")
+                {
+                    expressionResult.Value = 0;
+                    return expressionResult;
+                }
                 else // Defined value or error
                 {
                     expressionResult.References = expressionResult.References.Concat(
@@ -206,6 +216,8 @@ namespace orgASM
                     expressionResult.Successful = false;
                     return expressionResult;
             }
+            expressionResult.References = expressionResult.References
+                .Concat(left.References).Concat(right.References).ToArray();
             return expressionResult;
         }
 
@@ -355,5 +367,9 @@ namespace orgASM
         /// A list of referenced values
         /// </summary>
         public string[] References { get; set; }
+        /// <summary>
+        /// The original expression
+        /// </summary>
+        public string Expression { get; set; }
     }
 }
