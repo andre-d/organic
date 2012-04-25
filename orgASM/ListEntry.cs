@@ -121,6 +121,8 @@ namespace orgASM
                     return "File not found.";
                 case ErrorCode.UndefinedReference:
                     return "Undefined reference.";
+                case ErrorCode.AlignToPast:
+                    return "Attempted to .align to past address.";
                 default:
                     return Entry.ToString() + ".";
             }

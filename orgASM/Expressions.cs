@@ -15,6 +15,16 @@ namespace orgASM
         /// <returns></returns>
         public ExpressionResult ParseExpression(string value)
         {
+            return ParseExpression(value, false);
+        }
+
+        /// <summary>
+        /// Given an expression, it will parse it and return the result as a nullable ushort
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public ExpressionResult ParseExpression(string value, bool followReferences)
+        {
             ExpressionResult expressionResult = new ExpressionResult();
             expressionResult.Successful = true;
             expressionResult.References = new string[0];
@@ -161,8 +171,22 @@ namespace orgASM
                 }
                 else // Defined value or error
                 {
-                    expressionResult.References = expressionResult.References.Concat(
-                        new string[] { value.ToLower() }).ToArray();
+                    if (followReferences)
+                    {
+                        if (Values.ContainsKey(value.ToLower()))
+                        {
+                            expressionResult.Value = Values[value.ToLower()];
+                        }
+                        else
+                        {
+                            expressionResult.Successful = false;
+                        }
+                    }
+                    else
+                    {
+                        expressionResult.References = expressionResult.References.Concat(
+                            new string[] { value.ToLower() }).ToArray();
+                    }
                     return expressionResult;
                 }
             }
@@ -184,8 +208,8 @@ namespace orgASM
                 expressionResult.Successful = false;
                 return expressionResult;
             }
-            ExpressionResult left = ParseExpression(operands[0]);
-            ExpressionResult right = ParseExpression(operands[2]);
+            ExpressionResult left = ParseExpression(operands[0], followReferences);
+            ExpressionResult right = ParseExpression(operands[2], followReferences);
             if (!left.Successful || !right.Successful)
             {
                 expressionResult.Successful = false;

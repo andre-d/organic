@@ -36,6 +36,12 @@ label1: ; Duplicate
 	JSR label3
 	SET A, A
 	SET 10, A
+.equ testValue 10
+.if testValue == 9
+	SET A, B
+.elseif
+	SET B, A
+.end
 #ifdef TEST
 	SET A, 1
 #end
@@ -62,3 +68,10 @@ label1: ; Duplicate
 	HWN A
 	HWQ A
 	HWI A
+
+.org 0x1000
+.align 0x1005
+.fill 0x10, 0x20
+.ascii "Hello, world!"
+.asciiz "Hello, world!"
+.asciip "Hello, world!"

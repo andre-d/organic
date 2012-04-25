@@ -59,6 +59,10 @@ namespace orgASM
         /// A referenced label or equate was not defined.
         /// </summary>
         UndefinedReference = 11,
+        /// <summary>
+        /// A .align directive specified an address in the past.
+        /// </summary>
+        AlignToPast = 12,
     }
 
     /// <summary>
