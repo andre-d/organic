@@ -132,7 +132,7 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.dat \[data]** and **.dw \[data]**: Outputs [data] directly to the listing.
 
-**.echo [message...]**: Echos [message...] to the console and the listing.  [message...] has the same inputs as .dat/.dw.
+**.echo \[message...]**: Echos [message...] to the console and the listing.  [message...] has the same inputs as .dat/.dw.
 
 **.else**: This will negate the matching .if statement.
 
