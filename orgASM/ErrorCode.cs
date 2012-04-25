@@ -50,7 +50,11 @@ namespace orgASM
         /// <summary>
         /// A #end statement does not have a matching #if, #ifdef, or #ifndef statement.
         /// </summary>
-        UncoupledEnd = 9
+        UncoupledEnd = 9,
+        /// <summary>
+        /// A file was referenced in code that was not found on the disk.
+        /// </summary>
+        FileNotFound = 10,
     }
 
     /// <summary>

@@ -125,8 +125,43 @@ namespace orgASM
                 }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
-                    // Parse preprocessor directives
-                    ParseDirectives(output, line);
+                    // #include has to be handled in this method
+                    if (line.StartsWith("#include ") || line.StartsWith(".include "))
+                    {
+                        string includedFileName = line.Substring(line.IndexOf(" ") + 1);
+                        includedFileName = includedFileName.Trim('"', '\'');
+                        if (!File.Exists(includedFileName))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        else
+                        {
+                            using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
+                            {
+                                StreamReader sr = new StreamReader(includedFile);
+                                string contents = sr.ReadToEnd();
+                                sr.Close();
+
+                                string[] newSource = contents.Replace("\r", "").Split('\n');
+                                string[] newLines = new string[newSource.Length + lines.Length];
+                                Array.Copy(lines, newLines, i);
+                                Array.Copy(newSource, 0, newLines, i, newSource.Length);
+                                newLines[i + newSource.Length] = "#endfile";
+                                Array.Copy(lines, i + 1, newLines, i + newSource.Length + 1, lines.Length - i - 1);
+                                lines = newLines;
+                            }
+                            FileNames.Push(includedFileName);
+                            LineNumbers.Push(1);
+                        }
+                    }
+                    else if (line == "#endfile" || line == ".endfile")
+                    {
+                        FileNames.Pop();
+                        LineNumbers.Pop();
+                    }
+                    else
+                    {
+                        // Parse preprocessor directives
+                        ParseDirectives(output, line);
+                    }
                 }
                 else if (line.StartsWith(":") || line.EndsWith(":"))
                 {

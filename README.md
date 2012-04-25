@@ -128,6 +128,8 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.endif** and **.end**: Closes a matching .if* statement.
 
+**.include "[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.
+
 Compiling .orgASM
 -----------------
 

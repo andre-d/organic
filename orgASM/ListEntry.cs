@@ -121,6 +121,8 @@ namespace orgASM
                     return "Too many parameters.";
                 case ErrorCode.UncoupledEnd:
                     return "Uncoupled END directive.";
+                case ErrorCode.FileNotFound:
+                    return "File not found.";
                 default:
                     return Entry.ToString() + ".";
             }
