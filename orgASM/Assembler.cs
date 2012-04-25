@@ -352,18 +352,43 @@ namespace orgASM
             if (directive == "endif" || directive == "end")
             {
                 if (IfStack.Count == 1)
-                {
-                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledEnd));
-                }
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledStatement));
                 else
                 {
                     IfStack.Pop();
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
             }
-            else if (directive == "elseif" || directive == "elif")
+            else if (directive.StartsWith("elseif") || directive.StartsWith("elif"))
             {
-                IfStack.Push(!IfStack.Pop());
+                if (IfStack.Count == 1)
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledStatement));
+                else
+                {
+                    if (parameters.Length == 1)
+                    {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    }
+                    else
+                    {
+                        var result = ParseExpression(line.Substring(3), true);
+                        if (result.Successful)
+                        {
+                            if (result.Value > 0)
+                                IfStack.Push(!IfStack.Pop());
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        }
+                        else
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                    }
+                }
+            }
+            else if (directive == "else")
+            {
+                if (IfStack.Count == 1)
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledStatement));
+                else
+                    IfStack.Push(!IfStack.Pop());
             }
             else if (IfStack.Peek())
             {

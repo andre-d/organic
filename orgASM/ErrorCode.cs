@@ -48,9 +48,9 @@ namespace orgASM
         /// </summary>
         TooManyParamters = 8,
         /// <summary>
-        /// A #end statement does not have a matching #if, #ifdef, or #ifndef statement.
+        /// A .elseif, .elif, .else, or .end statement does not have a matching .if, .ifdef, or .ifndef statement.
         /// </summary>
-        UncoupledEnd = 9,
+        UncoupledStatement = 9,
         /// <summary>
         /// A file was referenced in code that was not found on the disk.
         /// </summary>

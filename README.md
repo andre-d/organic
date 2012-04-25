@@ -130,9 +130,23 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
 
+**.ifndef \[key]**: If the given key is NOT defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.if \[expression]**: If the expression is greater than or equal to 1, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.elseif \[expression]** and **.elif \[expression]**: If the matching .if statement was false, this will execute as a .if statement.
+
+**.else**: This will negate the matching .if statement.
+
 **.endif** and **.end**: Closes a matching .if* statement.
 
-**.include "[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.
+**.include "\[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.
+
+**.ascii "\[text]"**: Inserts the ASCII string [text].
+
+**.asciiz "\[text]"** and **.asciic [text]**: Inserts the ASCII string [text], postfixed with a zero (C-style string).
+
+**.asciip "\[text]"**: Inserts the ASCII string [text], prefixed with its length (Pascal-style string).
 
 Understanding Listings
 ----------------------

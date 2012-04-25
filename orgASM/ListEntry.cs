@@ -115,8 +115,8 @@ namespace orgASM
                     return "Insufficient parameters.";
                 case ErrorCode.TooManyParamters:
                     return "Too many parameters.";
-                case ErrorCode.UncoupledEnd:
-                    return "Uncoupled END directive.";
+                case ErrorCode.UncoupledStatement:
+                    return "Uncoupled END, ELSEIF, ELIF, or ELSE directive.";
                 case ErrorCode.FileNotFound:
                     return "File not found.";
                 case ErrorCode.UndefinedReference:
