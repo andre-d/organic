@@ -202,7 +202,7 @@ namespace orgASM
                     }
                     foreach (char c in label)
                     {
-                        if (!char.IsLetterOrDigit(c))
+                        if (!char.IsLetterOrDigit(c) && c != '_')
                         {
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
                             continue;
