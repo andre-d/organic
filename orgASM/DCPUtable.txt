@@ -25,7 +25,7 @@ o 0B XOR_%b-,-%a
 o 0C SHR_%b-,-%a
 o 0D ASR_%b-,-%a
 o 0E SHL_%b-,-%a
-o 0F MVI_%b-,-%a
+o 0F STI_%b-,-%a
 o 10 IFB_%b-,-%a
 o 11 IFC_%b-,-%a
 o 12 IFE_%b-,-%a
@@ -37,7 +37,7 @@ o 17 IFU_%b-,-%a
 #o 18 [nop]
 #o 19 [nop]
 o 1A ADX_%b-,-%a
-o 1B SUX_%b-,-%a
+o 1B SBX_%b-,-%a
 #o 1C [nop]
 #o 1D [nop]
 #o 1E [nop]
@@ -50,7 +50,7 @@ n 01 JSR_%a
 #n 04 [nop]
 #n 05 [nop]
 #n 06 [nop]
-#n 07 [nop]
+n 07 HCF_%a
 n 08 INT_%a
 n 09 IAG_%a
 n 0A IAS_%a
