@@ -272,7 +272,7 @@ namespace orgASM
                         int appendedValuesStartIndex = 0;
 
                         if (nonBasic)
-                            value[0] = (ushort)(((int)(opcode.value) << 4) | ((int)(valueA.value) << 10));
+                            value[0] = (ushort)(((int)(opcode.value) << 5) | ((int)(valueA.value) << 10));
                         else
                             value[0] = (ushort)(opcode.value | ((int)(valueB.value) << 5) | ((int)(valueA.value) << 10));
 
