@@ -52,8 +52,8 @@ n 01 JSR_%a
 #n 06 [nop]
 #n 07 [nop]
 n 08 INT_%a
-n 09 ING_%a
-n 0A INS_%a
+n 09 IAG_%a
+n 0A IAS_%a
 #n 0B [nop]
 #n 0C [nop]
 #n 0D [nop]

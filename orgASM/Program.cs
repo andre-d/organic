@@ -122,7 +122,7 @@ namespace orgASM
             }
             if (outputFile == null)
                 outputFile = Path.GetFileNameWithoutExtension(inputFile) + ".bin";
-            if (!File.Exists(inputFile) && pipe == null)
+            if (!File.Exists(inputFile) && pipe == null && inputFile != "-")
             {
                 Console.WriteLine("Error: File not found (" + inputFile + ")");
                 return;
@@ -131,9 +131,14 @@ namespace orgASM
             string contents;
             if (pipe == null)
             {
-                StreamReader reader = new StreamReader(inputFile);
-                contents = reader.ReadToEnd();
-                reader.Close();
+                if (inputFile != "-")
+                {
+                    StreamReader reader = new StreamReader(inputFile);
+                    contents = reader.ReadToEnd();
+                    reader.Close();
+                }
+                else
+                    contents = Console.In.ReadToEnd();
             }
             else
                 contents = pipe;
@@ -159,7 +164,9 @@ namespace orgASM
                 }
             }
 
-            Stream binStream = File.Open(outputFile, FileMode.Create);
+            Stream binStream = null;
+            if (outputFile != "-")
+                binStream = File.Open(outputFile, FileMode.Create);
             foreach (var entry in output)
             {
                 if (entry.Output != null)
@@ -169,7 +176,10 @@ namespace orgASM
                         byte[] buffer = BitConverter.GetBytes(value);
                         if (bigEndian)
                             Array.Reverse(buffer);
-                        binStream.Write(buffer, 0, buffer.Length);
+                        if (inputFile != "-")
+                            binStream.Write(buffer, 0, buffer.Length);
+                        else
+                            Console.Out.Write(Encoding.ASCII.GetString(buffer));
                     }
                 }
             }
