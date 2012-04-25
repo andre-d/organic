@@ -179,6 +179,7 @@ namespace orgASM
                     }
                     if (opcode == null)
                     {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidOpcode));
                         continue;
                     }
                     else
@@ -217,7 +218,7 @@ namespace orgASM
                                 if (ParseExpression(opcode.appendedValues[0]).Value <= 0x1F && !valueB.match.Contains("["))
                                 {
                                     // Compress the appended value into the opcode
-                                    // TODO: Support for writing to literals (fails silenty on DCPU)
+                                    // TODO: Support for writing to literals (does this already work? dunno)
                                     // TODO: Do this better
                                     value[0] &= 0x3FF;
                                     value[0] |= (ushort)(0x20 + ParseExpression(opcode.appendedValues[0]) << 10);

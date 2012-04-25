@@ -21,6 +21,7 @@ namespace orgASM
             string inputFile = null;
             string outputFile = null;
             string listingFile = null;
+            string pipe = null;
             bool bigEndian = false, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
             for (int i = 0; i < args.Length; i++)
@@ -73,6 +74,11 @@ namespace orgASM
                             case "-q":
                                 quiet = true;
                                 break;
+                            case "--pipe":
+                            case "-p":
+                                pipe = args[i + 1];
+                                i++;
+                                break;
                             case "--verbose":
                             case "-v":
                                 verbose = true;
@@ -101,24 +107,34 @@ namespace orgASM
                     }
                 }
             }
-            if (inputFile == null)
+            if (inputFile == null && pipe == null)
             {
                 Console.WriteLine("Error: No input file specified.\nUse orgASM.exe --help for usage information.");
                 return;
             }
             if (outputFile == null)
                 outputFile = Path.GetFileNameWithoutExtension(inputFile) + ".bin";
-            if (!File.Exists(inputFile))
+            if (!File.Exists(inputFile) && pipe == null)
             {
                 Console.WriteLine("Error: File not found (" + inputFile + ")");
                 return;
             }
 
-            StreamReader reader = new StreamReader(inputFile);
-            string contents = reader.ReadToEnd();
-            reader.Close();
+            string contents;
+            if (pipe == null)
+            {
+                StreamReader reader = new StreamReader(inputFile);
+                contents = reader.ReadToEnd();
+                reader.Close();
+            }
+            else
+                contents = pipe;
 
-            List<ListEntry> output = assembler.Assemble(contents, inputFile);
+            List<ListEntry> output;
+            if (pipe == null)
+                output = assembler.Assemble(contents, inputFile);
+            else
+                output = assembler.Assemble(contents, "[piped input]");
 
             // Output errors
             if (!quiet)

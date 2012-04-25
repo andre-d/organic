@@ -10,13 +10,24 @@ namespace orgASM
     /// </summary>
     internal class TabifiedStringBuilder
     {
+        /// <summary>
+        /// The working value of the string.
+        /// </summary>
         public string Value { get; set; }
 
+        /// <summary>
+        /// Creates a TabifiedStringBuilder with an empty string
+        /// </summary>
         public TabifiedStringBuilder()
         {
             Value = "";
         }
 
+        /// <summary>
+        /// Writes the value at the given index, and pads it with spaces.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="content"></param>
         public void WriteAt(int position, string content)
         {
             while (Value.Length < position)
