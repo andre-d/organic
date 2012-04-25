@@ -1,17 +1,9 @@
 .orgASM
 =======
 
-.orgASM is an assembler for the DCPU-16 architecture that supports the *.org* directive.  It is an incomplete assembler.  Here's a (likely out of date) list of supported features:
+.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.3 of the [DCPU specification](http://dcpu.com/highnerd/dcpu16_1_3.txt).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
 
-* Assembling all instructions
-* Labels
-* Listing output
-* Expression evaluation
-* Relative addressing
-
-*Planned Features*:
-
-* Macros
+The only feature that remains to be implemented is macro support.
 
 Using .orgASM
 -------------
@@ -22,21 +14,27 @@ On Linux, make sure that you have "mono-complete" installed, and prepend any com
 
 Usage: orgASM.exe [parameters] [input file] [output file]
 
-[output file] is optional, and [input file].bin will be used if it is not specified.
+[output file] is optional, and [input file].bin will be used if it is not specified.  If you specify an input or output file as "-", the standard input/output will be used instead of reading from the disk.
 
 ### Parameters
+
+**--big-endian**
+
+Switches output to big-endian mode, the reverse of notchian syntax.
+
+Shorthand: -b
+
+**--equate [key] [value]**
+
+Specifies an equate to use at assembly-time.  Same as .equ in-code.
+
+Shorthand: -e
 
 **--help**
 
 Displays usage information.
 
 Shorthand: -h, -?, /h, /?
-
-**--output-file [filename]**
-
-An alternative way to specify the output file.
-
-Shorthand: -o, --output
 
 **--input-file [filename]**
 
@@ -48,23 +46,23 @@ Adds [path] to the paths to search through for include files.  This only affects
 
 Shorthand: -i
 
-**--equate [key] [value]**
-
-Specifies an equate to use at assembly-time.  Same as .equ in-code.
-
-Shorthand: -e
-
 **--listing [filename]**
 
 Specifies a file to output a code listing to.
 
 Shorthand: -l
 
-**--big-endian**
+**--output-file [filename]**
 
-Switches output to big-endian mode, the reverse of notchian syntax.
+An alternative way to specify the output file.
 
-Shorthand: -b
+Shorthand: -o, --output
+
+**--pipe "[assembly]"**
+
+Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.
+
+Shorthand: -p
 
 **--quiet**
 
@@ -77,12 +75,6 @@ Shorthand: -q
 Will output a listing to the console.
 
 Shorthand: -v
-
-**--pipe "[assembly]"**
-
-Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.
-
-Shorthand: -p
 
 **--working-directory [directory]**
 
@@ -112,6 +104,8 @@ All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
 ### Relative Addressing
 
+**NOTE**: The current version of .orgASM's relative addressing implementation is broken.
+
 You may create any number of labels called "$".  These are relative labels.  You can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
 
         SET A, $++ ; References the relative label before SET C, B
@@ -128,41 +122,41 @@ Please note that relative addressing is different than the "$" constant, which r
 
 .orgASM offers several pre-processor directives to ease use.  These may be used with either "." or "#".
 
-**.org \[origin]**: Sets the origin to \[origin]
-
-**.dat \[data]** and **.dw \[data]**: Outputs [data] directly to the listing.
-
-**.nolist**: Stops assembly until .list
-
-**.list**: Resumes assembly after .nolist
-
-**.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
-
-**.equ \[key] (value)** and **.define \[key] (value)***: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
-
-**.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
-
-**.ifndef \[key]**: If the given key is NOT defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
-
-**.if \[expression]**: If the expression is greater than or equal to 1, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
-
-**.elseif \[expression]** and **.elif \[expression]**: If the matching .if statement was false, this will execute as a .if statement.
-
-**.else**: This will negate the matching .if statement.
-
-**.endif** and **.end**: Closes a matching .if* statement.
-
-**.include "\[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.
-
 **.ascii "\[text]"**: Inserts the ASCII string [text].
-
-**.asciiz "\[text]"** and **.asciic [text]**: Inserts the ASCII string [text], postfixed with a zero (C-style string).
 
 **.asciip "\[text]"**: Inserts the ASCII string [text], prefixed with its length (Pascal-style string).
 
-**.fill \[length], \[value]** and **.pad \[length], \[value]**: Inserts [value] into the output [length] times.
+**.asciiz "\[text]"** and **.asciic [text]**: Inserts the ASCII string [text], postfixed with a zero (C-style string).
 
 **.align \[address]**: Pads the output with zeros until currentAddress is equal to [address].
+
+**.dat \[data]** and **.dw \[data]**: Outputs [data] directly to the listing.
+
+**.else**: This will negate the matching .if statement.
+
+**.elseif \[expression]** and **.elif \[expression]**: If the matching .if statement was false, this will execute as a .if statement.
+
+**.endif** and **.end**: Closes a matching .if* statement.
+
+**.equ \[key] (value)** and **.define \[key] (value)***: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
+
+**.fill \[length], \[value]** and **.pad \[length], \[value]**: Inserts [value] into the output [length] times.
+
+**.if \[expression]**: If the expression is greater than or equal to 1, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.ifndef \[key]**: If the given key is NOT defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.ifdef \[key]**: If the given key is defined with .equ or .define, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
+
+**.include "\[file]"**: Includes an external file.  For example, #include "file.asm".  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
+
+**.list**: Resumes assembly after .nolist
+
+**.nolist**: Stops assembly until .list
+
+**.org \[origin]**: Sets the origin to \[origin]
+
+**.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
 
 Understanding Listings
 ----------------------
@@ -203,13 +197,13 @@ For .dat sections, the data is split up on different lines of a listing.  Each l
 Compiling .orgASM
 -----------------
 
-*Note:* .orgASM's root git directory is ".orgASM" by default, which is hidden on most unix systems.  Use "mv .orgASM orgASM" to fix this.
+**Note:** .orgASM's root git directory is ".orgASM" by default, which is hidden on most unix systems.  Use "mv .orgASM orgASM" to fix this.
 
-*Windows*: "msbuild" from the root directory of the project.
+**Windows**: "msbuild" from the root directory of the project.
 
-*Linux*: Install "mono-complete".  "xbuild" from the root directory of the project.
+**Linux**: Install "mono-complete".  "xbuild" from the root directory of the project.
 
-*Mac*: Install mono (I don't know how to do this on Mac).  "xbuild" from the root directory of the project.
+**Mac**: Install mono (I don't know how to do this on Mac).  "xbuild" from the root directory of the project.
 
 Using .orgASM as a Library
 --------------------------
