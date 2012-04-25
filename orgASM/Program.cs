@@ -43,12 +43,10 @@ namespace orgASM
                             case "-o":
                             case "--output":
                             case "--output-file":
-                                outputFile = args[i + 1];
-                                i++;
+                                outputFile = args[++i];
                                 break;
                             case "--input-file":
-                                inputFile = args[i + 1];
-                                i++;
+                                inputFile = args[++i];
                                 break;
                             case "-e":
                             case "--equate":
@@ -63,8 +61,7 @@ namespace orgASM
                                 break;
                             case "-l":
                             case "--listing":
-                                listingFile = args[i + 1];
-                                i++;
+                                listingFile = args[++i];
                                 break;
                             case "--big-endian":
                             case "-b":
@@ -76,17 +73,22 @@ namespace orgASM
                                 break;
                             case "--pipe":
                             case "-p":
-                                pipe = args[i + 1];
-                                i++;
+                                pipe = args[++i];
                                 break;
                             case "--include":
                             case "-i":
-                                assembler.IncludePath = args[i + 1];
-                                i++;
+                                assembler.IncludePath = args[++i];
+                                break;
+                            case "--working-directory":
+                            case "-w":
+                                Directory.SetCurrentDirectory(args[++i]);
                                 break;
                             case "--verbose":
                             case "-v":
                                 verbose = true;
+                                break;
+                            case "--debug-mode":
+                                Console.ReadKey();
                                 break;
                             default:
                                 Console.WriteLine("Error: Invalid parameter: " + arg + "\nUse orgASM.exe --help for usage information.");
@@ -308,6 +310,7 @@ namespace orgASM
             Console.WriteLine(".orgASM DCPU-16 Assembler    Copyright Drew DeVault 2012");
         }
 
+        // TODO: Update
         private static void DisplayHelp()
         {
             Console.WriteLine("Usage: orgASM.exe [parameters] [input file] [output file]\n" +

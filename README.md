@@ -84,6 +84,12 @@ Instead of using a file for input, the given assembly will be piped into the ass
 
 Shorthand: -p
 
+**--working-directory [directory]**
+
+Manually sets the working directory of .orgASM.
+
+Shorthand: -w
+
 Syntax
 ------
 
