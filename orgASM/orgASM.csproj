@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembler.cs" />
+    <Compile Include="Directives.cs" />
     <Compile Include="ErrorCode.cs" />
     <Compile Include="Expressions.cs" />
     <Compile Include="Extensions.cs" />

@@ -138,7 +138,7 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.endif** and **.end**: Closes a matching .if* statement.
 
-**.equ \[key] (value)** and **.define \[key] (value)***: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
+**.equ \[key] (value)** and **.define \[key] (value)**: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
 
 **.fill \[length], \[value]** and **.pad \[length], \[value]**: Inserts [value] into the output [length] times.
 
