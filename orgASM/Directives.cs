@@ -104,7 +104,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
                     }
                 }
-                else if (directive.StartsWith("echo "))
+                else if (directive.StartsWith("echo"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -142,7 +142,7 @@ namespace orgASM
                         output.Add(new ListEntry(consoleOutput, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                     }
                 }
-                else if (directive.StartsWith("ascii "))
+                else if (directive.StartsWith("ascii"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -173,7 +173,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("asciip "))
+                else if (directive.StartsWith("asciip"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -205,7 +205,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("asciic ") || directive.StartsWith("asciiz "))
+                else if (directive.StartsWith("asciic") || directive.StartsWith("asciiz"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -237,7 +237,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("org ")) // .orgASM's namesake :)
+                else if (directive.StartsWith("org")) // .orgASM's namesake :)
                 {
                     if (parameters.Length == 1)
                     {
@@ -261,7 +261,7 @@ namespace orgASM
                         }
                     }
                 }
-                else if (directive.StartsWith("ifdef "))
+                else if (directive.StartsWith("ifdef"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -280,7 +280,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("ifndef "))
+                else if (directive.StartsWith("ifndef"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -299,7 +299,7 @@ namespace orgASM
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                     }
                 }
-                else if (directive.StartsWith("if "))
+                else if (directive.StartsWith("if"))
                 {
                     if (parameters.Length == 1)
                     {
@@ -320,7 +320,7 @@ namespace orgASM
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                     }
                 }
-                else if (directive.StartsWith("equ ") || directive.StartsWith("define ") || directive.StartsWith("equate "))
+                else if (directive.StartsWith("equ") || directive.StartsWith("define") || directive.StartsWith("equate"))
                 {
                     if (parameters.Length > 1)
                     {
@@ -352,7 +352,7 @@ namespace orgASM
                         }
                     }
                 }
-                else if (directive.StartsWith("undef "))
+                else if (directive.StartsWith("undef"))
                 {
                     if (parameters.Length != 2)
                     {
@@ -387,7 +387,7 @@ namespace orgASM
                     else
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                 }
-                else if (directive.StartsWith("pad ") || directive.StartsWith("fill ")) // .pad length, value
+                else if (directive.StartsWith("pad") || directive.StartsWith("fill")) // .pad length, value
                 {
                     parameters = line.SafeSplit(',', ' ');
                     string[] fixedParams = new string[0];
@@ -416,7 +416,7 @@ namespace orgASM
                     else
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                 }
-                else if (directive.StartsWith("align ")) // .align addr
+                else if (directive.StartsWith("align")) // .align addr
                 {
                     if (parameters.Length == 2)
                     {

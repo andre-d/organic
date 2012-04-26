@@ -183,10 +183,14 @@ namespace orgASM
                 {
                     line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
                 }
+                if (line.StartsWith("dat"))
+                {
+                    line = "." + line;
+                }
                 if (line.StartsWith(".") || line.StartsWith("#"))
                 {
                     // #include has to be handled in this method
-                    if (line.StartsWith("#include ") || line.StartsWith(".include "))
+                    if (line.StartsWith("#include") || line.StartsWith(".include"))
                     {
                         if (!IfStack.Peek())
                             continue;
@@ -228,7 +232,7 @@ namespace orgASM
                             LineNumbers.Push(1);
                         }
                     }
-                    else if ((line.StartsWith("#incbin ") || line.StartsWith(".incbin ")) && !noList)
+                    else if ((line.StartsWith("#incbin") || line.StartsWith(".incbin")) && !noList)
                     {
                         if (!IfStack.Peek())
                             continue;
@@ -266,7 +270,7 @@ namespace orgASM
                             }
                         }
                     }
-                    else if ((line.StartsWith("#incpack ") || line.StartsWith(".incpack ")) && !noList)
+                    else if ((line.StartsWith("#incpack") || line.StartsWith(".incpack")) && !noList)
                     {
                         if (!IfStack.Peek())
                             continue;
@@ -319,7 +323,7 @@ namespace orgASM
                         FileNames.Pop();
                         LineNumbers.Pop();
                     }
-                    else if (line.StartsWith(".macro ") && !noList)
+                    else if (line.StartsWith(".macro") && !noList)
                     {
                         if (!IfStack.Peek())
                             continue;
