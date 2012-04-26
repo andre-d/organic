@@ -447,7 +447,7 @@ namespace orgASM
                                 ushort[] padding = new ushort[amount];
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
                                 if (!noList)
-                                    currentAddress = amount;
+                                    currentAddress = addr.Value;
                             }
                         }
                     }
