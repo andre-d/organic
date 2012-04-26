@@ -384,8 +384,8 @@ namespace orgASM
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidParameter));
                                 continue;
                             }
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
                             opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
+                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
                             if (valueA.value == valueB.value)
                                 warning = WarningCode.RedundantStatement; // TODO: Assign to literal
                         }
