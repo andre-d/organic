@@ -164,6 +164,8 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
 
+**.reserve \[amount]**: Inserts [amount] words into the output.  Each word is zero.
+
 Understanding Listings
 ----------------------
 
