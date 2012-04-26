@@ -594,7 +594,7 @@ namespace orgASM
                         valueIndex++;
                     }
                 }
-                if (matchFound)                    
+                if (matchFound && valueIndex == value.Length)
                     return match;
             }
             return null;
