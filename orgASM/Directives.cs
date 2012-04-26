@@ -416,6 +416,20 @@ namespace orgASM
                     else
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                 }
+                else if (directive.StartsWith("reserve"))
+                {
+                    if (parameters.Length == 1)
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    else
+                    {
+                        var expression = directive.Substring(7).Trim();
+                        var result = ParseExpression(expression);
+                        if (result.Successful)
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), new ushort[result.Value], currentAddress, !noList));
+                        else
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                    }
+                }
                 else if (directive.StartsWith("align")) // .align addr
                 {
                     if (parameters.Length == 2)
