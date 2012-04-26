@@ -101,7 +101,9 @@ namespace orgASM
                                     binOutput.Add(value.Value);
                             }
                         }
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress));
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        if (!noList)
+                            currentAddress += (ushort)binOutput.Count;
                     }
                 }
                 else if (directive.StartsWith("echo"))
@@ -171,6 +173,8 @@ namespace orgASM
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        if (!noList)
+                            currentAddress += (ushort)binOutput.Count;
                     }
                 }
                 else if (directive.StartsWith("asciip"))
@@ -203,6 +207,8 @@ namespace orgASM
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        if (!noList)
+                            currentAddress += (ushort)binOutput.Count;
                     }
                 }
                 else if (directive.StartsWith("asciic") || directive.StartsWith("asciiz"))
@@ -235,6 +241,8 @@ namespace orgASM
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         }
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        if (!noList)
+                            currentAddress += (ushort)binOutput.Count;
                     }
                 }
                 else if (directive.StartsWith("org")) // .orgASM's namesake :)

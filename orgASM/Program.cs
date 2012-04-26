@@ -202,7 +202,7 @@ namespace orgASM
             Console.WriteLine(".orgASM build complete " + duration.TotalMilliseconds + "ms");
         }
 
-        private static string CreateListing(List<ListEntry> output)
+        public static string CreateListing(List<ListEntry> output)
         {
             string listing = "";
             int maxLength = 0, maxFileLength = 0;
