@@ -123,8 +123,7 @@ namespace orgASM
             List<ListEntry> output = new List<ListEntry>();
             for (int i = 0; i < lines.Length; i++)
             {
-                int ln = LineNumbers.Pop();
-                LineNumbers.Push(++ln);
+                LineNumbers.Push(LineNumbers.Pop() + 1);
 
                 string line = lines[i].TrimComments().TrimExcessWhitespace();
                 if (string.IsNullOrEmpty(line))
@@ -332,10 +331,62 @@ namespace orgASM
                         macro.Args = new string[0];
                         if (macroDefinition.Contains("("))
                         {
-                            string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("("));
+                            string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("(") + 1);
+                            macro.Name = macroDefinition.Remove(macroDefinition.IndexOf("("));
                             if (!paramDefinition.EndsWith(")"))
-                            {
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidMacroDefintion));
+                            else
+                            {
+                                paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
+                                if (paramDefinition.Length > 0)
+                                {
+                                    string[] parameters = paramDefinition.Split(',');
+                                    bool continueEvaluation = true;
+                                    for (int j = 0; j < parameters.Length; j++)
+                                    {
+                                        string parameter = parameters[j].Trim();
+                                        if (!char.IsLetter(parameter[0]))
+                                        {
+                                            continueEvaluation = false;
+                                            break;
+                                        }
+                                        foreach (char c in parameter)
+                                        {
+                                            if (!char.IsLetterOrDigit(c) && c != '_')
+                                            {
+                                                continueEvaluation = false;
+                                                break;
+                                            }
+                                        }
+                                        if (!continueEvaluation)
+                                            break;
+                                        macro.Args = macro.Args.Concat(new string[] { parameter }).ToArray();
+                                    }
+                                    if (!continueEvaluation)
+                                        continue;
+                                }
+                                // Isolate macro code
+                                macro.Code = "";
+                                bool foundEndmacro = false;
+                                string macroLine = line;
+                                i++;
+                                for (; i < lines.Length; i++)
+                                {
+                                    line = lines[i].TrimComments().TrimExcessWhitespace();
+                                    LineNumbers.Push(LineNumbers.Pop() + 1);
+                                    if (line == ".endmacro" || line == "#endmacro")
+                                    {
+                                        foundEndmacro = true;
+                                        break;
+                                    }
+                                    macro.Code += "\n" + line;
+                                }
+                                if (!foundEndmacro)
+                                {
+                                    output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(), 
+                                        currentAddress, ErrorCode.UncoupledStatement));
+                                    continue;
+                                }
                             }
                         }
                         else
