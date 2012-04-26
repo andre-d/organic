@@ -8,7 +8,7 @@ namespace orgASM
     /// <summary>
     /// Used to build strings with different portions always appearing at the same index
     /// </summary>
-    internal class TabifiedStringBuilder
+    public class TabifiedStringBuilder
     {
         /// <summary>
         /// The working value of the string.
