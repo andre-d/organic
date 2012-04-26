@@ -78,6 +78,7 @@
 
 .macro test(param1, param2)
 	SET param1, param2
+	ADD param1, param2
 .endmacro
 
 	test(A, B)

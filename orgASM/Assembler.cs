@@ -224,7 +224,8 @@ namespace orgASM
                                 Array.Copy(lines, newLines, i);
                                 Array.Copy(newSource, 0, newLines, i, newSource.Length);
                                 newLines[i + newSource.Length] = "#endfile";
-                                Array.Copy(lines, i + 1, newLines, i + newSource.Length + 1, lines.Length - i - 1);
+                                if (lines.Length > i + 1)
+                                    Array.Copy(lines, i + 1, newLines, i + newSource.Length + 1, lines.Length - i - 1);
                                 lines = newLines;
                             }
                             FileNames.Push(includedFileName);
@@ -391,6 +392,12 @@ namespace orgASM
                         }
                         else
                             macro.Name = macroDefinition;
+                        macro.Code = macro.Code.Trim('\n');
+                        Macros.Add(macro);
+                        output.Add(new ListEntry(".macro " + macroDefinition, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        foreach (var codeLine in macro.Code.Split('\n'))
+                            output.Add(new ListEntry(codeLine, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                        output.Add(new ListEntry(".endmacro", FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                     }
                     else
                     {
@@ -405,7 +412,51 @@ namespace orgASM
                     if (!IfStack.Peek())
                         continue;
                     // Search through macros
-                    // TODO
+                    if (line.SafeContains('(') && line.SafeContains(')'))
+                    {
+                        Macro userMacro = new Macro();
+                        userMacro.Args = new string[0];
+                        string macroDefinition = line;
+                        string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("(") + 1);
+                        userMacro.Name = macroDefinition.Remove(macroDefinition.IndexOf("("));
+                        if (!paramDefinition.EndsWith(")"))
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidMacroDefintion));
+                        else
+                        {
+                            paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
+                            if (paramDefinition.Length > 0)
+                            {
+                                string[] parameters = paramDefinition.Split(',');
+                                for (int j = 0; j < parameters.Length; j++)
+                                {
+                                    string parameter = parameters[j].Trim();
+                                    userMacro.Args = userMacro.Args.Concat(new string[] { parameter }).ToArray();
+                                }
+                            }
+                        }
+
+                        foreach (Macro macro in Macros)
+                        {
+                            if (macro.Name.ToLower() == userMacro.Name.ToLower() && 
+                                macro.Args.Length == userMacro.Args.Length)
+                            {
+                                // Expand the macro
+                                userMacro.Code = macro.Code;
+                                for (int j = 0; j < macro.Args.Length; j++)
+                                    userMacro.Code = userMacro.Code.Replace(macro.Args[j], userMacro.Args[j]);
+                                string[] macroCode = userMacro.Code.Replace("\r", "\n").Split('\n');
+                                string[] newLines = new string[lines.Length + macroCode.Length - 1];
+                                Array.Copy(lines, 0, newLines, 0, i);
+                                Array.Copy(macroCode, 0, newLines, i, macroCode.Length);
+                                if (lines.Length > i + 1)
+                                    Array.Copy(lines, i + 1, newLines, i + macroCode.Length, lines.Length - i - 1);
+                                lines = newLines;
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                                line = lines[i].TrimComments().TrimExcessWhitespace();
+                            }
+                        }
+                        // We'll just let the opcode matcher yell at them if it isn't found
+                    }
 
                     // Check for OPCodes
                     var opcode = MatchString(line, OpcodeTable);

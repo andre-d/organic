@@ -160,6 +160,9 @@ namespace orgASM
                         case '\\':
                             newvalue += "\\";
                             break;
+                        case '0':
+                            newvalue += "\0";
+                            break;
                         default:
                             return null;
                     }
