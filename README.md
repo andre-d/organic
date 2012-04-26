@@ -1,7 +1,7 @@
 .orgASM
 =======
 
-.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.3 of the [DCPU specification](http://dcpu.com/highnerd/dcpu16_1_3.txt).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
+.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.5 of the [DCPU specification](http://dcpu.com/highnerd/dcpu16_1_5.txt).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
 
 The only feature that remains to be implemented is macro support.
 
