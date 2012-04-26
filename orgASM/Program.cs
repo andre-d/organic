@@ -235,7 +235,7 @@ namespace orgASM
                         tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                     else
                         tsb.WriteAt(maxLength, "[NOLIST] ");
-                    tsb.WriteAt(maxLength + 21, listentry.Code);
+                    tsb.WriteAt(maxLength + 25, listentry.Code);
                     listing += tsb.Value + "\n";
                     // Write data
                     for (int i = 0; i < listentry.Output.Length; i += 8)
@@ -267,7 +267,7 @@ namespace orgASM
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
                             tsb.WriteAt(maxLength, "[NOLIST] ");
-                        tsb.WriteAt(maxLength + 8, "Error: " + ListEntry.GetFriendlyErrorMessage(listentry.ErrorCode));
+                        tsb.WriteAt(maxLength + 8, "ERROR: " + ListEntry.GetFriendlyErrorMessage(listentry.ErrorCode));
                         listing += tsb.Value + "\n";
                     }
                     if (listentry.WarningCode != WarningCode.None)
@@ -279,7 +279,7 @@ namespace orgASM
                             tsb.WriteAt(maxLength, "[0x" + LongHex(listentry.Address) + "] ");
                         else
                             tsb.WriteAt(maxLength, "[NOLIST] ");
-                        tsb.WriteAt(maxLength + 8, "Warning: " + ListEntry.GetFriendlyWarningMessage(listentry.WarningCode));
+                        tsb.WriteAt(maxLength + 8, "WARNING: " + ListEntry.GetFriendlyWarningMessage(listentry.WarningCode));
                         listing += tsb.Value + "\n";
                     }
                     tsb = new TabifiedStringBuilder();
@@ -292,10 +292,10 @@ namespace orgASM
                     if (listentry.Output != null)
                     {
                         tsb.WriteAt(maxLength + 8, DumpArray(listentry.Output));
-                        tsb.WriteAt(maxLength + 21, listentry.Code);
+                        tsb.WriteAt(maxLength + 25, listentry.Code);
                     }
                     else
-                        tsb.WriteAt(maxLength + 19, listentry.Code);
+                        tsb.WriteAt(maxLength + 23, listentry.Code);
                     listing += tsb.Value + "\n";
                 }
             }

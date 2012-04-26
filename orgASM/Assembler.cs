@@ -148,6 +148,7 @@ namespace orgASM
                         label = label.Remove(label.IndexOf(':'));
                         line = line.Substring(line.IndexOf(':') + 1);
                     }
+                    line = line.Trim();
                     if (label.Contains(" "))
                         label = label.Remove(label.IndexOf(' '));
                     if (label == "$")

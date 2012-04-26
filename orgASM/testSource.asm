@@ -76,15 +76,8 @@
 ;.asciiz "Hello, world!"
 ;.asciip "Hello, world!"
 
-;.macro test(param1, param2)
-;	SET param1, param2
-;.endmacro
-;
-;	test(A, B)
+.macro test(param1, param2)
+	SET param1, param2
+.endmacro
 
-label1:
-	SET A, B
-:label2
-	SET B, C
-label3:	SET X, Y
-label4:	SET Y, X
+	test(A, B)
