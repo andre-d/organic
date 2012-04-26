@@ -1,9 +1,7 @@
 .orgASM
 =======
 
-.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.5 of the [DCPU specification](http://dcpu.com/highnerd/dcpu16_1_5.txt).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
-
-The only feature that remains to be implemented is macro support.
+.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.5 of the [DCPU specification](http://dcpu.com/highnerd/dcpu16_1_5.txt).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, macros, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
 
 Using .orgASM
 -------------
@@ -118,6 +116,30 @@ You may create any number of labels called "$".  These are relative labels.  You
     
 Please note that relative addressing is different than the "$" constant, which refers to the address of the current line.
 
+### Macros
+
+To define a macro, use the .macro and .endmacro directives.  Here is an example macro definition:
+
+    .macro test(param1, param2) ; Also valid: "test()" and "test" for parameter-less macros
+        SET param1, param2
+        ADD param2, param1
+    .endmacro
+
+The parameters defined in the .macro directive may be freely used inside of the macro itself.  To use a macro:
+
+    test(A, B)
+
+This will expand to the following:
+
+    SET A, B
+    ADD B, A
+
+You may recursively use macros in a macro definition, for instance:
+
+    .macro test2()
+        test(A, C)
+    .endmacro
+
 ### Pre-processor directives
 
 .orgASM offers several pre-processor directives to ease use.  These may be used with either "." or "#".
@@ -142,6 +164,8 @@ Please note that relative addressing is different than the "$" constant, which r
 
 **.equ \[key] (value)** and **.define \[key] (value)**: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
 
+**.endmacro**: Ends a macro definition.
+
 **.fill \[length], \[value]** and **.pad \[length], \[value]**: Inserts [value] into the output [length] times.
 
 **.if \[expression]**: If the expression is greater than or equal to 1, this will return true.  The assembler will stop assembing until the next .end or .endif directive if false.
@@ -157,6 +181,8 @@ Please note that relative addressing is different than the "$" constant, which r
 **.include "\[file]"**: Includes an external file.  Quotes are optional, and may be " or ' characters.  If you use <> instead of quotes, the path specified with --include will be used.
 
 **.list**: Resumes assembly after .nolist
+
+**.macro [name]([parameters])**: Begins a macro definition with the given name and parameters.  The parameters are optional, and parenthesis may be omitted for parameter-less macros.
 
 **.nolist**: Stops assembly until .list
 
