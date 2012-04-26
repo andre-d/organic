@@ -149,6 +149,8 @@ namespace orgASM
                     return "Undefined reference.";
                 case ErrorCode.AlignToPast:
                     return "Attempted to .align to past address.";
+                case ErrorCode.InvalidMacroDefintion:
+                    return "Invalid macro definition.";
                 default:
                     return Entry.ToString() + ".";
             }

@@ -29,6 +29,8 @@ namespace orgASM
         /// Values (such as labels and equates) found in the code
         /// </summary>
         public Dictionary<string, ushort> Values;
+        public Dictionary<string, ushort> LabelValues;
+        public List<Macro> Macros;
 
         /// <summary>
         /// Path to search for include files in.
@@ -59,6 +61,9 @@ namespace orgASM
             LoadTable();
 
             Values = new Dictionary<string, ushort>();
+            LabelValues = new Dictionary<string, ushort>();
+            Macros = new List<Macro>();
+
             RelativeLabels = new Dictionary<int, ushort>();
 
             LineNumbers = new Stack<int>();
@@ -124,6 +129,55 @@ namespace orgASM
                 string line = lines[i].TrimComments().TrimExcessWhitespace();
                 if (string.IsNullOrEmpty(line))
                     continue;
+                if (line.SafeContains(':') && !noList)
+                {
+                    if (!IfStack.Peek())
+                        continue;
+                    // Parse labels
+                    string label = line;
+                    if (line.StartsWith(":"))
+                    {
+                        label = label.Substring(1);
+                        if (line.Contains(' '))
+                            line = line.Substring(line.IndexOf(' ') + 1).Trim();
+                        else
+                            line = "";
+                    }
+                    else
+                    {
+                        label = label.Remove(label.IndexOf(':'));
+                        line = line.Substring(line.IndexOf(':') + 1);
+                    }
+                    if (label.Contains(" "))
+                        label = label.Remove(label.IndexOf(' '));
+                    if (label == "$")
+                    {
+                        RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
+                        continue;
+                    }
+                    if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
+                    {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
+                        continue;
+                    }
+                    foreach (char c in label)
+                    {
+                        if (!char.IsLetterOrDigit(c) && c != '_')
+                        {
+                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
+                            continue;
+                        }
+                    }
+                    if (Values.ContainsKey(label.ToLower()))
+                    {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
+                        continue;
+                    }
+                    Values.Add(label.ToLower(), currentAddress);
+                    output.Add(new ListEntry(label + ":", FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                }
+                if (string.IsNullOrEmpty(line))
+                    continue;
                 if (line.Contains(".equ") && !line.StartsWith(".equ")) // TASM compatibility
                 {
                     line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
@@ -133,6 +187,8 @@ namespace orgASM
                     // #include has to be handled in this method
                     if (line.StartsWith("#include ") || line.StartsWith(".include "))
                     {
+                        if (!IfStack.Peek())
+                            continue;
                         string includedFileName = line.Substring(line.IndexOf(" ") + 1);
                         includedFileName = includedFileName.Trim('"', '\'');
                         if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
@@ -171,8 +227,10 @@ namespace orgASM
                             LineNumbers.Push(1);
                         }
                     }
-                    else if (line.StartsWith("#incbin ") || line.StartsWith(".incbin "))
+                    else if ((line.StartsWith("#incbin ") || line.StartsWith(".incbin ")) && !noList)
                     {
+                        if (!IfStack.Peek())
+                            continue;
                         string includedFileName = line.Substring(line.IndexOf(" ") + 1);
                         includedFileName = includedFileName.Trim('"', '\'');
                         if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
@@ -207,8 +265,10 @@ namespace orgASM
                             }
                         }
                     }
-                    else if (line.StartsWith("#incpack ") || line.StartsWith(".incpack "))
+                    else if ((line.StartsWith("#incpack ") || line.StartsWith(".incpack ")) && !noList)
                     {
+                        if (!IfStack.Peek())
+                            continue;
                         string includedFileName = line.Substring(line.IndexOf(" ") + 1);
                         includedFileName = includedFileName.Trim('"', '\'');
                         if (includedFileName.StartsWith("<") && includedFileName.EndsWith(">"))
@@ -253,48 +313,36 @@ namespace orgASM
                     }
                     else if (line == "#endfile" || line == ".endfile")
                     {
+                        if (!IfStack.Peek())
+                            continue;
                         FileNames.Pop();
                         LineNumbers.Pop();
+                    }
+                    else if (line.StartsWith(".macro ") && !noList)
+                    {
+                        if (!IfStack.Peek())
+                            continue;
+                        string macroDefinition = line.Substring(7).Trim();
+                        Macro macro = new Macro();
+                        macro.Args = new string[0];
+                        if (macroDefinition.Contains("("))
+                        {
+                            string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("("));
+                            if (!paramDefinition.EndsWith(")"))
+                            {
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidMacroDefintion));
+                            }
+                        }
+                        else
+                            macro.Name = macroDefinition;
                     }
                     else
                     {
                         // Parse preprocessor directives
+                        if (!IfStack.Peek())
+                            continue;
                         ParseDirectives(output, line);
                     }
-                }
-                else if (line.StartsWith(":") || line.EndsWith(":"))
-                {
-                    // Parse labels
-                    string label = line;
-                    if (line.StartsWith(":"))
-                        label = label.Substring(1);
-                    else
-                        label = label.Remove(line.Length - 1);
-                    if (label == "$")
-                    {
-                        RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
-                        continue;
-                    }
-                    if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
-                    {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
-                        continue;
-                    }
-                    foreach (char c in label)
-                    {
-                        if (!char.IsLetterOrDigit(c) && c != '_')
-                        {
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
-                            continue;
-                        }
-                    }
-                    if (Values.ContainsKey(label.ToLower()))
-                    {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
-                        continue;
-                    }
-                    Values.Add(label.ToLower(), currentAddress);
-                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                 }
                 else
                 {
@@ -516,9 +564,7 @@ namespace orgASM
                         char valID = opcode.Key[i];
                         int valueStart = valueIndex;
                         if (i == opcode.Key.Length - 1)
-                        {
                             valueIndex = value.Length;
-                        }
                         else
                         {
                             int delimiter = value.IndexOf(',', valueIndex);

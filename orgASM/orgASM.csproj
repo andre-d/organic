@@ -49,6 +49,7 @@
     <Compile Include="Expressions.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ListEntry.cs" />
+    <Compile Include="Macro.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TabifiedStringBuilder.cs" />

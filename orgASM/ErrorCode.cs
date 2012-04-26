@@ -63,6 +63,10 @@ namespace orgASM
         /// A .align directive specified an address in the past.
         /// </summary>
         AlignToPast = 12,
+        /// <summary>
+        /// A macro was defined improperly.
+        /// </summary>
+        InvalidMacroDefintion = 13
     }
 
     /// <summary>

@@ -28,6 +28,22 @@ namespace orgASM
             return value.Trim();
         }
 
+        public static bool SafeContains(this string value, char needle)
+        {
+            value = value.Trim();
+            bool inString = false, inChar = false;
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (value[i] == needle && !inString && !inChar)
+                    return true;
+                if (value[i] == '"' && !inChar)
+                    inString = !inString;
+                if (value[i] == '\'' && !inString)
+                    inChar = !inChar;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Works the same as String.Split, but will not split if the requested characters are within
         /// a character or string literal.
