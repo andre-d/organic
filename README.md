@@ -182,7 +182,7 @@ You may recursively use macros in a macro definition, for instance:
 
 **.list**: Resumes assembly after .nolist
 
-**.macro [name]([parameters])**: Begins a macro definition with the given name and parameters.  The parameters are optional, and parenthesis may be omitted for parameter-less macros.
+**.macro \[name](\[parameters])**: Begins a macro definition with the given name and parameters.  The parameters are optional, and parenthesis may be omitted for parameter-less macros.
 
 **.nolist**: Stops assembly until .list
 
