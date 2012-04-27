@@ -51,6 +51,7 @@
     <Compile Include="ListEntry.cs" />
     <Compile Include="Macro.cs" />
     <Compile Include="Plugins.cs" />
+    <Compile Include="Plugins\AssemblyCompleteEventArgs.cs" />
     <Compile Include="Plugins\HandleParameterEventArgs.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Program.cs" />

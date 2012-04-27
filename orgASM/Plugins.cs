@@ -50,6 +50,7 @@ namespace orgASM
         #region Events
 
         public event EventHandler<HandleParameterEventArgs> TryHandleParameter;
+        public event EventHandler<AssemblyCompleteEventArgs> AssemblyComplete;
 
         #endregion
 

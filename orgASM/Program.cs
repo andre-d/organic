@@ -167,6 +167,9 @@ namespace orgASM
                 output = assembler.Assemble(contents, "[piped input]");
             Directory.SetCurrentDirectory(wdOld);
 
+            if (assembler.AssemblyComplete != null)
+                assembler.AssemblyComplete(assembler, new AssemblyCompleteEventArgs(output));
+
             // Output errors
             if (!quiet)
             {
