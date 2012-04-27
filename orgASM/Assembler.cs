@@ -332,6 +332,8 @@ namespace orgASM
                         string macroDefinition = line.Substring(7).Trim();
                         Macro macro = new Macro();
                         macro.Args = new string[0];
+                        if (macroDefinition.EndsWith("{"))
+                            macroDefinition = macroDefinition.Remove(macroDefinition.Length - 1).Trim();
                         if (macroDefinition.Contains("("))
                         {
                             string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("(") + 1);
@@ -377,12 +379,13 @@ namespace orgASM
                                 {
                                     line = lines[i].TrimComments().TrimExcessWhitespace();
                                     LineNumbers.Push(LineNumbers.Pop() + 1);
-                                    if (line == ".endmacro" || line == "#endmacro")
+                                    if (line == ".endmacro" || line == "#endmacro" || line == "}")
                                     {
                                         foundEndmacro = true;
                                         break;
                                     }
-                                    macro.Code += "\n" + line;
+                                    if (line != "{")
+                                        macro.Code += "\n" + line;
                                 }
                                 if (!foundEndmacro)
                                 {
@@ -414,7 +417,16 @@ namespace orgASM
                     if (!IfStack.Peek())
                         continue;
                     // Search through macros
-                    if (line.SafeContains('(') && line.SafeContains(')'))
+                    bool mayHaveMacro = false;
+                    foreach (Macro macro in Macros)
+                    {
+                        if (line.ToLower().StartsWith(macro.Name.ToLower()))
+                        {
+                            mayHaveMacro = true;
+                            break;
+                        }
+                    }
+                    if (line.SafeContains('(') && line.SafeContains(')') && mayHaveMacro)
                     {
                         Macro userMacro = new Macro();
                         userMacro.Args = new string[0];

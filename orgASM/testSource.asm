@@ -3,6 +3,19 @@
 TEST2 .equ 18
 TEST .equ 12 ; Duplicate
 
+.macro test(param1, param2)
+	SET param1, param2
+	ADD param1, param2
+.endmacro
+
+.macro test2(param1, param2) {
+	SUB param1, param2
+}
+
+	test2(A, B)
+
+	test(A, B)
+
 .org 5
 
 #nolist
@@ -48,9 +61,6 @@ label1: ; Duplicate
 #ifdef NOTDEFINED
 	SET A, 0
 #end
-#ifdef
-#ifdef TOO MANY PARAMETERS
-#end
 	.dat 0, 1, 0x2, 0x03, 'b', "Hello\nworld!"
 
 ; Test for new features
@@ -75,10 +85,3 @@ label1: ; Duplicate
 .ascii "Hello, world!"
 .asciiz "Hello, world!"
 .asciip "Hello, world!"
-
-.macro test(param1, param2)
-	SET param1, param2
-	ADD param1, param2
-.endmacro
-
-	test(A, B)
