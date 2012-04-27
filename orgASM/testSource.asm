@@ -9,12 +9,16 @@ TEST .equ 12 ; Duplicate
 .endmacro
 
 .macro test2(param1, param2) {
+	.if param1 === A
 	SUB param1, param2
+	.else
+	ADD param1, param2
+	.end
 }
 
 	test2(A, B)
 
-	test(A, B)
+	test2(B, A)
 
 .org 5
 

@@ -210,7 +210,7 @@ namespace orgASM
             }
             ExpressionResult left = ParseExpression(operands[0], followReferences);
             ExpressionResult right = ParseExpression(operands[2], followReferences);
-            if (!left.Successful || !right.Successful)
+            if ((!left.Successful || !right.Successful) && operands[1] != "===" && operands[1] != "!==")
             {
                 expressionResult.Successful = false;
                 return expressionResult;
@@ -264,6 +264,16 @@ namespace orgASM
                     break;
                 case ">=":
                     expressionResult.Value =  (ushort)(left.Value >= right.Value ? 1 : 0);
+                    break;
+                case "===":
+                    expressionResult.Value = (ushort)(operands[0].ToLower().Trim() == operands[2].ToLower().Trim() ? 1 : 0);
+                    left.References = new string[0];
+                    right.References = new string[0];
+                    break;
+                case "!==":
+                    expressionResult.Value = (ushort)(operands[0].ToLower().Trim() != operands[2].ToLower().Trim() ? 1 : 0);
+                    left.References = new string[0];
+                    right.References = new string[0];
                     break;
                 default:
                     expressionResult.Successful = false;
@@ -327,7 +337,7 @@ namespace orgASM
             return result;
         }
 
-        string[] MathOperators = new string[] { "*", "/", "+", "-", "<<", ">>", "|", "^", "&", "%", "==", "!=", ">", "<", ">=", "<=" };
+        string[] MathOperators = new string[] { "*", "/", "+", "-", "<<", ">>", "|", "^", "&", "%", "===", "!==", "==", "!=", ">", "<", ">=", "<=" };
 
         private string[] GetOperands(string value)
         {

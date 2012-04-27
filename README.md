@@ -96,9 +96,11 @@ Syntax
 
 Anywhere a number is required, an expression may be used.  Expressions are not evaluated with order-of-operations, but left-to-right, in accordance with assembly standards.  Valid operators are as follows:
 
-    + - / * | & ^ ~ % << >> == != < > <= >= ( )
+    + - / * | & ^ ~ % << >> == != < > <= >= ( ) === !==
 
 All values are 16-bit.  Boolean operators return a one or zero as appropriate.
+
+=== and !==  are string compares.  For example: ".if abcd === abcd" is true, while ".if 0x5 === 5" is false.
 
 ### Relative Addressing
 

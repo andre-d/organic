@@ -446,7 +446,7 @@ namespace orgASM
                                 }
                             }
                         }
-
+                        bool macroMatched = false;
                         foreach (Macro macro in Macros)
                         {
                             if (macro.Name.ToLower() == userMacro.Name.ToLower() && 
@@ -465,7 +465,13 @@ namespace orgASM
                                 lines = newLines;
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                                 line = lines[i].TrimComments().TrimExcessWhitespace();
+                                macroMatched = true;
                             }
+                        }
+                        if (macroMatched)
+                        {
+                            i--;
+                            continue;
                         }
                         // We'll just let the opcode matcher yell at them if it isn't found
                     }
