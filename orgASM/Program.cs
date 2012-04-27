@@ -343,7 +343,12 @@ namespace orgASM
             return value.ToUpper();
         }
 
-        private static string DumpArray(ushort[] array)
+        /// <summary>
+        /// Creates a string of an array's content
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static string DumpArray(ushort[] array)
         {
             string output = "";
             foreach (ushort u in array)
