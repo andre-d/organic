@@ -164,7 +164,7 @@ You may recursively use macros in a macro definition, for instance:
 
 **.endif** and **.end**: Closes a matching .if* statement.
 
-**.equ \[key] (value)** and **.define \[key] (value)**: These are identical. The equate a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
+**.equ \[key] (value)** and **.define \[key] (value)**: Equates a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
 
 **.endmacro**: Ends a macro definition.
 

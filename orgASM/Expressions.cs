@@ -67,6 +67,29 @@ namespace orgASM
                     expressionResult.Value = (ushort)Encoding.ASCII.GetBytes(value)[0];
                     return expressionResult;
                 }
+                else if (value.StartsWith("{") && value.EndsWith("}")) // instruction literal
+                {
+                    string instruction = value.Substring(1, value.Length - 2);
+                    Assembler subAssembler = new Assembler();
+                    List<ListEntry> assembly = subAssembler.Assemble(instruction);
+                    if (assembly.Count == 0)
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
+                    if (assembly[0].Output == null)
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
+                    if (assembly[0].Output.Length == 0)
+                    {
+                        expressionResult.Successful = false;
+                        return expressionResult;
+                    }
+                    expressionResult.Value = assembly[0].Output[0];
+                    return expressionResult;
+                }
                 else if (value.StartsWith("0x")) // Hex
                 {
                     value = value.Substring(2);
@@ -347,7 +370,7 @@ namespace orgASM
             {
                 if (!value.Contains(s))
                     continue;
-                bool instring = false, inchar = false;
+                bool instring = false, inchar = false, ininstruction = false;
                 int index = 0;
                 for (int i = 0; i < value.Length; i++)
                 {
@@ -367,10 +390,14 @@ namespace orgASM
                     }
                     else
                         index = 0;
-                    if (value[i] == '"')
+                    if (value[i] == '"' && !inchar && !ininstruction)
                         instring = !instring;
-                    if (value[i] == '\'')
+                    if (value[i] == '\'' && !instring && !ininstruction)
                         inchar = !inchar;
+                    if (value[i] == '{' && !instring && !inchar)
+                        ininstruction = true;
+                    if (value[i] == '}' && !instring && !inchar)
+                        ininstruction = false;
                 }
             }
             if (firstIndex != int.MaxValue)

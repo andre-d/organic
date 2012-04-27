@@ -115,6 +115,22 @@ namespace orgASM
         /// A list of referenced values this code uses, such as label names and equates.
         /// </summary>
         public ExpressionResult Expression;
+        /// <summary>
+        /// The "A" value of an interpreted instruction.
+        /// </summary>
+        public Assembler.StringMatch ValueA;
+        /// <summary>
+        /// The "B" value of an interpreted instruction.
+        /// </summary>
+        public Assembler.StringMatch ValueB;
+        /// <summary>
+        /// The opcode matched.
+        /// </summary>
+        public Assembler.StringMatch Opcode;
+        /// <summary>
+        /// True if this opcode is a non-basic opcode.
+        /// </summary>
+        public bool NonBasic;
 
         /// <summary>
         /// Given an error code, this returns a user-friendly message.

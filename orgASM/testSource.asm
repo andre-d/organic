@@ -22,6 +22,9 @@ TEST .equ 12 ; Duplicate
 
 .org 5
 
+	SET A, {SET B, A}
+	SET B, A
+
 #nolist
 	ADD B, A
 	SET PC, 0x8000

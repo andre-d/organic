@@ -619,7 +619,7 @@ namespace orgASM
 
         #region Helper Code
 
-        private StringMatch MatchString(string value, Dictionary<string, byte> keys)
+        internal StringMatch MatchString(string value, Dictionary<string, byte> keys)
         {
             value = value.Trim();
             StringMatch match = new StringMatch();
@@ -726,7 +726,7 @@ namespace orgASM
             return null;
         }
 
-        private class StringMatch
+        public class StringMatch
         {
             public string valueA;
             public string valueB;
