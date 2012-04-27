@@ -506,7 +506,9 @@ namespace orgASM
                             }
                             opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
                             opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
-                            if (valueA.value == valueB.value)
+                            if (valueA.value == valueB.value &&
+                                (valueA.appendedValues.Length != valueB.appendedValues.Length ||
+                                (valueA.appendedValues.Length == 0 && valueB.appendedValues.Length == 0)))
                                 warning = WarningCode.RedundantStatement; // TODO: Assign to literal
                         }
                         else
