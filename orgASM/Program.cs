@@ -10,6 +10,7 @@ namespace orgASM
 {
     public partial class Assembler
     {
+        [STAThread]
         public static void Main(string[] args)
         {
             DateTime startTime = DateTime.Now;
