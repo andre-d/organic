@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}</ProjectGuid>
+    <ProjectGuid>{369C0D65-58FB-4458-B9B0-76EB3DA09956}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>orgASM</RootNamespace>
-    <AssemblyName>orgASM</AssemblyName>
+    <RootNamespace>orgASMPatcher</RootNamespace>
+    <AssemblyName>orgASMPatcher</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -35,6 +35,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>.\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>.\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>.\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,31 +52,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assembler.cs" />
-    <Compile Include="Directives.cs" />
-    <Compile Include="ErrorCode.cs" />
-    <Compile Include="Expressions.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="ListEntry.cs" />
-    <Compile Include="Macro.cs" />
-    <Compile Include="Plugins.cs" />
-    <Compile Include="Plugins\HandleParameterEventArgs.cs" />
-    <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TabifiedStringBuilder.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="DCPUtable.txt" />
-    <Content Include="testInclude.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="testSource.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\orgASM\bin\Debug\orgASM.exe">
+      <Link>orgASM.exe</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\orgASM\testSource.asm">
+      <Link>testSource.asm</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\TestPlugin\bin\Debug\TestPlugin.dll">
+      <Link>TestPlugin.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

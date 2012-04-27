@@ -3,14 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orgASM", "orgASM\orgASM.csproj", "{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orgASM.Tests", "orgASM.Tests\orgASM.Tests.csproj", "{DDB5A276-64FB-4808-B994-74B2CE693C33}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8DE7D43-F645-40DB-AC17-282AE8210BD5}"
 	ProjectSection(SolutionItems) = preProject
 		Local.testsettings = Local.testsettings
 		orgASM.vsmdi = orgASM.vsmdi
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orgASMPatcher", "orgASMPatcher\orgASMPatcher.csproj", "{369C0D65-58FB-4458-B9B0-76EB3DA09956}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96} = {2F5F5623-0404-4F8D-B0A9-0B806BC64A96}
+		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A} = {11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -35,16 +41,26 @@ Global
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|Mixed Platforms.Build.0 = Release|x86
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|x86.ActiveCfg = Release|x86
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|x86.Build.0 = Release|x86
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{DDB5A276-64FB-4808-B994-74B2CE693C33}.Release|x86.ActiveCfg = Release|Any CPU
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|x86.ActiveCfg = Debug|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|x86.Build.0 = Debug|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Any CPU.ActiveCfg = Release|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Mixed Platforms.Build.0 = Release|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|x86.ActiveCfg = Release|x86
+		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|x86.Build.0 = Release|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|x86.ActiveCfg = Debug|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|x86.Build.0 = Debug|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Release|Any CPU.ActiveCfg = Release|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Release|Mixed Platforms.Build.0 = Release|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Release|x86.ActiveCfg = Release|x86
+		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

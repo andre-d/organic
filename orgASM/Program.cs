@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Reflection;
+using orgASM.Plugins;
 
 namespace orgASM
 {
@@ -80,6 +82,9 @@ namespace orgASM
                             case "-i":
                                 assembler.IncludePath = args[++i];
                                 break;
+                            case "--plugins":
+                                ListPlugins();
+                                return;
                             case "--working-directory":
                             case "-w":
                                 workingDirectory = args[++i];
@@ -92,8 +97,18 @@ namespace orgASM
                                 Console.ReadKey();
                                 break;
                             default:
-                                Console.WriteLine("Error: Invalid parameter: " + arg + "\nUse orgASM.exe --help for usage information.");
-                                return;
+                                HandleParameterEventArgs hpea = new HandleParameterEventArgs(arg);
+                                hpea.Arguments = args;
+                                if (assembler.TryHandleParameter != null)
+                                    assembler.TryHandleParameter(assembler, hpea);
+                                if (!hpea.Handled)
+                                {
+                                    Console.WriteLine("Error: Invalid parameter: " + arg + "\nUse orgASM.exe --help for usage information.");
+                                    return;
+                                }
+                                if (hpea.StopProgram)
+                                    return;
+                                break;
                         }
                     }
                     catch (ArgumentOutOfRangeException)
@@ -200,6 +215,17 @@ namespace orgASM
 
             TimeSpan duration = DateTime.Now - startTime;
             Console.WriteLine(".orgASM build complete " + duration.TotalMilliseconds + "ms");
+        }
+
+        private static void ListPlugins()
+        {
+            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            Console.WriteLine("Listing plugins:");
+            foreach (string name in names)
+            {
+                if (name.EndsWith(".dll"))
+                    Console.WriteLine(name);
+            }
         }
 
         public static string CreateListing(List<ListEntry> output)
@@ -331,36 +357,30 @@ namespace orgASM
             Console.WriteLine(".orgASM DCPU-16 Assembler    Copyright Drew DeVault 2012");
         }
 
-        // TODO: Update
+        internal static List<string> PluginHelp = new List<string>();
+
         private static void DisplayHelp()
         {
             Console.WriteLine("Usage: orgASM.exe [parameters] [input file] [output file]\n" +
                 "Output file is optional; if left out, .orgASM will use [input file].bin.\n\n" +
                 "===Flags:\n" +
-                "--help\n" +
-                    "\tDisplay this message, then exit without assembling anything.\n" +
-                    "\tShorthand: -h, -?, /h, /?\n" +
-                "--output-file [filename]\n" +
-                    "\tAn alternative way to specify the output file.\n" +
-                    "\tShorthand: -o\n" +
-                "--input-file [filename]\n" +
-                    "\tAn alternative way to specify the input file.\n" +
-                    "\tShorthand: -i\n" +
-                "--equate [key] [expression]\n" +
-                    "\tSpecifies an equate to use at assembly-time.  Same as .equ in-code.\n" +
-                    "\tShorthand: -e\n" +
-                "--listing [filename]\n" +
-                    "\tSpecifies a file to output a code listing to.\n" +
-                    "\tShorthand: -l\n" +
-                "--big-endian\n" +
-                    "\tSwitches output to big-endian mode, the reverse of notchian syntax.\n" +
-                    "\tShorthand: -b\n" +
-                "--quiet\n" +
-                    "\tWill not output errors or warnings.\n" +
-                    "\tShorthand: -q\n" +
-                "--verbose\n" +
-                    "\tWill output a listing to the console.\n" +
-                    "\tShorthand: -v");
+                "--big-endian: Switches output to big-endian mode.\n" +
+                "--equate [key] [value]: Adds an equate, with the same syntax as .equ.\n" +
+                "--help: Displays this message.\n" +
+                "--input-file [filename]: An alternative way to specify the input file.\n" +
+                "--include [path]: Adds [path] to the search index for #include <> files.\n" +
+                "--listing [filename]: Outputs a listing to [filename].\n" +
+                "--output-file [filename]: An alternative way to specify the output file.\n" +
+                "--pipe [assembly]: Assemble [assembly], instead of the input file.\n" +
+                "--quiet: .orgASM will not output error information.\n" +
+                "--verbose: .orgASM will output a listing to the console.\n" +
+                "--working-directory [directory]: Change .orgASM's working directory.");
+            if (PluginHelp.Count != 0)
+            {
+                Console.WriteLine("\n===Plugins");
+                foreach (var help in PluginHelp)
+                    Console.WriteLine(help);
+            }
         }
     }
 }

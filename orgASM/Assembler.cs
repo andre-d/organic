@@ -68,6 +68,8 @@ namespace orgASM
 
             LineNumbers = new Stack<int>();
             FileNames = new Stack<string>();
+
+            LoadPlugins();
         }
 
         private void LoadTable()
