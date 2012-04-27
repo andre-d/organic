@@ -285,7 +285,7 @@ namespace orgASM
                         {
                             data += LongHex(listentry.Output[i + j]) + " ";
                         }
-                        tsb.WriteAt(maxLength + 25, data.Remove(data.Length - 1));
+                        tsb.WriteAt(maxLength + 30, data.Remove(data.Length - 1));
                         listing += tsb.Value + "\n";
                     }
                 }
