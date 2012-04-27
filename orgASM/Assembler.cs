@@ -407,8 +407,6 @@ namespace orgASM
                     else
                     {
                         // Parse preprocessor directives
-                        if (!IfStack.Peek())
-                            continue;
                         ParseDirectives(output, line);
                     }
                 }

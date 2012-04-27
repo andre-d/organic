@@ -35,7 +35,7 @@ namespace orgASM
                     }
                     else
                     {
-                        var result = ParseExpression(line.Substring(3), true);
+                        var result = ParseExpression(line.Substring(line.IndexOf(' ')), true);
                         if (result.Successful)
                         {
                             if (result.Value > 0)
@@ -52,7 +52,10 @@ namespace orgASM
                 if (IfStack.Count == 1)
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UncoupledStatement));
                 else
+                {
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                     IfStack.Push(!IfStack.Pop());
+                }
             }
             else if (IfStack.Peek())
             {
