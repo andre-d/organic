@@ -55,6 +55,8 @@ n 08 INT_%a
 n 09 IAG_%a
 n 0A IAS_%a
 n 0B RFI_%a
+#alternate syntax
+n 0B RFI
 n 0C IAQ_%a
 #n 0D [nop]
 #n 0E [nop]

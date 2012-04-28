@@ -232,6 +232,8 @@ namespace orgASM
                             }
                             FileNames.Push(includedFileName);
                             LineNumbers.Push(1);
+                            i--;
+                            continue;
                         }
                     }
                     else if ((line.StartsWith("#incbin") || line.StartsWith(".incbin")) && !noList)

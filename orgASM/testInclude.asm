@@ -1,7 +1,3 @@
-﻿; Start of include file
-SET A, TESTEQU
-SET B, B
-.dat "TEST"
-label4:
-SET A, $
-.equ TESTEQU 18
+﻿	SET A, 2
+	.include "testInclude2.asm"
+	SET B, 2
