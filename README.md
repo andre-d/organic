@@ -102,6 +102,12 @@ All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
 === and !==  are string compares.  For example: ".if abcd === abcd" is true, while ".if 0x5 === 5" is false.
 
+You may also use instructions as literals, placed between "{" and "}".  For example:
+
+    SET A, {RFI 1}
+
+Which will translate to SET A, 0x160.  Only the first word of the instruction is taken.
+
 ### Relative Addressing
 
 **NOTE**: The current version of .orgASM's relative addressing implementation is broken.
