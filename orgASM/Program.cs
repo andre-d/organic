@@ -195,7 +195,7 @@ namespace orgASM
                         byte[] buffer = BitConverter.GetBytes(value);
                         if (bigEndian)
                             Array.Reverse(buffer);
-                        if (inputFile != "-")
+                        if (outputFile != "-")
                             binStream.Write(buffer, 0, buffer.Length);
                         else
                             Console.Out.Write(Encoding.ASCII.GetString(buffer));
