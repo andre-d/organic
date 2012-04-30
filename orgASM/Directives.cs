@@ -366,40 +366,6 @@ namespace orgASM
                         }
                     }
                 }
-                else if (directive.StartsWith("undef"))
-                {
-                    if (parameters.Length != 2)
-                    {
-                        if (Values.ContainsKey(parameters[1].ToLower()))
-                        {
-                            // Resolve all references using this value thus far
-                            for (int i = 0; i < output.Count; i++)
-                            {
-                                // TODO
-                                //for (int j = 0; j < output[i].Expression.References.Length; j++)
-                                //{
-                                //    if (output[i].Output.Length > 1)
-                                //    {
-                                //        string reference = output[i].Expression.References[j];
-                                //        if (reference.ToLower() == parameters[1].ToLower())
-                                //        {
-                                //            ushort originalValue = output[i].Output[1];
-                                //            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
-                                //            output[i].Output[1] = value;
-                                //        }
-                                //    }
-                                //}
-                            }
-                            Values.Remove(parameters[1].ToLower());
-                        }
-                        else
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.UndefinedReference));
-                    }
-                    else if (parameters.Length == 1)
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
-                    else
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
-                }
                 else if (directive.StartsWith("pad") || directive.StartsWith("fill")) // .pad length, value
                 {
                     parameters = line.SafeSplit(',', ' ');
@@ -412,14 +378,20 @@ namespace orgASM
                     {
                         var length = ParseExpression(parameters[1]);
                         var value = ParseExpression(parameters[2]);
-                        if (!length.Successful || !value.Successful)
+                        if (!length.Successful)
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         else
                         {
                             ushort[] padding = new ushort[length.Value];
+                            Dictionary<ushort, string> postponed = new Dictionary<ushort, string>();
                             for (int i = 0; i < padding.Length; i++)
+                            {
                                 padding[i] = value.Value;
+                                if (!value.Successful)
+                                    postponed.Add((ushort)i, parameters[2]);
+                            }
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), padding, currentAddress, !noList));
+                            output[output.Count - 1].PostponedExpressions = postponed;
                             if (!noList)
                                 currentAddress += (ushort)padding.Length;
                         }
