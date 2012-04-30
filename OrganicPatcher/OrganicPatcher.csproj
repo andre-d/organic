@@ -8,8 +8,8 @@
     <ProjectGuid>{369C0D65-58FB-4458-B9B0-76EB3DA09956}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>orgASMPatcher</RootNamespace>
-    <AssemblyName>orgASMPatcher</AssemblyName>
+    <RootNamespace>OrganicPatcher</RootNamespace>
+    <AssemblyName>OrganicPatcher</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

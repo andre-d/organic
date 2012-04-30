@@ -12,12 +12,12 @@ namespace OrganicPatcher
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(".orgASM Plugin Patcher   Copyright Drew DeVault 2012");
+            Console.WriteLine("Organic Plugin Patcher   Copyright Drew DeVault 2012");
 
             // Parse arguments
             if (args.Length < 1)
             {
-                Console.WriteLine("No method specified.  Use \"PatchOrgAsm help\" for usage information.");
+                Console.WriteLine("No method specified.  Use \"PatchOrganic help\" for usage information.");
                 return;
             }
             string function = args[0].ToLower();
@@ -27,9 +27,9 @@ namespace OrganicPatcher
                 return;
             }
 
-            if (!File.Exists("orgASM.exe"))
+            if (!File.Exists("Organic.exe"))
             {
-                Console.WriteLine("Error!  orgASM.exe not found!");
+                Console.WriteLine("Error!  Organic.exe not found!");
                 return;
             }
             switch (function)
@@ -51,7 +51,7 @@ namespace OrganicPatcher
 
         static void DisplayHelp()
         {
-            Console.WriteLine("Usage: PatchOrgASM [function] [parameters]\n" +
+            Console.WriteLine("Usage: PatchOrganic [function] [parameters]\n" +
                 "PatchOrgASM will install DLL files into orgASM.exe, if present in the directory.\n" +
                 "===Functions:\n" +
                 "install-file [file].dll: Installs the specified plugin file from the disk.\n" +
