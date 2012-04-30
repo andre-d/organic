@@ -73,13 +73,12 @@ namespace orgASM
                 else if ((directive.StartsWith("dat ") || directive.StartsWith("dw ")))
                 {
                     if (parameters.Length == 1)
-                    {
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
-                    }
                     else
                     {
                         string[] dataStrings = directive.Substring(directive.IndexOf(" ")).SafeSplit(',');
                         List<ushort> binOutput = new List<ushort>();
+                        Dictionary<ushort, string> postponedExpressions = new Dictionary<ushort, string>();
                         foreach (string data in dataStrings)
                         {
                             if (data.Trim().StartsWith("\""))
@@ -99,12 +98,16 @@ namespace orgASM
                             {
                                 ExpressionResult value = ParseExpression(data.Trim());
                                 if (!value.Successful)
-                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                {
+                                    postponedExpressions.Add((ushort)binOutput.Count, data.Trim());
+                                    binOutput.Add(0);
+                                }
                                 else
                                     binOutput.Add(value.Value);
                             }
                         }
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        output[output.Count - 1].PostponedExpressions = postponedExpressions;
                         if (!noList)
                             currentAddress += (ushort)binOutput.Count;
                     }

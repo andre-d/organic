@@ -18,6 +18,7 @@ namespace orgASM
             this.Listed = true;
             this.Address = Address;
             this.CodeType = CodeType.BasicInstruction;
+            PostponedExpressions = new Dictionary<ushort, string>();
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort Address, bool Listed)
@@ -125,9 +126,13 @@ namespace orgASM
         /// </summary>
         public Assembler.StringMatch Opcode;
         /// <summary>
-        /// 
+        /// The type of code this line represents.
         /// </summary>
         public CodeType CodeType;
+        /// <summary>
+        /// Expressions that will be evaluated in the second pass.
+        /// </summary>
+        internal Dictionary<ushort, string> PostponedExpressions;
 
         /// <summary>
         /// Given an error code, this returns a user-friendly message.

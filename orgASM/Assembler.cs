@@ -518,7 +518,7 @@ namespace orgASM
                             }
                             if (valueA.value == valueB.value && valueA.value != 0x1E && valueB.value != 0x1E)
                                 entry.WarningCode = WarningCode.RedundantStatement;
-                            if (valueB.value == 0x1F)
+                            if (valueB.value == 0x1F && !opcode.match.Contains("IF"))
                                 entry.WarningCode = WarningCode.AssignToLiteral;
                             entry.ValueA = valueA;
                             entry.ValueB = valueB;
@@ -547,8 +547,23 @@ namespace orgASM
                 }
             }
 
+            return EvaluateAssembly(output);
+        }
+
+        private List<ListEntry> EvaluateAssembly(List<ListEntry> output)
+        {
             for (int i = 0; i < output.Count; i++)
             {
+                foreach (var kvp in output[i].PostponedExpressions)
+                {
+                    ExpressionResult result = ParseExpression(kvp.Value);
+                    if (!result.Successful)
+                    {
+                        output[i].ErrorCode = ErrorCode.IllegalExpression;
+                        continue;
+                    }
+                    output[i].Output[kvp.Key] = result.Value;
+                }
                 if (output[i].Opcode != null)
                 {
                     // Assemble output
