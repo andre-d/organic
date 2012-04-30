@@ -63,11 +63,11 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\orgASM\bin\Debug\orgASM.exe">
-      <Link>orgASM.exe</Link>
+    <Content Include="..\Organic\bin\Debug\Organic.exe">
+      <Link>Organic.exe</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\orgASM\testSource.asm">
+    <Content Include="..\Organic\testSource.asm">
       <Link>testSource.asm</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

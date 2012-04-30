@@ -5,7 +5,7 @@ using System.Text;
 using Mono.Cecil;
 using System.IO;
 
-namespace orgASMPatcher
+namespace OrganicPatcher
 {
     partial class Program
     {
@@ -16,7 +16,7 @@ namespace orgASMPatcher
                 Console.WriteLine("Error: No plugin specified.");
                 return;
             }
-            AssemblyDefinition asdDefinition = GetAssembly("orgASM.exe");
+            AssemblyDefinition asdDefinition = GetAssembly("Organic.exe");
             EmbeddedResource toRemove = null;
             foreach (var resource in asdDefinition.MainModule.Resources)
             {
@@ -53,7 +53,7 @@ namespace orgASMPatcher
             }
 
             asdDefinition.MainModule.Resources.Remove(toRemove);
-            AssemblyFactory.SaveAssembly(asdDefinition, "orgASM.exe");
+            AssemblyFactory.SaveAssembly(asdDefinition, "Organic.exe");
 
             Console.WriteLine("Plugin successfully removed!");
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace orgASM
+namespace Organic
 {
     /// <summary>
     /// Represents all possible errors that could affect a line of code.

@@ -6,10 +6,10 @@ using System.IO;
 using System.Reflection;
 using System.Globalization;
 
-namespace orgASM
+namespace Organic
 {
     /// <summary>
-    ///  orgASM Assembler Program
+    ///  Organic Assembler Program
     /// </summary>
     public partial class Assembler
     {
@@ -74,7 +74,7 @@ namespace orgASM
 
         private void LoadTable()
         {
-            StreamReader sr = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("orgASM.DCPUtable.txt"));
+            StreamReader sr = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Organic.DCPUtable.txt"));
             string[] lines = sr.ReadToEnd().Replace("\r", "").Split('\n');
             sr.Close();
             for (int i = 0; i < lines.Length; i++)
@@ -189,7 +189,7 @@ namespace orgASM
                 {
                     line = ".equ " + line.Replace(".equ", "").TrimExcessWhitespace();
                 }
-                if (line.StartsWith("dat"))
+                if (line.ToLower().StartsWith("dat"))
                 {
                     line = "." + line;
                 }
@@ -626,6 +626,7 @@ namespace orgASM
                 int valueIndex = 0;
                 bool requiredWhitespaceMet = false;
                 bool matchFound = true;
+                match.isLiteral = false;
                 for (int i = 0; i < opcode.Key.Length && valueIndex < value.Length; i++)
                 {
                     match.match = opcode.Key;

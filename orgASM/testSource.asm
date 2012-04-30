@@ -1,6 +1,0 @@
-﻿start: ; 0x0000
-	SET 0x1000, 0x2000
-	SET [0x1234], [0x4321]
-	HWI 0
-	SET A, 0
-	RFI

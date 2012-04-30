@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
-using orgASM.Plugins;
+using Organic.Plugins;
 
-namespace orgASM
+namespace Organic
 {
     // Plugin support for the assembler
     public partial class Assembler

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace orgASM
+namespace Organic
 {
     public enum CodeType
     {

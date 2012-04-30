@@ -50,9 +50,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\orgASM\orgASM.csproj">
+    <ProjectReference Include="..\Organic\Organic.csproj">
       <Project>{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}</Project>
-      <Name>orgASM</Name>
+      <Name>Organic</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

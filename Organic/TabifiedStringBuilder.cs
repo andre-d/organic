@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace orgASM
+namespace Organic
 {
     /// <summary>
     /// Used to build strings with different portions always appearing at the same index

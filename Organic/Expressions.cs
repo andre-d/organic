@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Globalization;
 
-namespace orgASM
+namespace Organic
 {
     public partial class Assembler
     {

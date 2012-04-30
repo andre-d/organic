@@ -15,7 +15,7 @@ namespace orgASMPatcher
                 Console.WriteLine("Error: Too many arguments.");
                 return;
             }
-            AssemblyDefinition asdDefinition = GetAssembly("orgASM.exe");
+            AssemblyDefinition asdDefinition = GetAssembly("Organic.exe");
             foreach (var resource in asdDefinition.MainModule.Resources)
             {
                 if (resource is EmbeddedResource)

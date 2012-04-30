@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace orgASM.Plugins
+namespace Organic.Plugins
 {
     public class HandleParameterEventArgs : EventArgs
     {
@@ -14,7 +14,7 @@ namespace orgASM.Plugins
         /// </summary>
         public bool Handled { get; set; }
         /// <summary>
-        /// Set to TRUE if .orgASM should quit after reading this parameter.
+        /// Set to TRUE if Organic should quit after reading this parameter.
         /// </summary>
         public bool StopProgram { get; set; }
 

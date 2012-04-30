@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace orgASM
+namespace Organic
 {
     /// <summary>
     /// Represents an entry in a listing output from assembling code.

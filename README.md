@@ -1,16 +1,16 @@
-.orgASM
-=======
+Organic Assembler
+=================
 
-.orgASM is an assembler for the DCPU-16 architecture that supports the **.org** directive.  It is an incomplete assembler.  It supports version 1.7 of the [DCPU specification](http://pastebin.com/raw.php?i=Q4JvQvnM).  .orgASM also supports a number of advanced features, such as if statements, equates, relative addressing, macros, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
+Organic is an assembler for the DCPU-16 architecture.  It supports version 1.7 of the [DCPU specification](http://pastebin.com/raw.php?i=Q4JvQvnM).  Organic also supports a number of advanced features, such as equates, relative addressing, macros, and expression evalulation.  It also runs on Windows, Linux, and Intel Macs (you may have limited success with PowerPC Macs).
 
-Using .orgASM
+Using Organic
 -------------
 
-On Linux, make sure that you have "mono-complete" installed, and prepend any commands to run .orgASM with "mono", similar to running Java programs.
+On Linux, make sure that you have "mono-complete" installed, and prepend any commands to run Organic with "mono", similar to running Java programs.
 
 ### Command Line Usage
 
-Usage: orgASM.exe [parameters] [input file] [output file]
+Usage: Organic.exe [parameters] [input file] [output file]
 
 [output file] is optional, and [input file].bin will be used if it is not specified.  If you specify an input or output file as "-", the standard input/output will be used instead of reading from the disk.
 
@@ -76,21 +76,21 @@ Shorthand: -v
 
 **--working-directory [directory]**
 
-Manually sets the working directory of .orgASM.
+Manually sets the working directory of Organic.
 
 Shorthand: -w
 
 Syntax
 ------
 
-.orgASM's assembly syntax is the same as notchan assembly.  Here's an example file:
+Organic's assembly syntax is the same as notchan assembly.  Here's an example file:
 
     :label
         SET A, 10
         SET B, 0x20
         ADD A, B
 
-.orgASM is completely case-insensitive.  Additionally, you may pre- or post-fix your label names with ":", whichever you prefer.  .orgASM is also tolerant of any amount of whitespace in any location, though "SE T" is invalid.
+Organic is completely case-insensitive.  Additionally, you may pre- or post-fix your label names with ":", whichever you prefer.  Organic is also tolerant of any amount of whitespace in any location, though "SE T" is invalid.
 
 ### Expressions
 
@@ -110,7 +110,7 @@ Which will translate to SET A, 0x160.  Only the first word of the instruction is
 
 ### Relative Addressing
 
-**NOTE**: The current version of .orgASM's relative addressing implementation is broken.
+**NOTE**: The current version of Organic's relative addressing implementation is broken.
 
 You may create any number of labels called "$".  These are relative labels.  You can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
 
@@ -150,7 +150,7 @@ You may recursively use macros in a macro definition, for instance:
 
 ### Pre-processor directives
 
-.orgASM offers several pre-processor directives to ease use.  These may be used with either "." or "#".
+Organic offers several pre-processor directives to ease use.  These may be used with either "." or "#".
 
 **.ascii "\[text]"**: Inserts the ASCII string [text].
 
@@ -236,10 +236,8 @@ Your basic listing entry has several parts.  First, the name of the file.  After
 
 For .dat sections, the data is split up on different lines of a listing.  Each line is 8 words long.
 
-Compiling .orgASM
+Compiling Organic
 -----------------
-
-**Note:** .orgASM's root git directory is ".orgASM" by default, which is hidden on most unix systems.  Use "mv .orgASM orgASM" to fix this.
 
 **Windows**: "msbuild" from the root directory of the project.
 
@@ -247,10 +245,10 @@ Compiling .orgASM
 
 **Mac**: Install mono (I don't know how to do this on Mac).  "xbuild" from the root directory of the project.
 
-Using .orgASM as a Library
+Using Organic as a Library
 --------------------------
 
-.orgASM is coded as a library.  You can directly run the Main method to compile files from your program, or you can use the alternative route of using the Assemble method.  Add a reference to orgASM.exe and you can use the Assemble method to get a List<ListEntry> from any given source code.  You can see the information contained in each ListEntry [here](https://github.com/SirCmpwn/.orgASM/blob/master/orgASM/ListEntry.cs).  It contains the prettified code for that line, the file it's contained in, the line number, the ushort[] output, the error code, warning code, address, and whether or not that line is included in the listing.  If an expression was used in that line, you can access the result of that expression's evaluation.
+Organic is coded as a library.  You can directly run the Main method to compile files from your program, or you can use the alternative route of using the Assemble method.  Add a reference to Organic.exe and you can use the Assemble method to get a List<ListEntry> from any given source code.  You can see the information contained in each ListEntry [here](https://github.com/SirCmpwn/Organic/blob/master/Organic/ListEntry.cs).  It contains the prettified code for that line, the file it's contained in, the line number, the ushort[] output, the error code, warning code, address, and whether or not that line is included in the listing.  If an expression was used in that line, you can access the result of that expression's evaluation.
 
 Getting Involved
 ----------------

@@ -23,7 +23,7 @@ namespace orgASMPatcher
                 return;
             }
 
-            AssemblyDefinition asdDefinition = GetAssembly("orgASM.exe");
+            AssemblyDefinition asdDefinition = GetAssembly("Organic.exe");
             foreach (var resource in asdDefinition.MainModule.Resources)
             {
                 if (resource is EmbeddedResource)
@@ -60,7 +60,7 @@ namespace orgASMPatcher
             }
 
             asdDefinition.MainModule.Resources.Add(erTemp);
-            AssemblyFactory.SaveAssembly(asdDefinition, "orgASM.exe");
+            AssemblyFactory.SaveAssembly(asdDefinition, "Organic.exe");
 
             Console.WriteLine("Plugin successfully installed!");
         }

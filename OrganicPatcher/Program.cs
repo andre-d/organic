@@ -6,7 +6,7 @@ using Mono.Cecil;
 using System.IO;
 using System.Reflection;
 
-namespace orgASMPatcher
+namespace OrganicPatcher
 {
     partial class Program
     {

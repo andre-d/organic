@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using orgASM.Plugins;
-using orgASM;
+using Organic.Plugins;
+using Organic;
 
 namespace TestPlugin
 {
@@ -13,7 +13,7 @@ namespace TestPlugin
 
         string cow = @"                   ________________________
           (__)    /                        \         
-          (oo)   (      .orgASM Rocks!      )
+          (oo)   (      Organic Rocks!      )
    /-------\/  --'\________________________/        
   / |     ||
  *  ||----||
@@ -30,7 +30,7 @@ namespace TestPlugin
 
         public string Description
         {
-            get { return "A test plugin for .orgASM"; }
+            get { return "A test plugin for Organic"; }
         }
 
         public Version Version

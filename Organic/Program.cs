@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Reflection;
-using orgASM.Plugins;
+using Organic.Plugins;
 
-namespace orgASM
+namespace Organic
 {
     public partial class Assembler
     {
@@ -226,7 +226,7 @@ namespace orgASM
             }
 
             TimeSpan duration = DateTime.Now - startTime;
-            Console.WriteLine(".orgASM build complete " + duration.TotalMilliseconds + "ms");
+            Console.WriteLine("Organic build complete " + duration.TotalMilliseconds + "ms");
         }
 
         private static void ListPlugins()
@@ -371,15 +371,15 @@ namespace orgASM
 
         private static void DisplaySplash()
         {
-            Console.WriteLine(".orgASM DCPU-16 Assembler    Copyright Drew DeVault 2012");
+            Console.WriteLine("Organic DCPU-16 Assembler    Copyright Drew DeVault 2012");
         }
 
         internal static List<string> PluginHelp = new List<string>();
 
         private static void DisplayHelp()
         {
-            Console.WriteLine("Usage: orgASM.exe [parameters] [input file] [output file]\n" +
-                "Output file is optional; if left out, .orgASM will use [input file].bin.\n\n" +
+            Console.WriteLine("Usage: Organic.exe [parameters] [input file] [output file]\n" +
+                "Output file is optional; if left out, Organic will use [input file].bin.\n\n" +
                 "===Flags:\n" +
                 "--big-endian: Switches output to big-endian mode.\n" +
                 "--equate [key] [value]: Adds an equate, with the same syntax as .equ.\n" +
@@ -389,9 +389,9 @@ namespace orgASM
                 "--listing [filename]: Outputs a listing to [filename].\n" +
                 "--output-file [filename]: An alternative way to specify the output file.\n" +
                 "--pipe [assembly]: Assemble [assembly], instead of the input file.\n" +
-                "--quiet: .orgASM will not output error information.\n" +
-                "--verbose: .orgASM will output a listing to the console.\n" +
-                "--working-directory [directory]: Change .orgASM's working directory.");
+                "--quiet: Organic will not output error information.\n" +
+                "--verbose: Organic will output a listing to the console.\n" +
+                "--working-directory [directory]: Change Organic's working directory.");
             if (PluginHelp.Count != 0)
             {
                 Console.WriteLine("\n===Plugins");

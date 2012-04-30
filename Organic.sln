@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orgASM", "orgASM\orgASM.csproj", "{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Organic", "Organic\Organic.csproj", "{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "orgASMPatcher", "orgASMPatcher\orgASMPatcher.csproj", "{369C0D65-58FB-4458-B9B0-76EB3DA09956}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrganicPatcher", "OrganicPatcher\OrganicPatcher.csproj", "{369C0D65-58FB-4458-B9B0-76EB3DA09956}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96} = {2F5F5623-0404-4F8D-B0A9-0B806BC64A96}
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A} = {11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}
