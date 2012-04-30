@@ -17,6 +17,7 @@ namespace orgASM
             this.LineNumber = LineNumber;
             this.Listed = true;
             this.Address = Address;
+            this.CodeType = CodeType.BasicInstruction;
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort Address, bool Listed)
@@ -112,10 +113,6 @@ namespace orgASM
         /// </summary>
         public ushort Address;
         /// <summary>
-        /// A list of referenced values this code uses, such as label names and equates.
-        /// </summary>
-        public ExpressionResult Expression;
-        /// <summary>
         /// The "A" value of an interpreted instruction.
         /// </summary>
         public Assembler.StringMatch ValueA;
@@ -128,9 +125,9 @@ namespace orgASM
         /// </summary>
         public Assembler.StringMatch Opcode;
         /// <summary>
-        /// True if this opcode is a non-basic opcode.
+        /// 
         /// </summary>
-        public bool NonBasic;
+        public CodeType CodeType;
 
         /// <summary>
         /// Given an error code, this returns a user-friendly message.

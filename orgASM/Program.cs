@@ -67,6 +67,8 @@ namespace orgASM
                             case "--listing":
                                 listingFile = args[++i];
                                 break;
+                            case "--long-form-literals":
+                                break;
                             case "--big-endian":
                             case "-b":
                                 bigEndian = true;

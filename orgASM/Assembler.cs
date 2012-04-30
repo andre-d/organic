@@ -134,6 +134,8 @@ namespace orgASM
                 {
                     if (!IfStack.Peek())
                         continue;
+                    ListEntry entry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
+                    entry.CodeType = CodeType.Directive;
                     // Parse labels
                     string label = line;
                     if (line.StartsWith(":"))
@@ -159,24 +161,27 @@ namespace orgASM
                     }
                     if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
                     {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
+                        entry.ErrorCode = ErrorCode.InvalidLabel;
+                        output.Add(entry);
                         continue;
                     }
                     foreach (char c in label)
                     {
                         if (!char.IsLetterOrDigit(c) && c != '_')
                         {
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidLabel));
+                            entry.ErrorCode = ErrorCode.InvalidLabel;
+                            output.Add(entry);
                             continue;
                         }
                     }
-                    if (Values.ContainsKey(label.ToLower()))
+                    if (Values.ContainsKey(label.ToLower()) || LabelValues.ContainsKey(label.ToLower()))
                     {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.DuplicateName));
+                        entry.ErrorCode = ErrorCode.DuplicateName;
+                        output.Add(entry);
                         continue;
                     }
-                    Values.Add(label.ToLower(), currentAddress);
-                    output.Add(new ListEntry(label + ":", FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    LabelValues.Add(label.ToLower(), currentAddress);
+                    output.Add(entry);
                 }
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -391,7 +396,7 @@ namespace orgASM
                                 }
                                 if (!foundEndmacro)
                                 {
-                                    output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(), 
+                                    output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(),
                                         currentAddress, ErrorCode.UncoupledStatement));
                                     continue;
                                 }
@@ -451,7 +456,7 @@ namespace orgASM
                         bool macroMatched = false;
                         foreach (Macro macro in Macros)
                         {
-                            if (macro.Name.ToLower() == userMacro.Name.ToLower() && 
+                            if (macro.Name.ToLower() == userMacro.Name.ToLower() &&
                                 macro.Args.Length == userMacro.Args.Length)
                             {
                                 // Expand the macro
@@ -479,6 +484,8 @@ namespace orgASM
                     }
 
                     // Check for OPCodes
+                    ListEntry entry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
+                    entry.Listed = !noList;
                     var opcode = MatchString(line, OpcodeTable);
                     bool nonBasic = false;
                     if (opcode == null)
@@ -488,133 +495,112 @@ namespace orgASM
                     }
                     if (opcode == null)
                     {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidOpcode));
+                        entry.ErrorCode = ErrorCode.InvalidOpcode;
+                        output.Add(entry);
                         continue;
                     }
                     else
                     {
+                        entry.Opcode = opcode;
                         StringMatch valueA = null, valueB = null;
-                        WarningCode warning = WarningCode.None;
                         if (!nonBasic)
                         {
+                            entry.CodeType = CodeType.BasicInstruction;
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
                             if (opcode.valueB != null)
                                 valueB = MatchString(opcode.valueB, ValueTable);
                             if (valueA == null || valueB == null)
                             {
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidParameter));
+                                entry.ErrorCode = ErrorCode.InvalidParameter; // Should never happen
+                                output.Add(entry);
                                 continue;
                             }
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueB.appendedValues).ToArray();
-                            if (valueA.value == valueB.value &&
-                                (valueA.appendedValues.Length != valueB.appendedValues.Length ||
-                                (valueA.appendedValues.Length == 0 && valueB.appendedValues.Length == 0)))
-                                warning = WarningCode.RedundantStatement; // TODO: Assign to literal
+                            if (valueA.value == valueB.value && valueA.value != 0x1E && valueB.value != 0x1E)
+                                entry.WarningCode = WarningCode.RedundantStatement;
+                            if (valueB.value == 0x1F)
+                                entry.WarningCode = WarningCode.AssignToLiteral;
+                            entry.ValueA = valueA;
+                            entry.ValueB = valueB;
                         }
                         else
                         {
+                            entry.CodeType = CodeType.NonBasicInstruction;
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
                             if (valueA == null)
                             {
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidParameter));
+                                entry.ErrorCode = ErrorCode.InvalidParameter; // Should never happen
+                                output.Add(entry);
                                 continue;
                             }
-                            opcode.appendedValues = opcode.appendedValues.Concat(valueA.appendedValues).ToArray();
+                            entry.ValueA = valueA;
                         }
-                        ushort[] value = new ushort[1];
-
-                        int appendedValuesStartIndex = 0;
-
-                        if (nonBasic)
-                            value[0] = (ushort)(((int)(opcode.value) << 5) | ((int)(valueA.value) << 10));
-                        else
-                            value[0] = (ushort)(opcode.value | ((int)(valueB.value) << 5) | ((int)(valueA.value) << 10));
-
-                        bool invalidParameter = false;
-                        ExpressionResult expression = null;
-                        for (int j = appendedValuesStartIndex; j < opcode.appendedValues.Length; j++)
-                        {
-                            ExpressionResult parameter = ParseExpression(opcode.appendedValues[j]);
-                            if (!parameter.Successful)
-                            {
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
-                                invalidParameter = true;
-                                break;
-                            }
-                            else
-                            {
-                                value = value.Concat(new ushort[] { parameter.Value }).ToArray();
-                                expression = parameter;
-                            }
-                        }
-
-                        if (invalidParameter)
-                            continue;
-
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), value, currentAddress, !noList, warning));
-                        output[output.Count - 1].Expression = expression;
-                        if (!noList)
-                            currentAddress += (ushort)value.Length;
+                        output.Add(entry);
+                        currentAddress++;
+                        if (valueA.isLiteral)
+                            currentAddress++;
+                        if (valueB != null)
+                            if (valueB.isLiteral)
+                                currentAddress++;
                     }
                 }
             }
 
-            currentAddress = 0;
-
-            // Fix references and optimize code
-            ushort optimizedWords = 0;
             for (int i = 0; i < output.Count; i++)
             {
-                output[i].Address -= optimizedWords;
-                if (output[i].Code != null)
-                    if (output[i].Code.StartsWith(".org") || output[i].Code.StartsWith("#org"))
-                        optimizedWords = 0;
-                if (output[i].Expression == null)
-                    continue;
-                for (int j = 0; j < output[i].Expression.References.Length; j++)
+                if (output[i].Opcode != null)
                 {
-                    if (output[i].Output.Length > 1)
+                    // Assemble output
+                    if (output[i].CodeType == CodeType.BasicInstruction)
                     {
-                        string reference = output[i].Expression.References[j];
-                        if (!Values.ContainsKey(reference.ToLower()))
+                        byte value = output[i].Opcode.value;
+                        byte valueA = output[i].ValueA.value;
+                        byte valueB = output[i].ValueB.value;
+                        output[i].Output = new ushort[1];
+                        if (output[i].ValueA.isLiteral) // next-word
                         {
-                            output[i].ErrorCode = ErrorCode.UndefinedReference;
-                            output[i].WarningCode = WarningCode.None;
+                            ExpressionResult result = ParseExpression(output[i].ValueA.literal);
+                            if (!result.Successful)
+                            {
+                                output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                continue;
+                            }
+                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
                         }
-                        else
+                        if (output[i].ValueB.isLiteral)
                         {
-                            ushort originalValue = output[i].Output[1];
-                            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
-                            if (value < 0x1F && j == output[i].Expression.References.Length - 1 && false) // TODO: Make values keep track of labels
+                            ExpressionResult result = ParseExpression(output[i].ValueB.literal);
+                            if (!result.Successful)
                             {
-                                // Optimize to one word shorter
-                                optimizedWords++;
-                                // TODO: Assign to literals
-                                output[i].Output = new ushort[] {
-                                    (ushort)(output[i].Output[0] & ~0xFC00 | (ushort)(value << 10))
-                                };
+                                output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                continue;
                             }
-                            else
-                            {
-                                output[i].Output[1] = value;
-                            }
+                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
                         }
+                        output[i].Output[0] = (ushort)(value | (valueB << 5) | (valueA << 10));
+                    }
+                    else if (output[i].CodeType == CodeType.NonBasicInstruction)
+                    {
+                        byte value = output[i].Opcode.value;
+                        byte valueA = output[i].ValueA.value;
+                        output[i].Output = new ushort[1];
+                        if (valueA == 0x1F) // next-word
+                        {
+                            ExpressionResult result = ParseExpression(output[i].ValueA.literal);
+                            if (!result.Successful)
+                            {
+                                output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                continue;
+                            }
+                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
+                        }
+                        output[i].Output[0] = (ushort)(value << 5 | (valueA << 10));
                     }
                 }
             }
 
             return output;
-        }
-
-        private int GetRootNumber(Stack<int> LineNumbers)
-        {
-            int res = 0;
-            foreach (int i in LineNumbers)
-                res += i;
-            return res;
         }
 
         #endregion
@@ -625,13 +611,12 @@ namespace orgASM
         {
             value = value.Trim();
             StringMatch match = new StringMatch();
-            match.appendedValues = new string[0];
+            match.original = value;
             foreach (var opcode in keys)
             {
                 int valueIndex = 0;
                 bool requiredWhitespaceMet = false;
                 bool matchFound = true;
-                match.appendedValues = new string[0];
                 for (int i = 0; i < opcode.Key.Length && valueIndex < value.Length; i++)
                 {
                     match.match = opcode.Key;
@@ -709,8 +694,8 @@ namespace orgASM
                             else
                                 valueIndex = delimiter;
                         }
-                        match.appendedValues = match.appendedValues.Concat(new string[] {
-                            value.Substring(valueStart, valueIndex - valueStart) }).ToArray();
+                        match.isLiteral = true;
+                        match.literal = value.Substring(valueStart, valueIndex - valueStart);
                     }
                     else
                     {
@@ -728,13 +713,23 @@ namespace orgASM
             return null;
         }
 
+        private int GetRootNumber(Stack<int> LineNumbers)
+        {
+            int res = 0;
+            foreach (int i in LineNumbers)
+                res += i;
+            return res;
+        }
+
         public class StringMatch
         {
             public string valueA;
             public string valueB;
             public string match;
+            public string original;
             public byte value;
-            public string[] appendedValues;
+            public bool isLiteral;
+            public string literal;
         }
 
         #endregion

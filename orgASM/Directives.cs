@@ -35,7 +35,7 @@ namespace orgASM
                     }
                     else
                     {
-                        var result = ParseExpression(line.Substring(line.IndexOf(' ')), true);
+                        var result = ParseExpression(line.Substring(line.IndexOf(' ')));
                         if (result.Successful)
                         {
                             if (result.Value > 0)
@@ -135,7 +135,7 @@ namespace orgASM
                             }
                             else
                             {
-                                ExpressionResult value = ParseExpression(data.Trim(), true);
+                                ExpressionResult value = ParseExpression(data.Trim());
                                 if (!value.Successful)
                                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                                 else
@@ -318,7 +318,7 @@ namespace orgASM
                     }
                     else
                     {
-                        var result = ParseExpression(line.Substring(3), true);
+                        var result = ParseExpression(line.Substring(3));
                         if (result.Successful)
                         {
                             if (result.Value > 0)
@@ -349,7 +349,7 @@ namespace orgASM
                                 string expression = directive.TrimExcessWhitespace();
                                 expression = expression.Substring(expression.IndexOf(' ') + 1);
                                 expression = expression.Substring(expression.IndexOf(' ') + 1);
-                                ExpressionResult value = ParseExpression(expression, true); // TODO: find a way to forward reference
+                                ExpressionResult value = ParseExpression(expression); // TODO: find a way to forward reference
                                 if (value != null)
                                 {
                                     Values.Add(parameters[1].ToLower(), value.Value);
@@ -372,22 +372,21 @@ namespace orgASM
                             // Resolve all references using this value thus far
                             for (int i = 0; i < output.Count; i++)
                             {
-                                if (output[i].Expression == null)
-                                    continue;
-                                for (int j = 0; j < output[i].Expression.References.Length; j++)
-                                {
-                                    if (output[i].Output.Length > 1)
-                                    {
-                                        string reference = output[i].Expression.References[j];
-                                        if (reference.ToLower() == parameters[1].ToLower())
-                                        {
-                                            ushort originalValue = output[i].Output[1];
-                                            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
-                                            output[i].Output[1] = value;
-                                        }
-                                    }
-                                }
-                            } // TODO: Allow optimization here?
+                                // TODO
+                                //for (int j = 0; j < output[i].Expression.References.Length; j++)
+                                //{
+                                //    if (output[i].Output.Length > 1)
+                                //    {
+                                //        string reference = output[i].Expression.References[j];
+                                //        if (reference.ToLower() == parameters[1].ToLower())
+                                //        {
+                                //            ushort originalValue = output[i].Output[1];
+                                //            ushort value = (ushort)(Values[reference.ToLower()] + originalValue);
+                                //            output[i].Output[1] = value;
+                                //        }
+                                //    }
+                                //}
+                            }
                             Values.Remove(parameters[1].ToLower());
                         }
                         else
@@ -408,8 +407,8 @@ namespace orgASM
                     parameters = fixedParams;
                     if (parameters.Length == 3)
                     {
-                        var length = ParseExpression(parameters[1], true);
-                        var value = ParseExpression(parameters[2], true);
+                        var length = ParseExpression(parameters[1]);
+                        var value = ParseExpression(parameters[2]);
                         if (!length.Successful || !value.Successful)
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         else
@@ -445,7 +444,7 @@ namespace orgASM
                 {
                     if (parameters.Length == 2)
                     {
-                        var addr = ParseExpression(parameters[1], true);
+                        var addr = ParseExpression(parameters[1]);
                         if (!addr.Successful)
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                         else

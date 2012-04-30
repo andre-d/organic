@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembler.cs" />
+    <Compile Include="CodeType.cs" />
     <Compile Include="Directives.cs" />
     <Compile Include="ErrorCode.cs" />
     <Compile Include="Expressions.cs" />
@@ -60,9 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DCPUtable.txt" />
-    <Content Include="testInclude.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="testSource.asm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

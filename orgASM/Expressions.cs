@@ -15,27 +15,16 @@ namespace orgASM
         /// <returns></returns>
         public ExpressionResult ParseExpression(string value)
         {
-            return ParseExpression(value, false);
-        }
-
-        /// <summary>
-        /// Given an expression, it will parse it and return the result as a nullable ushort
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ExpressionResult ParseExpression(string value, bool followReferences)
-        {
             ExpressionResult expressionResult = new ExpressionResult();
             expressionResult.Successful = true;
-            expressionResult.References = new string[0];
             value = value.Trim();
             if (value.Contains("("))
             {
-                return EvaluateParenthesis(value, followReferences);
+                return EvaluateParenthesis(value);
             }
             if (value.StartsWith("~"))
             {
-                expressionResult = ParseExpression(value.Substring(1), followReferences);
+                expressionResult = ParseExpression(value.Substring(1));
                 if (expressionResult.Successful)
                     expressionResult.Value = (ushort)~expressionResult.Value;
                 return expressionResult;
@@ -194,22 +183,12 @@ namespace orgASM
                 }
                 else // Defined value or error
                 {
-                    if (followReferences)
-                    {
-                        if (Values.ContainsKey(value.ToLower()))
-                        {
-                            expressionResult.Value = Values[value.ToLower()];
-                        }
-                        else
-                        {
-                            expressionResult.Successful = false;
-                        }
-                    }
+                    if (Values.ContainsKey(value.ToLower()))
+                        expressionResult.Value = Values[value.ToLower()];
+                    else if (LabelValues.ContainsKey(value.ToLower()))
+                        expressionResult.Value = LabelValues[value.ToLower()];
                     else
-                    {
-                        expressionResult.References = expressionResult.References.Concat(
-                            new string[] { value.ToLower() }).ToArray();
-                    }
+                        expressionResult.Successful = false;
                     return expressionResult;
                 }
             }
@@ -231,8 +210,8 @@ namespace orgASM
                 expressionResult.Successful = false;
                 return expressionResult;
             }
-            ExpressionResult left = ParseExpression(operands[0], followReferences);
-            ExpressionResult right = ParseExpression(operands[2], followReferences);
+            ExpressionResult left = ParseExpression(operands[0]);
+            ExpressionResult right = ParseExpression(operands[2]);
             if ((!left.Successful || !right.Successful) && operands[1] != "===" && operands[1] != "!==")
             {
                 expressionResult.Successful = false;
@@ -290,24 +269,18 @@ namespace orgASM
                     break;
                 case "===":
                     expressionResult.Value = (ushort)(operands[0].ToLower().Trim() == operands[2].ToLower().Trim() ? 1 : 0);
-                    left.References = new string[0];
-                    right.References = new string[0];
                     break;
                 case "!==":
                     expressionResult.Value = (ushort)(operands[0].ToLower().Trim() != operands[2].ToLower().Trim() ? 1 : 0);
-                    left.References = new string[0];
-                    right.References = new string[0];
                     break;
                 default:
                     expressionResult.Successful = false;
                     return expressionResult;
             }
-            expressionResult.References = expressionResult.References
-                .Concat(left.References).Concat(right.References).ToArray();
             return expressionResult;
         }
 
-        private ExpressionResult EvaluateParenthesis(string value, bool followReferences)
+        private ExpressionResult EvaluateParenthesis(string value)
         {
             while (value.Contains("("))
             {
@@ -336,7 +309,7 @@ namespace orgASM
                     expressionResult.Successful = false;
                     return expressionResult;
                 }
-                ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)), followReferences);
+                ExpressionResult subExpression = ParseExpression(value.Substring(openingParenthesis + 1, closingParenthesis - (openingParenthesis + 1)));
                 if (!subExpression.Successful)
                     return subExpression;
                 value = value.Remove(openingParenthesis) + subExpression.Value.ToString() + value.Substring(closingParenthesis + 1);
@@ -457,10 +430,6 @@ namespace orgASM
         /// True if there were no errors
         /// </summary>
         public bool Successful { get; set; }
-        /// <summary>
-        /// A list of referenced values
-        /// </summary>
-        public string[] References { get; set; }
         /// <summary>
         /// The original expression
         /// </summary>

@@ -1,3 +1,3 @@
-﻿	SET A, 1
-	.include "testInclude.asm"
-	SET B, 1
+﻿start: ; 0x0000
+	SET 0x1000, 0x2000
+	SET [0x1234], [0x4321]
