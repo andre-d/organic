@@ -510,12 +510,6 @@ namespace orgASM
                                 valueA = MatchString(opcode.valueA, ValueTable);
                             if (opcode.valueB != null)
                                 valueB = MatchString(opcode.valueB, ValueTable);
-                            if (valueA == null || valueB == null)
-                            {
-                                entry.ErrorCode = ErrorCode.InvalidParameter; // Should never happen
-                                output.Add(entry);
-                                continue;
-                            }
                             if (valueA.value == valueB.value && valueA.value != 0x1E && valueB.value != 0x1E)
                                 entry.WarningCode = WarningCode.RedundantStatement;
                             if (valueB.value == 0x1F && !opcode.match.Contains("IF"))
@@ -528,18 +522,13 @@ namespace orgASM
                             entry.CodeType = CodeType.NonBasicInstruction;
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
-                            if (valueA == null)
-                            {
-                                entry.ErrorCode = ErrorCode.InvalidParameter; // Should never happen
-                                output.Add(entry);
-                                continue;
-                            }
                             entry.ValueA = valueA;
                         }
                         output.Add(entry);
                         currentAddress++;
-                        if (valueA.isLiteral)
-                            currentAddress++;
+                        if (valueA != null)
+                            if (valueA.isLiteral)
+                                currentAddress++;
                         if (valueB != null)
                             if (valueB.isLiteral)
                                 currentAddress++;
@@ -598,17 +587,22 @@ namespace orgASM
                     else if (output[i].CodeType == CodeType.NonBasicInstruction)
                     {
                         byte value = output[i].Opcode.value;
-                        byte valueA = output[i].ValueA.value;
+                        byte valueA = 0;
+                        if (output[i].ValueA != null)
+                            valueA = output[i].ValueA.value;
                         output[i].Output = new ushort[1];
-                        if (output[i].ValueA.isLiteral) // next-word
+                        if (output[i].ValueA != null)
                         {
-                            ExpressionResult result = ParseExpression(output[i].ValueA.literal);
-                            if (!result.Successful)
+                            if (output[i].ValueA.isLiteral) // next-word
                             {
-                                output[i].ErrorCode = ErrorCode.IllegalExpression;
-                                continue;
+                                ExpressionResult result = ParseExpression(output[i].ValueA.literal);
+                                if (!result.Successful)
+                                {
+                                    output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                    continue;
+                                }
+                                output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
                             }
-                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
                         }
                         output[i].Output[0] = (ushort)(value << 5 | (valueA << 10));
                     }

@@ -3,3 +3,4 @@
 	SET [0x1234], [0x4321]
 	HWI 0
 	SET A, 0
+	RFI
