@@ -600,7 +600,7 @@ namespace orgASM
                         byte value = output[i].Opcode.value;
                         byte valueA = output[i].ValueA.value;
                         output[i].Output = new ushort[1];
-                        if (valueA == 0x1F) // next-word
+                        if (output[i].ValueA.isLiteral) // next-word
                         {
                             ExpressionResult result = ParseExpression(output[i].ValueA.literal);
                             if (!result.Successful)
