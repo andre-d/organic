@@ -377,33 +377,33 @@ namespace Organic
                                     if (!continueEvaluation)
                                         continue;
                                 }
-                                // Isolate macro code
-                                macro.Code = "";
-                                bool foundEndmacro = false;
-                                string macroLine = line;
-                                i++;
-                                for (; i < lines.Length; i++)
-                                {
-                                    line = lines[i].TrimComments().TrimExcessWhitespace();
-                                    LineNumbers.Push(LineNumbers.Pop() + 1);
-                                    if (line == ".endmacro" || line == "#endmacro" || line == "}")
-                                    {
-                                        foundEndmacro = true;
-                                        break;
-                                    }
-                                    if (line != "{")
-                                        macro.Code += "\n" + line;
-                                }
-                                if (!foundEndmacro)
-                                {
-                                    output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(),
-                                        currentAddress, ErrorCode.UncoupledStatement));
-                                    continue;
-                                }
                             }
                         }
                         else
                             macro.Name = macroDefinition;
+                        // Isolate macro code
+                        macro.Code = "";
+                        bool foundEndmacro = false;
+                        string macroLine = line;
+                        i++;
+                        for (; i < lines.Length; i++)
+                        {
+                            line = lines[i].TrimComments().TrimExcessWhitespace();
+                            LineNumbers.Push(LineNumbers.Pop() + 1);
+                            if (line == ".endmacro" || line == "#endmacro" || line == "}")
+                            {
+                                foundEndmacro = true;
+                                break;
+                            }
+                            if (line != "{")
+                                macro.Code += "\n" + line;
+                        }
+                        if (!foundEndmacro)
+                        {
+                            output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(),
+                                currentAddress, ErrorCode.UncoupledStatement));
+                            continue;
+                        }
                         macro.Code = macro.Code.Trim('\n');
                         Macros.Add(macro);
                         output.Add(new ListEntry(".macro " + macroDefinition, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
