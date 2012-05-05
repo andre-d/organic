@@ -100,6 +100,7 @@ namespace Organic
                             default:
                                 HandleParameterEventArgs hpea = new HandleParameterEventArgs(arg);
                                 hpea.Arguments = args;
+                                hpea.Index = i;
                                 if (assembler.TryHandleParameter != null)
                                     assembler.TryHandleParameter(assembler, hpea);
                                 if (!hpea.Handled)

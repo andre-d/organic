@@ -17,6 +17,7 @@ namespace Organic.Plugins
         /// Set to TRUE if Organic should quit after reading this parameter.
         /// </summary>
         public bool StopProgram { get; set; }
+        public int Index { get; set; }
 
         public HandleParameterEventArgs(string Parameter)
         {
