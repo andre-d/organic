@@ -108,6 +108,8 @@ namespace Organic
                                     Console.WriteLine("Error: Invalid parameter: " + arg + "\nUse orgASM.exe --help for usage information.");
                                     return;
                                 }
+                                else
+                                    i = hpea.Index;
                                 if (hpea.StopProgram)
                                     return;
                                 break;
