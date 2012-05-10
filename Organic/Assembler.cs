@@ -649,7 +649,7 @@ namespace Organic
                             requiredWhitespaceMet = false;
                         }
                     }
-                    else if (opcode.Key[i] == '-') // Optional whitespace
+                    else if (opcode.Key[i] == '.') // Optional whitespace
                     {
                         if (value[valueIndex] == ' ' || value[valueIndex] == '\t')
                         {
