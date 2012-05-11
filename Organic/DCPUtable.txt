@@ -116,7 +116,7 @@ a,b 18 POP
 a,b 18 PUSH
 a,b 19 PEEK
 a,b 18 [.SP++.]
-a,b 19 [.SP--.]
+a,b 19 [.--SP.]
 a,b 19 [.SP.]
 a,b 1A [.SP.+.$0.]
 a,b 1A PICK_$0
