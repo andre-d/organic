@@ -17,6 +17,7 @@ namespace Organic
         {
             ExpressionResult expressionResult = new ExpressionResult();
             expressionResult.Successful = true;
+            expressionResult.References = new List<string>();
             value = value.Trim();
             if (value.Contains("("))
             {
@@ -189,6 +190,7 @@ namespace Organic
                         expressionResult.Value = LabelValues[value.ToLower()];
                     else
                         expressionResult.Successful = false;
+                    expressionResult.References.Add(value.ToLower());
                     return expressionResult;
                 }
             }
@@ -212,6 +214,7 @@ namespace Organic
             }
             ExpressionResult left = ParseExpression(operands[0]);
             ExpressionResult right = ParseExpression(operands[2]);
+            expressionResult.References.AddRange(left.References.Concat(right.References));
             if ((!left.Successful || !right.Successful) && operands[1] != "===" && operands[1] != "!==")
             {
                 expressionResult.Successful = false;
@@ -253,6 +256,7 @@ namespace Organic
                     expressionResult.Value =  (ushort)(left.Value == right.Value ? 1 : 0);
                     break;
                 case "!=":
+                case "<>":
                     expressionResult.Value =  (ushort)(left.Value != right.Value ? 1 : 0);
                     break;
                 case "<":
@@ -272,6 +276,15 @@ namespace Organic
                     break;
                 case "!==":
                     expressionResult.Value = (ushort)(operands[0].ToLower().Trim() != operands[2].ToLower().Trim() ? 1 : 0);
+                    break;
+                case "&&":
+                    expressionResult.Value = (ushort)(left.Value > 0 && right.Value > 1 ? 1 : 0);
+                    break;
+                case "||":
+                    expressionResult.Value = (ushort)(left.Value > 0 || right.Value > 1 ? 1 : 0);
+                    break;
+                case "^^":
+                    expressionResult.Value = (ushort)(left.Value > 0 ^ right.Value > 1 ? 1 : 0); // between boolean operators, ^ is ^^ in C#
                     break;
                 default:
                     expressionResult.Successful = false;
@@ -333,7 +346,7 @@ namespace Organic
             return result;
         }
 
-        string[] MathOperators = new string[] { "*", "/", "+", "-", "<<", ">>", "|", "^", "&", "%", "===", "!==", "==", "!=", ">", "<", ">=", "<=" };
+        string[] MathOperators = new string[] { "*", "/", "+", "-", "<<", ">>", "||", "&&", "^^", "|", "^", "&", "%", "===", "!==", "==", "!=", "<>", ">", "<", ">=", "<=" };
 
         private string[] GetOperands(string value)
         {
@@ -434,5 +447,9 @@ namespace Organic
         /// The original expression
         /// </summary>
         public string Expression { get; set; }
+        /// <summary>
+        /// All values referenced by name in the expression.
+        /// </summary>
+        public List<string> References { get; set; }
     }
 }

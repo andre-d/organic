@@ -1,17 +1,22 @@
-﻿	SET A, A
-	SET A, 0x100
-	SET 0x100, A
-	SET 0x100, 0x200
+﻿; Test file for Organic
+
+.macro test()
 	SET A, B
-	SET [0x100], A
-	SET A, [0x100]
-	SET [0x100], [0x200]
-	SET [A+0x100], B
-	SET [A+0x100], 0x200
-	SET 0x100, [A+0x200]
-	SET B, [A+0x100]
-	SET [A+0x100], [A+0x200]
-	JSR 0x8000
-	HWI 0x8000
-	HWQ A
-	DAT 0, 0
+	SET B, A
+.endmacro
+
+start:
+	SET A, B
+subroutine:
+	SET B, A
+	.loop:
+		IFL 10, B
+		SET PC, .loop
+otherstuff:
+	SET B, A
+	_loop:
+		IFL 10, B
+		SET PC, _loop
+end:
+	.dat "woo!"
+	test()

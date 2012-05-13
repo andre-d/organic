@@ -16,11 +16,9 @@ Usage: Organic.exe [parameters] [input file] [output file]
 
 ### Parameters
 
-**--big-endian**
+**--little-endian**
 
-Switches output to big-endian mode, the reverse of notchian syntax.
-
-Shorthand: -b
+Switches output to little-endian mode, the reverse of notchian syntax.
 
 **--equate [key] [value]**
 
@@ -96,7 +94,7 @@ Organic is completely case-insensitive.  Additionally, you may pre- or post-fix 
 
 Anywhere a number is required, an expression may be used.  Expressions are not evaluated with order-of-operations, but left-to-right, in accordance with assembly standards.  Valid operators are as follows:
 
-    + - / * | & ^ ~ % << >> == != < > <= >= ( ) === !==
+    + - / * | & ^ ~ % << >> == != <> < > <= >= ( ) === !== && || ^^
 
 All values are 16-bit.  Boolean operators return a one or zero as appropriate.
 
@@ -147,6 +145,21 @@ You may recursively use macros in a macro definition, for instance:
     .macro test2()
         test(A, C)
     .endmacro
+
+### Local Labels
+
+If you prepend a label with ".", that label will have the name of the previous global label prepended to it.  For example:
+
+    label1:
+        SET A, B
+    .label: ; becomes label1_label
+        SET B, A
+        SET A, .label ; becomes label1_label
+    label2:
+        SET A, C
+    .label: ; becomes label2_label
+
+Note that this also works with Notch-style labels, so ":.label" is a local label.  Also permitted is "_label", in accordance with the 0x10c standards committee.
 
 ### Pre-processor directives
 

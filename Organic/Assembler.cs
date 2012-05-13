@@ -22,6 +22,7 @@ namespace Organic
         private Dictionary<string, byte> NonBasicOpcodeTable;
         private Dictionary<string, byte> ValueTable;
         private Dictionary<int, ushort> RelativeLabels; // line, value
+        private string PriorGlobalLabel = "";
         private Stack<bool> IfStack;
         private bool noList;
 
@@ -159,7 +160,7 @@ namespace Organic
                         RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
                         continue;
                     }
-                    if (label.Contains(' ') || label.Contains('\t') || !char.IsLetter(label[0]))
+                    if (label.Contains(' ') || label.Contains('\t') || !(char.IsLetter(label[0]) || label[0] == '.' || label[0] == '_'))
                     {
                         entry.ErrorCode = ErrorCode.InvalidLabel;
                         output.Add(entry);
@@ -167,7 +168,7 @@ namespace Organic
                     }
                     foreach (char c in label)
                     {
-                        if (!char.IsLetterOrDigit(c) && c != '_')
+                        if (!char.IsLetterOrDigit(c) && c != '_' && c != '.')
                         {
                             entry.ErrorCode = ErrorCode.InvalidLabel;
                             output.Add(entry);
@@ -180,6 +181,10 @@ namespace Organic
                         output.Add(entry);
                         continue;
                     }
+                    if (label.StartsWith(".") || label.StartsWith("_"))
+                        label = PriorGlobalLabel + "_" + label.Substring(1);
+                    else
+                        PriorGlobalLabel = label;
                     LabelValues.Add(label.ToLower(), currentAddress);
                     output.Add(entry);
                 }
@@ -516,6 +521,27 @@ namespace Organic
                                 entry.WarningCode = WarningCode.AssignToLiteral;
                             entry.ValueA = valueA;
                             entry.ValueB = valueB;
+                            // De-localize labels
+                            if (entry.ValueA.isLiteral)
+                            {
+                                var result = ParseExpression(entry.ValueA.literal);
+                                foreach (var reference in result.References)
+                                {
+                                    if (reference.StartsWith(".") || reference.StartsWith("_"))
+                                        entry.ValueA.literal = entry.ValueA.literal.Replace(reference,
+                                            PriorGlobalLabel + "_" + reference.Substring(1));
+                                }
+                            }
+                            if (entry.ValueB.isLiteral)
+                            {
+                                var result = ParseExpression(entry.ValueB.literal);
+                                foreach (var reference in result.References)
+                                {
+                                    if (reference.StartsWith(".") || reference.StartsWith("_"))
+                                        entry.ValueB.literal = entry.ValueB.literal.Replace(reference,
+                                            PriorGlobalLabel + "_" + reference.Substring(1));
+                                }
+                            }
                         }
                         else
                         {
@@ -523,6 +549,17 @@ namespace Organic
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
                             entry.ValueA = valueA;
+                            // De-localize labels
+                            if (entry.ValueA.isLiteral)
+                            {
+                                var result = ParseExpression(entry.ValueA.literal);
+                                foreach (var reference in result.References)
+                                {
+                                    if (reference.StartsWith(".") || reference.StartsWith("_"))
+                                        entry.ValueA.literal = entry.ValueA.literal.Replace(reference,
+                                            PriorGlobalLabel + "_" + reference.Substring(1));
+                                }
+                            }
                         }
                         output.Add(entry);
                         currentAddress++;
