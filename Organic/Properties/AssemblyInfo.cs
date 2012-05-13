@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("orgASM")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Organic")]
+[assembly: AssemblyDescription("An assembler for DCPU-16")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("orgASM")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyProduct("Organic")]
+[assembly: AssemblyCopyright("Copyright © Drew DeVault 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
