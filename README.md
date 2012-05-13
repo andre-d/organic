@@ -108,8 +108,6 @@ Which will translate to SET A, 0x160.  Only the first word of the instruction is
 
 ### Relative Addressing
 
-**NOTE**: The current version of Organic's relative addressing implementation is broken.
-
 You may create any number of labels called "$".  These are relative labels.  You can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
 
         SET A, $++ ; References the relative label before SET C, B
