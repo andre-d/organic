@@ -141,6 +141,19 @@ namespace Organic
                 string line = lines[i].TrimComments().TrimExcessWhitespace();
                 if (string.IsNullOrEmpty(line))
                     continue;
+                string[] sublines = line.SafeSplit('\\');
+                if (sublines.Length > 1)
+                {
+                    string[] newLines = new string[lines.Length + sublines.Length - 1];
+                    Array.Copy(lines, 0, newLines, 0, i);
+                    Array.Copy(sublines, 0, newLines, i, sublines.Length);
+                    if (lines.Length > i + 1)
+                        Array.Copy(lines, i + 1, newLines, i + sublines.Length, lines.Length - i - 1);
+                    lines = newLines;
+                    i--;
+                    SuspendedLineCounts.Push(sublines.Length);
+                    continue;
+                }
                 if (line.SafeContains(':') && !noList)
                 {
                     if (!IfStack.Peek())
