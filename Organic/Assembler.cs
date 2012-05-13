@@ -17,7 +17,8 @@ namespace Organic
 
         private ushort currentAddress;
         private Stack<string> FileNames;
-        private Stack<int> LineNumbers;
+        // Suspended line counts are the number of lines that should be considered the same line, for instance, upon expanding a macro
+        private Stack<int> LineNumbers, SuspendedLineCounts;
         private Dictionary<string, byte> OpcodeTable;
         private Dictionary<string, byte> NonBasicOpcodeTable;
         private Dictionary<string, byte> ValueTable;
@@ -68,6 +69,7 @@ namespace Organic
             RelativeLabels = new Dictionary<int, ushort>();
 
             LineNumbers = new Stack<int>();
+            SuspendedLineCounts = new Stack<int>();
             FileNames = new Stack<string>();
 
             LoadPlugins();
@@ -126,7 +128,15 @@ namespace Organic
             List<ListEntry> output = new List<ListEntry>();
             for (int i = 0; i < lines.Length; i++)
             {
-                LineNumbers.Push(LineNumbers.Pop() + 1);
+                if (SuspendedLineCounts.Count == 0)
+                    LineNumbers.Push(LineNumbers.Pop() + 1);
+                else
+                {
+                    int count = SuspendedLineCounts.Pop();
+                    count--;
+                    if (count > 0)
+                        SuspendedLineCounts.Push(count);
+                }
 
                 string line = lines[i].TrimComments().TrimExcessWhitespace();
                 if (string.IsNullOrEmpty(line))
@@ -480,6 +490,7 @@ namespace Organic
                                 output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                                 line = lines[i].TrimComments().TrimExcessWhitespace();
                                 macroMatched = true;
+                                SuspendedLineCounts.Push(macroCode.Length); // Suspend the line counts for the expanded macro
                             }
                         }
                         if (macroMatched)

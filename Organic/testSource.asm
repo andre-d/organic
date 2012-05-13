@@ -1,8 +1,9 @@
 ﻿; Test file for Organic
 
-.macro test()
+.macro test(arg)
 	SET A, B
 	SET B, A
+	arg
 .endmacro
 
 start:
@@ -19,4 +20,5 @@ otherstuff:
 		SET PC, _loop
 end:
 	.dat "woo!"
-	test()
+	test("SET I, J")
+	.dat "hoo!"
