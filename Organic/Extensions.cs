@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace Organic
 {
@@ -162,6 +163,20 @@ namespace Organic
                             break;
                         case '0':
                             newvalue += "\0";
+                            break;
+                        case 'x':
+                            if (i + 3 > value.Length)
+                                return null;
+                            string hex = value[i + 2].ToString() + value[i + 3].ToString();
+                            i += 2;
+                            try
+                            {
+                                newvalue += (char)Encoding.ASCII.GetBytes(new char[] { (char)byte.Parse(hex, NumberStyles.HexNumber) })[0];
+                            }
+                            catch
+                            {
+                                return null;
+                            }
                             break;
                         default:
                             return null;

@@ -21,6 +21,6 @@ otherstuff:
 end:
 	.dat "woo!"
 	test("SET I, J")
-	.dat "hoo!"
+	.dat "hoo!\x15"
 
 	SET A, B \ SET B, A \ ADD A, B \ ADD I, J
