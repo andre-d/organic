@@ -357,7 +357,7 @@ namespace Organic
                                 paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
                                 if (paramDefinition.Length > 0)
                                 {
-                                    string[] parameters = paramDefinition.Split(',');
+                                    string[] parameters = paramDefinition.SafeSplit(',');
                                     bool continueEvaluation = true;
                                     for (int j = 0; j < parameters.Length; j++)
                                     {
