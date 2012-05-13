@@ -390,7 +390,7 @@ namespace Organic
                         {
                             line = lines[i].TrimComments().TrimExcessWhitespace();
                             LineNumbers.Push(LineNumbers.Pop() + 1);
-                            if (line == ".endmacro" || line == "#endmacro" || line == "}")
+                            if (line == ".endmacro" || line == "#endmacro" || line == ".end" || line == "#end" || line == "}")
                             {
                                 foundEndmacro = true;
                                 break;

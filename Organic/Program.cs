@@ -26,7 +26,7 @@ namespace Organic
             string listingFile = null;
             string pipe = null;
             string workingDirectory = Directory.GetCurrentDirectory();
-            bool bigEndian = false, quiet = false, verbose = false;
+            bool bigEndian = true, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
             for (int i = 0; i < args.Length; i++)
             {
@@ -67,9 +67,8 @@ namespace Organic
                             case "--listing":
                                 listingFile = args[++i];
                                 break;
-                            case "--big-endian":
-                            case "-b":
-                                bigEndian = true;
+                            case "--little-endian":
+                                bigEndian = false;
                                 break;
                             case "--quiet":
                             case "-q":
