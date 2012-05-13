@@ -181,6 +181,7 @@ namespace Organic
                     if (label == "$")
                     {
                         RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
+                        output.Add(entry);
                         continue;
                     }
                     if (label.Contains(' ') || label.Contains('\t') || !(char.IsLetter(label[0]) || label[0] == '.' || label[0] == '_'))
@@ -598,7 +599,8 @@ namespace Organic
                     }
                 }
             }
-
+            LineNumbers = new Stack<int>();
+            LineNumbers.Push(0);
             return EvaluateAssembly(output);
         }
 
@@ -606,6 +608,8 @@ namespace Organic
         {
             for (int i = 0; i < output.Count; i++)
             {
+                LineNumbers.Pop();
+                LineNumbers.Push(output[i].LineNumber);
                 foreach (var kvp in output[i].PostponedExpressions)
                 {
                     ExpressionResult result = ParseExpression(kvp.Value);

@@ -141,35 +141,42 @@ namespace Organic
                         return expressionResult;
                     }
                     value = value.Substring(1);
-                    int currentIndex = -1;
+                    int nextLabelIndex = -1;
+                    // Find the next relative label after the current line
                     for (int i = 0; i < RelativeLabels.Count; i++)
                     {
                         if (RelativeLabels.ElementAt(i).Key > LineNumbers.Peek())
                         {
-                            currentIndex = i - 1;
+                            nextLabelIndex = i;
                             break;
                         }
                     }
-                    if (currentIndex == -1)
-                        currentIndex = RelativeLabels.Count;
+                    if (nextLabelIndex == -1)
+                        nextLabelIndex = RelativeLabels.Count - 1; // If no such label is found, use the last one
+                    bool initialPlus = true;
+                    // For each plus, increment that label index, and each minus decrements it
                     foreach (char c in value)
                     {
-                        if (c == '+')
-                            currentIndex++;
+                        if (c == '+') // The intial plus symbol is ignored
+                        {
+                            if (initialPlus)
+                                nextLabelIndex++;
+                            initialPlus = false;
+                        }
                         else if (c == '-')
-                            currentIndex--;
+                            nextLabelIndex--;
                     }
-                    if (currentIndex < 0)
+                    if (nextLabelIndex < 0)
                     {
                         expressionResult.Successful = false;
                         return expressionResult;
                     }
-                    if (currentIndex > RelativeLabels.Count)
+                    if (nextLabelIndex > RelativeLabels.Count - 1)
                     {
                         expressionResult.Successful = false;
                         return expressionResult;
                     }
-                    expressionResult.Value = RelativeLabels.ElementAt(currentIndex).Value;
+                    expressionResult.Value = RelativeLabels.ElementAt(nextLabelIndex).Value;
                     return expressionResult;
                 }
                 else if (value.ToLower() == "true")
