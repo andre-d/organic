@@ -135,6 +135,16 @@ The parameters defined in the .macro directive may be freely used inside of the 
 
     test(A, B)
 
+You may also use quotes in a parameter if you wish to pass a statement that uses commas, for instance:
+
+    test("SET A, B", 5)
+
+"SET A, B" is passed to the macro as one single parameter.  If you wish to pass an actual quotation mark, you may leave off the closing mark.  Like so:
+
+    test(", 5)
+
+This will pass a quotation mark as the parameter.  If you wish to pass more than one, you should escape it in the string: test("\"\"", 5) will pass two in a row.
+
 This will expand to the following:
 
     SET A, B

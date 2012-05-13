@@ -357,7 +357,7 @@ namespace Organic
                                 paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
                                 if (paramDefinition.Length > 0)
                                 {
-                                    string[] parameters = paramDefinition.SafeSplit(',');
+                                    string[] parameters = paramDefinition.Split(',');
                                     bool continueEvaluation = true;
                                     for (int j = 0; j < parameters.Length; j++)
                                     {
@@ -450,10 +450,12 @@ namespace Organic
                             paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
                             if (paramDefinition.Length > 0)
                             {
-                                string[] parameters = paramDefinition.Split(',');
+                                string[] parameters = paramDefinition.SafeSplit(',');
                                 for (int j = 0; j < parameters.Length; j++)
                                 {
                                     string parameter = parameters[j].Trim();
+                                    if (parameter.StartsWith("\"") && parameter.EndsWith("\""))
+                                        parameter = parameter.Substring(1, parameter.Length - 2).Unescape();
                                     userMacro.Args = userMacro.Args.Concat(new string[] { parameter }).ToArray();
                                 }
                             }
