@@ -70,6 +70,9 @@ namespace Organic
                             case "--little-endian":
                                 bigEndian = false;
                                 break;
+                            case "--long-literals":
+                                assembler.ForceLongLiterals = true;
+                                break;
                             case "--quiet":
                             case "-q":
                                 quiet = true;
@@ -383,12 +386,13 @@ namespace Organic
             Console.WriteLine("Usage: Organic.exe [parameters] [input file] [output file]\n" +
                 "Output file is optional; if left out, Organic will use [input file].bin.\n\n" +
                 "===Flags:\n" +
-                "--big-endian: Switches output to big-endian mode.\n" +
                 "--equate [key] [value]: Adds an equate, with the same syntax as .equ.\n" +
                 "--help: Displays this message.\n" +
                 "--input-file [filename]: An alternative way to specify the input file.\n" +
                 "--include [path]: Adds [path] to the search index for #include <> files.\n" +
                 "--listing [filename]: Outputs a listing to [filename].\n" +
+                "--little-endian: Switches output to little-endian mode.\n" +
+                "--long-literals: Forces all literal values to take up an entire word.\n" + 
                 "--output-file [filename]: An alternative way to specify the output file.\n" +
                 "--pipe [assembly]: Assemble [assembly], instead of the input file.\n" +
                 "--quiet: Organic will not output error information.\n" +

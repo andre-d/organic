@@ -251,6 +251,10 @@ namespace Organic
                             currentAddress += (ushort)binOutput.Count;
                     }
                 }
+                else if (directive.ToLower() == "longform") // Handled properly in the second pass
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
+                else if (directive.ToLower() == "shortform")
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList));
                 else if (directive.ToLower().StartsWith("org"))
                 {
                     if (parameters.Length == 1)

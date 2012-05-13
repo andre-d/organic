@@ -194,7 +194,7 @@ namespace Organic
                     if (Values.ContainsKey(value.ToLower()))
                         expressionResult.Value = Values[value.ToLower()];
                     else if (LabelValues.ContainsKey(value.ToLower()))
-                        expressionResult.Value = LabelValues[value.ToLower()];
+                        expressionResult.Value = LabelValues.GetValue(value.ToLower());
                     else
                         expressionResult.Successful = false;
                     expressionResult.References.Add(value.ToLower());
@@ -212,6 +212,7 @@ namespace Organic
             if (string.IsNullOrEmpty(operands[0]) && operands[1] == "-")
             {
                 expressionResult = ParseExpression(operands[2]);
+                expressionResult.Value = (ushort)-expressionResult.Value;
                 return expressionResult;
             }
             if (operands == null)

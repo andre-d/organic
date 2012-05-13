@@ -110,6 +110,26 @@ namespace Organic
             return newvalue.Trim();
         }
 
+        public static bool ContainsKey(this List<Label> value, string key)
+        {
+            foreach (var label in value)
+            {
+                if (label.Name.ToLower() == key.ToLower())
+                    return true;
+            }
+            return false;
+        }
+
+        public static ushort GetValue(this List<Label> value, string key)
+        {
+            foreach (var label in value)
+            {
+                if (label.Name.ToLower() == key.ToLower())
+                    return label.Address;
+            }
+            return 0;
+        }
+
         /// <summary>
         /// Given a string with escaped characters, this will return the unescaped version.
         /// Example: "Test\\nstring" becomes "Test\nstring"

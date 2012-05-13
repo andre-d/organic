@@ -26,12 +26,14 @@ namespace Organic
         private string PriorGlobalLabel = "";
         private Stack<bool> IfStack;
         private bool noList;
+        public bool ForceLongLiterals = false;
 
         /// <summary>
         /// Values (such as labels and equates) found in the code
         /// </summary>
         public Dictionary<string, ushort> Values;
-        public Dictionary<string, ushort> LabelValues;
+        //public Dictionary<string, ushort> LabelValues;
+        public List<Label> LabelValues;
         public List<Macro> Macros;
 
         /// <summary>
@@ -63,7 +65,8 @@ namespace Organic
             LoadTable();
 
             Values = new Dictionary<string, ushort>();
-            LabelValues = new Dictionary<string, ushort>();
+            //LabelValues = new Dictionary<string, ushort>();
+            LabelValues = new List<Label>();
             Macros = new List<Macro>();
 
             RelativeLabels = new Dictionary<int, ushort>();
@@ -209,7 +212,12 @@ namespace Organic
                         label = PriorGlobalLabel + "_" + label.Substring(1);
                     else
                         PriorGlobalLabel = label;
-                    LabelValues.Add(label.ToLower(), currentAddress);
+                    LabelValues.Add(new Label() 
+                    {
+                        LineNumber = LineNumbers.Peek(),
+                        Name = label.ToLower(),
+                        Address = currentAddress
+                    });
                     output.Add(entry);
                 }
                 if (string.IsNullOrEmpty(line))
@@ -535,6 +543,7 @@ namespace Organic
                     {
                         entry.Opcode = opcode;
                         StringMatch valueA = null, valueB = null;
+                        entry.Output = new ushort[1];
                         if (!nonBasic)
                         {
                             entry.CodeType = CodeType.BasicInstruction;
@@ -551,6 +560,7 @@ namespace Organic
                             // De-localize labels
                             if (entry.ValueA.isLiteral)
                             {
+                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
                                 var result = ParseExpression(entry.ValueA.literal);
                                 foreach (var reference in result.References)
                                 {
@@ -561,6 +571,7 @@ namespace Organic
                             }
                             if (entry.ValueB.isLiteral)
                             {
+                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
                                 var result = ParseExpression(entry.ValueB.literal);
                                 foreach (var reference in result.References)
                                 {
@@ -579,6 +590,7 @@ namespace Organic
                             // De-localize labels
                             if (entry.ValueA.isLiteral)
                             {
+                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
                                 var result = ParseExpression(entry.ValueA.literal);
                                 foreach (var reference in result.References)
                                 {
@@ -599,67 +611,69 @@ namespace Organic
                     }
                 }
             }
-            LineNumbers = new Stack<int>();
-            LineNumbers.Push(0);
             return EvaluateAssembly(output);
         }
 
         private List<ListEntry> EvaluateAssembly(List<ListEntry> output)
         {
-            for (int i = 0; i < output.Count; i++)
+            bool finishedAssembly = false;
+            int iterations = 0;
+            while (!finishedAssembly)
             {
-                LineNumbers.Pop();
-                LineNumbers.Push(output[i].LineNumber);
-                foreach (var kvp in output[i].PostponedExpressions)
+                finishedAssembly = true;
+                iterations++;
+                if (iterations > 10000)
                 {
-                    ExpressionResult result = ParseExpression(kvp.Value);
-                    if (!result.Successful)
+                    Console.WriteLine("ERROR: Organic has surpassed 10,000 passes of the file, and suspects circular references.");
+                    Console.WriteLine("Assembly will now terminate, and your output files may be inaccurate.");
+                    return output;
+                }
+                LineNumbers = new Stack<int>();
+                LineNumbers.Push(0);
+                for (int i = 0; i < output.Count; i++)
+                {
+                    LineNumbers.Pop();
+                    LineNumbers.Push(output[i].LineNumber);
+                    foreach (var kvp in output[i].PostponedExpressions)
                     {
-                        output[i].ErrorCode = ErrorCode.IllegalExpression;
+                        ExpressionResult result = ParseExpression(kvp.Value);
+                        if (!result.Successful)
+                        {
+                            output[i].ErrorCode = ErrorCode.IllegalExpression;
+                            continue;
+                        }
+                        output[i].Output[kvp.Key] = result.Value;
+                    }
+                    if (output[i].Code.ToLower() == ".longform" || output[i].Code.ToLower() == "#longform")
+                    {
+                        ForceLongLiterals = true;
                         continue;
                     }
-                    output[i].Output[kvp.Key] = result.Value;
-                }
-                if (output[i].Opcode != null)
-                {
-                    // Assemble output
-                    if (output[i].CodeType == CodeType.BasicInstruction)
+                    if (output[i].Code.ToLower() == ".shortform" || output[i].Code.ToLower() == "#shortform")
                     {
-                        byte value = output[i].Opcode.value;
-                        byte valueA = output[i].ValueA.value;
-                        byte valueB = output[i].ValueB.value;
-                        output[i].Output = new ushort[1];
-                        if (output[i].ValueA.isLiteral) // next-word
-                        {
-                            ExpressionResult result = ParseExpression(output[i].ValueA.literal);
-                            if (!result.Successful)
-                            {
-                                output[i].ErrorCode = ErrorCode.IllegalExpression;
-                                continue;
-                            }
-                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
-                        }
-                        if (output[i].ValueB.isLiteral)
-                        {
-                            ExpressionResult result = ParseExpression(output[i].ValueB.literal);
-                            if (!result.Successful)
-                            {
-                                output[i].ErrorCode = ErrorCode.IllegalExpression;
-                                continue;
-                            }
-                            output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
-                        }
-                        output[i].Output[0] = (ushort)(value | (valueB << 5) | (valueA << 10));
+                        ForceLongLiterals = false;
+                        continue;
                     }
-                    else if (output[i].CodeType == CodeType.NonBasicInstruction)
+                    if (output[i].Opcode != null)
                     {
-                        byte value = output[i].Opcode.value;
-                        byte valueA = 0;
-                        if (output[i].ValueA != null)
-                            valueA = output[i].ValueA.value;
-                        output[i].Output = new ushort[1];
-                        if (output[i].ValueA != null)
+                        // Assemble output
+                        if (output[i].CodeType == CodeType.BasicInstruction)
                         {
+                            byte value = output[i].Opcode.value;
+                            byte valueA = output[i].ValueA.value;
+                            byte valueB = output[i].ValueB.value;
+                            ushort? valueBResult = null;
+                            ushort? valueAResult = null;
+                            if (output[i].ValueB.isLiteral)
+                            {
+                                ExpressionResult result = ParseExpression(output[i].ValueB.literal);
+                                if (!result.Successful)
+                                {
+                                    output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                    continue;
+                                }
+                                valueBResult = result.Value;
+                            }
                             if (output[i].ValueA.isLiteral) // next-word
                             {
                                 ExpressionResult result = ParseExpression(output[i].ValueA.literal);
@@ -668,10 +682,72 @@ namespace Organic
                                     output[i].ErrorCode = ErrorCode.IllegalExpression;
                                     continue;
                                 }
-                                output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
+                                if ((result.Value == 0xFFFF || result.Value <= 30) && !ForceLongLiterals)
+                                {
+                                    // Short form literal
+                                    valueA = (byte)(result.Value + 0x21);
+                                    if (output[i].Output.Length - (output[i].ValueB.isLiteral ? 1 : 0) != 1)
+                                    {
+                                        finishedAssembly = false;
+                                        output[i].Output = output[i].Output.Take(1).ToArray();
+                                        output[i].Output[0] = (ushort)(value | (valueB << 5) | (valueA << 10));
+                                        if (valueAResult.HasValue)
+                                            output[i].Output = output[i].Output.Concat(new ushort[] { valueAResult.Value }).ToArray();
+                                        if (valueBResult.HasValue)
+                                            output[i].Output = output[i].Output.Concat(new ushort[] { valueBResult.Value }).ToArray();
+                                        // if the size of the instruction has changed
+                                        int lineNumber = output[i].LineNumber;
+                                        int maxLineNumber = int.MaxValue;
+                                        for (; i < output.Count; i++)
+                                        {
+                                            if (output[i].Code.StartsWith(".org") || output[i].Code.StartsWith("#org"))
+                                            {
+                                                maxLineNumber = output[i].LineNumber;
+                                                break;
+                                            }
+                                            if (output[i].LineNumber > lineNumber)
+                                                output[i].Address--;
+                                        }
+                                        foreach (Label l in LabelValues)
+                                        {
+                                            if (l.LineNumber > lineNumber && l.LineNumber < maxLineNumber)
+                                                l.Address--;
+                                        }
+                                        break;
+                                    }
+                                }
+                                else
+                                    valueAResult = result.Value;
                             }
+                            output[i].Output = output[i].Output.Take(1).ToArray();
+                            output[i].Output[0] = (ushort)(value | (valueB << 5) | (valueA << 10));
+                            if (valueAResult.HasValue)
+                                output[i].Output = output[i].Output.Concat(new ushort[] { valueAResult.Value }).ToArray();
+                            if (valueBResult.HasValue)
+                                output[i].Output = output[i].Output.Concat(new ushort[] { valueBResult.Value }).ToArray();
                         }
-                        output[i].Output[0] = (ushort)(value << 5 | (valueA << 10));
+                        else if (output[i].CodeType == CodeType.NonBasicInstruction)
+                        {
+                            byte value = output[i].Opcode.value;
+                            byte valueA = 0;
+                            if (output[i].ValueA != null)
+                                valueA = output[i].ValueA.value;
+                            output[i].Output = new ushort[1];
+                            if (output[i].ValueA != null)
+                            {
+                                if (output[i].ValueA.isLiteral) // next-word
+                                {
+                                    ExpressionResult result = ParseExpression(output[i].ValueA.literal);
+                                    if (!result.Successful)
+                                    {
+                                        output[i].ErrorCode = ErrorCode.IllegalExpression;
+                                        continue;
+                                    }
+                                    output[i].Output = output[i].Output.Concat(new ushort[] { result.Value }).ToArray();
+                                }
+                            }
+                            output[i].Output[0] = (ushort)(value << 5 | (valueA << 10));
+                        }
                     }
                 }
             }

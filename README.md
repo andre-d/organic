@@ -48,6 +48,10 @@ Specifies a file to output a code listing to.
 
 Shorthand: -l
 
+**--long-literals**
+
+Forces organic to use long-form literals, even when they might be shortened to short-form.
+
 **--output-file [filename]**
 
 An alternative way to specify the output file.
@@ -211,6 +215,8 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 
 **.list**: Resumes assembly after .nolist
 
+**.longform**: Forces Organic to use long-form literals from that point forward.
+
 **.macro \[name](\[parameters])**: Begins a macro definition with the given name and parameters.  The parameters are optional, and parenthesis may be omitted for parameter-less macros.
 
 **.nolist**: Stops assembly until .list
@@ -220,6 +226,8 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 **.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
 
 **.reserve \[amount]**: Inserts [amount] of words into the output.  Each word is zero.
+
+**.shortform**: Forces Organic to use short-form literals when possible from that point forward.
 
 Understanding Listings
 ----------------------
