@@ -208,7 +208,7 @@ namespace Organic
                         output.Add(entry);
                         continue;
                     }
-                    if (label.StartsWith(".") || label.StartsWith("_"))
+                    if (label.StartsWith("."))
                         label = PriorGlobalLabel + "_" + label.Substring(1);
                     else
                         PriorGlobalLabel = label;
@@ -564,7 +564,7 @@ namespace Organic
                                 var result = ParseExpression(entry.ValueA.literal);
                                 foreach (var reference in result.References)
                                 {
-                                    if (reference.StartsWith(".") || reference.StartsWith("_"))
+                                    if (reference.StartsWith("."))
                                         entry.ValueA.literal = entry.ValueA.literal.Replace(reference,
                                             PriorGlobalLabel + "_" + reference.Substring(1));
                                 }
@@ -575,7 +575,7 @@ namespace Organic
                                 var result = ParseExpression(entry.ValueB.literal);
                                 foreach (var reference in result.References)
                                 {
-                                    if (reference.StartsWith(".") || reference.StartsWith("_"))
+                                    if (reference.StartsWith("."))
                                         entry.ValueB.literal = entry.ValueB.literal.Replace(reference,
                                             PriorGlobalLabel + "_" + reference.Substring(1));
                                 }
