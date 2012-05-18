@@ -35,3 +35,10 @@ This event is fired on each line of code Organic parses, before Organic parses i
 * string Code: The code being interpreted.  It is free of comments and excess whitespace.
 * bool Handled: If Organic should skip this line of code and move on, set this to true.  Organic will add the Output property to the overall output.
 * ListEntry Output: Set this value if you handle this line of code yourself.
+
+Methods
+-------
+
+    Assembler.AddHelpEntry(string)
+
+This method will add an entry to the output of "organic --help".
