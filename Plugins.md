@@ -41,4 +41,26 @@ Methods
 
     Assembler.AddHelpEntry(string)
 
+Variables
+---------
+
+Organic.Assembler has several variables that you can manipulate in the Loaded event to change how Organic assembles files.  Here's what you can manipulate:
+
+* ushort currentAddress: The current address of output.
+* Stack<string> FileNames: The stack of file names, determined by #include directives.
+* Stack<int> LineNumbers: The stack of line numbers, for each #include file.
+* Stack<int> SuspendedLineNumbers: When a macro is expanded, an integer is pushed to this stack for the number of lines it expanded to.  While the top value != 0, LineNumbers doesn't update.
+* Dictionary<string, byte> OpcodeTable: A table of opcode definitions.  See [DCPUTable.txt](https://github.com/SirCmpwn/organic/blob/master/Organic/DCPUtable.txt) for information on the string format.
+* Dictionary<string, byte> NonBasicOpcodeTable: A table of non-basic opcode definitions.
+* Dictionary<string, byte> ValueTable: A table of values, such as registers.
+* Dictionary<int, ushort> RelativeLabels: All relative labels currently known to Organic.  The key is the line number, and the ushort is the address.
+* string PriorGlobalLabel: The last known global label, used for local labels.
+* Stack<bool> IfStack: The result of a .if statement, or similar directives, is pushed to this stack.  When the top value is false, each line of code is ignored and unlisted.
+* bool noList: When true, output is unlisted.
+* bool ForceLongLiterals: When true, short literal optimization is disabled.  Note that this only affects the second pass.
+* Dictionary<string, ushort> Values: A list of values known to Organic thus far, such as .equ statements.
+* List<Label> LabelValues: All labels known to Organic thus far.
+* List<Macro> Macros: All macros known to Organic thus far.
+* string IncludePath: The semicolon-delimited list of paths to look for include files in when <> is used to include them.  (Example: #include <file>)
+
 This method will add an entry to the output of "organic --help".

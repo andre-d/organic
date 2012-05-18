@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using System.Globalization;
+using Organic.Plugins;
 
 namespace Organic
 {
@@ -15,17 +16,17 @@ namespace Organic
     {
         #region Runtime values
 
-        private ushort currentAddress;
-        private Stack<string> FileNames;
+        public ushort currentAddress;
+        public Stack<string> FileNames;
         // Suspended line counts are the number of lines that should be considered the same line, for instance, upon expanding a macro
-        private Stack<int> LineNumbers, SuspendedLineCounts;
-        private Dictionary<string, byte> OpcodeTable;
-        private Dictionary<string, byte> NonBasicOpcodeTable;
-        private Dictionary<string, byte> ValueTable;
-        private Dictionary<int, ushort> RelativeLabels; // line, value
-        private string PriorGlobalLabel = "";
-        private Stack<bool> IfStack;
-        private bool noList;
+        public Stack<int> LineNumbers, SuspendedLineCounts;
+        public Dictionary<string, byte> OpcodeTable;
+        public Dictionary<string, byte> NonBasicOpcodeTable;
+        public Dictionary<string, byte> ValueTable;
+        public Dictionary<int, ushort> RelativeLabels; // line, value
+        public string PriorGlobalLabel = "";
+        public Stack<bool> IfStack;
+        public bool noList;
         public bool ForceLongLiterals = false;
 
         /// <summary>
@@ -156,6 +157,19 @@ namespace Organic
                     i--;
                     SuspendedLineCounts.Push(sublines.Length);
                     continue;
+                }
+                if (HandleCodeLine != null)
+                {
+                    HandleCodeEventArgs args = new HandleCodeEventArgs();
+                    args.Code = line;
+                    args.Handled = false;
+                    args.Output = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
+                    HandleCodeLine(this, args);
+                    if (args.Handled)
+                    {
+                        output.Add(args.Output);
+                        continue;
+                    }
                 }
                 if (line.SafeContains(':') && !noList)
                 {

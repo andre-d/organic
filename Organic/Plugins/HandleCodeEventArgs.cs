@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Organic.Plugins
 {
-    public class HandleCodeEventArgs
+    public class HandleCodeEventArgs : EventArgs
     {
         public string Code { get; set; }
         public bool Handled { get; set; }
