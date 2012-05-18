@@ -7,6 +7,8 @@ An IPlugin has a Name, Description, Version, and a Loaded(Organic.Assembler) met
 
 A number of events and methods are exposed to the plugin developer to integrate with Organic.  If you'd like an additional method or event, make an issue on GitHub.
 
+There are a few example plugins [here](https://github.com/SirCmpwn/organic/wiki/Plugin-Examples).
+
 Events
 ------
 
