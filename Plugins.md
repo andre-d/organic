@@ -22,6 +22,8 @@ This event is fired when Organic encounters a command line parameter that it doe
 * bool Handled: If your plugin can handle this argument, set this to true before exiting the event handler.
 * bool StopProgram: If Organic should discontinue execution after executing the event handler, set this to true.
 
+If you handle the parameter yourself, make sure you set Handled to true, or Organic will discontinue execution with an error.
+
     EventHandler<Organic.Plugins.AssemblyCompleteArgs> Organic.Assembler.AssemblyComplete
 
 This event is fired when Organic has completed assembly.  AssemblyCompleteArgs exposes the List<ListEntry> generated during assembly.  This event fires before Organic creates output files.
