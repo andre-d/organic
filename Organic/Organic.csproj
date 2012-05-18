@@ -52,6 +52,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -69,6 +71,7 @@
     <Compile Include="Macro.cs" />
     <Compile Include="Plugins.cs" />
     <Compile Include="Plugins\AssemblyCompleteEventArgs.cs" />
+    <Compile Include="Plugins\HandleCodeEventArgs.cs" />
     <Compile Include="Plugins\HandleParameterEventArgs.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Program.cs" />

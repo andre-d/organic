@@ -11,36 +11,40 @@ namespace Organic
     // Plugin support for the assembler
     public partial class Assembler
     {
-        internal List<Assembly> LoadedAssemblies;
-        internal List<IPlugin> LoadedPlugins;
+        internal Dictionary<string, Assembly> LoadedAssemblies;
+        internal Dictionary<string, IPlugin> LoadedPlugins;
 
         public void LoadPlugins()
         {
-            LoadedAssemblies = new List<Assembly>();
-            LoadedPlugins = new List<IPlugin>();
+            if (LoadedAssemblies != null)
+                return;
+            LoadedAssemblies = new Dictionary<string, Assembly>();
+            LoadedPlugins = new Dictionary<string, IPlugin>();
 
-            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            foreach (string name in names)
+            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.dll");
+            foreach (string file in files)
             {
-                if (name.EndsWith(".dll"))
+                try
                 {
-                    try
+                    string assemblyFile = Path.GetTempFileName();
+                    if (File.Exists(assemblyFile))
+                        File.Delete(assemblyFile);
+                    File.Copy(file, assemblyFile);
+                    Stream assemblyStream = File.Open(assemblyFile, FileMode.Open);
+                    byte[] assemblyData = new byte[assemblyStream.Length];
+                    assemblyStream.Read(assemblyData, 0, assemblyData.Length);
+                    Assembly assembly = Assembly.Load(assemblyData);
+                    LoadedAssemblies.Add(file, assembly);
+                    foreach (var type in assembly.GetTypes().Where(t => typeof(IPlugin).IsAssignableFrom(t)).Take(1))
                     {
-                        Stream assemblyStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name);
-                        byte[] assemblyData = new byte[assemblyStream.Length];
-                        assemblyStream.Read(assemblyData, 0, assemblyData.Length);
-                        Assembly assembly = Assembly.Load(assemblyData);
-                        LoadedAssemblies.Add(assembly);
-                        foreach (var type in assembly.GetTypes().Where(t => typeof(IPlugin).IsAssignableFrom(t)))
-                        {
-                            IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
-                            plugin.Loaded(this);
-                        }
+                        IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
+                        plugin.Loaded(this);
+                        LoadedPlugins.Add(file, plugin);
                     }
-                    catch
-                    {
-                        Console.WriteLine("Error loading plugin: " + name);
-                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error loading plugin: " + file);
                 }
             }
         }
@@ -51,6 +55,7 @@ namespace Organic
 
         public event EventHandler<HandleParameterEventArgs> TryHandleParameter;
         public event EventHandler<AssemblyCompleteEventArgs> AssemblyComplete;
+        public event EventHandler<HandleCodeEventArgs> HandleCodeLine;
 
         #endregion
 

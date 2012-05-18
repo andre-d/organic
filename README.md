@@ -42,6 +42,14 @@ Adds [path] to the paths to search through for include files.  This only affects
 
 Shorthand: -i
 
+**--info [plugin name]**
+
+Retrieves information about the specified plugin.
+
+**--install [plugin name]**
+
+Installs [plugin name] from the [organic-plugins](https://github.com/SirCmpwn/Organic-Plugins) repository.
+
 **--listing [filename]**
 
 Specifies a file to output a code listing to.
@@ -69,6 +77,14 @@ Shorthand: -p
 Will not output errors or warnings.
 
 Shorthand: -q
+
+**--remove [plugin name]**
+
+Uninstalls the specified plugin.
+
+**--search [terms]**
+
+Searches the [organic-plugins](https://github.com/SirCmpwn/Organic-Plugins) repository for [terms].
 
 **--verbose**
 
@@ -228,6 +244,15 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 **.reserve \[amount]**: Inserts [amount] of words into the output.  Each word is zero.
 
 **.shortform**: Forces Organic to use short-form literals when possible from that point forward.
+
+Plugins
+-------
+
+Organic will load any .dll file in the same directory as it and attempt to use it as a plugin.  To install a plugin, simply place it in the same directory as Organic.exe.  There's a repository of plugins [here](http://github.com/SirCmpwn/Organic-Plugins) that you can use to find plugins.
+
+To install plugins from the organic-plugins repository, use "--install [plugin name]".  You can also use "--remove [plugin name]", and "--search [terms]" to find plugins.  There is also "--info [plugin name]" to retrieve more information on a plugin.
+
+If you'd like to make a plugin, you should read [Plugins.md]().
 
 Understanding Listings
 ----------------------

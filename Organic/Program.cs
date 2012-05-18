@@ -86,7 +86,7 @@ namespace Organic
                                 assembler.IncludePath = args[++i];
                                 break;
                             case "--plugins":
-                                ListPlugins();
+                                ListPlugins(assembler);
                                 return;
                             case "--working-directory":
                             case "-w":
@@ -234,15 +234,12 @@ namespace Organic
             Console.WriteLine("Organic build complete " + duration.TotalMilliseconds + "ms");
         }
 
-        private static void ListPlugins()
+        private static void ListPlugins(Assembler assembler)
         {
-            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            assembler.LoadPlugins();
             Console.WriteLine("Listing plugins:");
-            foreach (string name in names)
-            {
-                if (name.EndsWith(".dll"))
-                    Console.WriteLine(name);
-            }
+            foreach (var plugin in assembler.LoadedPlugins)
+                Console.WriteLine(plugin.Value.Name + ": " + plugin.Value.Description);
         }
 
         public static string CreateListing(List<ListEntry> output)

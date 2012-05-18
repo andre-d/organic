@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Organic", "Organic\Organic.csproj", "{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrganicPatcher", "OrganicPatcher\OrganicPatcher.csproj", "{369C0D65-58FB-4458-B9B0-76EB3DA09956}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96} = {2F5F5623-0404-4F8D-B0A9-0B806BC64A96}
-		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A} = {11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}"
 EndProject
 Global
@@ -34,16 +28,6 @@ Global
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|Mixed Platforms.Build.0 = Release|x86
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|x86.ActiveCfg = Release|x86
 		{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}.Release|x86.Build.0 = Release|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|x86.ActiveCfg = Debug|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Debug|x86.Build.0 = Debug|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Any CPU.ActiveCfg = Release|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|Mixed Platforms.Build.0 = Release|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|x86.ActiveCfg = Release|x86
-		{369C0D65-58FB-4458-B9B0-76EB3DA09956}.Release|x86.Build.0 = Release|x86
 		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{2F5F5623-0404-4F8D-B0A9-0B806BC64A96}.Debug|Mixed Platforms.Build.0 = Debug|x86
