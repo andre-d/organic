@@ -66,6 +66,10 @@ An alternative way to specify the output file.
 
 Shorthand: -o, --output
 
+**--plugins**
+
+Shows a list of installed plugins.
+
 **--pipe "[assembly]"**
 
 Instead of using a file for input, the given assembly will be piped into the assembly core and assembled directly.

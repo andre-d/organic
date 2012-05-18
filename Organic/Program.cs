@@ -99,6 +99,18 @@ namespace Organic
                             case "--debug-mode":
                                 Console.ReadKey();
                                 break;
+                            case "--install":
+                                assembler.InstallPlugin(args[++i]);
+                                return;
+                            case "--remove":
+                                assembler.RemovePlugin(args[++i]);
+                                return;
+                            case "--search":
+                                assembler.SearchPlugins(args[++i]);
+                                return;
+                            case "--info":
+                                assembler.GetInfo(args[++i]);
+                                return;
                             default:
                                 HandleParameterEventArgs hpea = new HandleParameterEventArgs(arg);
                                 hpea.Arguments = args;
