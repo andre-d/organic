@@ -252,7 +252,7 @@ Organic will load any .dll file in the same directory as it and attempt to use i
 
 To install plugins from the organic-plugins repository, use "--install [plugin name]".  You can also use "--remove [plugin name]", and "--search [terms]" to find plugins.  There is also "--info [plugin name]" to retrieve more information on a plugin.
 
-If you'd like to make a plugin, you should read [Plugins.md]().
+If you'd like to make a plugin, you should read [Plugins.md](https://github.com/SirCmpwn/organic/blob/master/Plugins.md).
 
 Understanding Listings
 ----------------------
