@@ -696,7 +696,7 @@ namespace Organic
                                     output[i].ErrorCode = ErrorCode.IllegalExpression;
                                     continue;
                                 }
-                                if ((result.Value == 0xFFFF || result.Value <= 30) && !ForceLongLiterals)
+                                if ((result.Value == 0xFFFF || result.Value <= 30) && !ForceLongLiterals && output[i].ValueA.value == 0x1F)
                                 {
                                     // Short form literal
                                     valueA = (byte)(result.Value + 0x21);
