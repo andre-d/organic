@@ -25,6 +25,7 @@ namespace Organic
             LoadedPlugins = new Dictionary<string, IPlugin>();
 
             string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.dll");
+            files = files.Concat(Directory.GetFiles(Directory.GetCurrentDirectory(), "*.exe")).ToArray();
             foreach (string file in files)
             {
                 try
