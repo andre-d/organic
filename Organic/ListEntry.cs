@@ -18,7 +18,8 @@ namespace Organic
             this.Listed = true;
             this.Address = Address;
             this.CodeType = CodeType.BasicInstruction;
-            PostponedExpressions = new Dictionary<ushort, string>();
+            this.PostponedExpressions = new Dictionary<ushort, string>();
+            this.Tags = new Dictionary<string, object>();
         }
 
         public ListEntry(string LineValue, string File, int LineNumber, ushort Address, bool Listed)
@@ -129,6 +130,18 @@ namespace Organic
         /// The type of code this line represents.
         /// </summary>
         public CodeType CodeType;
+        /// <summary>
+        /// Fill this with any data you wish in your plugins.
+        /// </summary>
+        public Dictionary<string, object> Tags;
+        /// <summary>
+        /// The friendly error message.  Used by plugins.
+        /// </summary>
+        public string ErrorMessage;
+        /// <summary>
+        /// The friendly warning message.  Used by plugins.
+        /// </summary>
+        public string WarningMessage;
         /// <summary>
         /// Expressions that will be evaluated in the second pass.
         /// </summary>

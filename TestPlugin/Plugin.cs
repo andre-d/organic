@@ -48,6 +48,16 @@ namespace TestPlugin
             assembler.AddHelpEntry("TestPlugin:\n" +
                 "\t--cow: Output a cow to the console.");
             assembler.TryHandleParameter += new EventHandler<HandleParameterEventArgs>(assembler_TryHandleParameter);
+            assembler.EvaluateExpressionValue += new EventHandler<EvaluateValueEventArgs>(assembler_EvaluateExpressionValue);
+        }
+
+        void assembler_EvaluateExpressionValue(object sender, EvaluateValueEventArgs e)
+        {
+            if (e.Value.StartsWith("#"))
+            {
+                e.Result = 0x1234;
+                e.Handled = true;
+            }
         }
 
         void assembler_TryHandleParameter(object sender, HandleParameterEventArgs e)

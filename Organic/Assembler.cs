@@ -158,25 +158,27 @@ namespace Organic
                     SuspendedLineCounts.Push(sublines.Length);
                     continue;
                 }
+                ListEntry listEntry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList);
                 if (HandleCodeLine != null)
                 {
                     HandleCodeEventArgs args = new HandleCodeEventArgs();
                     args.Code = line;
                     args.Handled = false;
-                    args.Output = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
+                    args.Output = listEntry;
                     HandleCodeLine(this, args);
                     if (args.Handled)
                     {
                         output.Add(args.Output);
                         continue;
                     }
+                    listEntry = args.Output;
+                    line = args.Code;
                 }
                 if (line.SafeContains(':') && !noList)
                 {
                     if (!IfStack.Peek())
                         continue;
-                    ListEntry entry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
-                    entry.CodeType = CodeType.Directive;
+                    listEntry.CodeType = CodeType.Directive;
                     // Parse labels
                     string label = line;
                     if (line.StartsWith(":"))
@@ -198,28 +200,28 @@ namespace Organic
                     if (label == "$")
                     {
                         RelativeLabels.Add(GetRootNumber(LineNumbers), currentAddress);
-                        output.Add(entry);
+                        output.Add(listEntry);
                         continue;
                     }
                     if (label.Contains(' ') || label.Contains('\t') || !(char.IsLetter(label[0]) || label[0] == '.' || label[0] == '_'))
                     {
-                        entry.ErrorCode = ErrorCode.InvalidLabel;
-                        output.Add(entry);
+                        listEntry.ErrorCode = ErrorCode.InvalidLabel;
+                        output.Add(listEntry);
                         continue;
                     }
                     foreach (char c in label)
                     {
                         if (!char.IsLetterOrDigit(c) && c != '_' && c != '.')
                         {
-                            entry.ErrorCode = ErrorCode.InvalidLabel;
-                            output.Add(entry);
+                            listEntry.ErrorCode = ErrorCode.InvalidLabel;
+                            output.Add(listEntry);
                             continue;
                         }
                     }
                     if (Values.ContainsKey(label.ToLower()) || LabelValues.ContainsKey(label.ToLower()))
                     {
-                        entry.ErrorCode = ErrorCode.DuplicateName;
-                        output.Add(entry);
+                        listEntry.ErrorCode = ErrorCode.DuplicateName;
+                        output.Add(listEntry);
                         continue;
                     }
                     if (label.StartsWith("."))
@@ -232,7 +234,7 @@ namespace Organic
                         Name = label.ToLower(),
                         Address = currentAddress
                     });
-                    output.Add(entry);
+                    output.Add(listEntry);
                 }
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -268,7 +270,10 @@ namespace Organic
                             }
                         }
                         if (!File.Exists(includedFileName))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
+                        {
+                            listEntry.ErrorCode = ErrorCode.FileNotFound;
+                            output.Add(listEntry);
+                        }
                         else
                         {
                             using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
@@ -313,7 +318,10 @@ namespace Organic
                             }
                         }
                         if (!File.Exists(includedFileName))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
+                        {
+                            listEntry.ErrorCode = ErrorCode.FileNotFound;
+                            output.Add(listEntry);
+                        }
                         else
                         {
                             using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
@@ -324,7 +332,8 @@ namespace Organic
                                 List<ushort> binOutput = new List<ushort>();
                                 foreach (byte b in rawData)
                                     binOutput.Add(b);
-                                output.Add(new ListEntry(line, includedFileName, LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                                listEntry.Output = binOutput.ToArray();
+                                output.Add(listEntry);
                                 if (!noList)
                                     currentAddress += (ushort)binOutput.Count;
                             }
@@ -351,7 +360,10 @@ namespace Organic
                             }
                         }
                         if (!File.Exists(includedFileName))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.FileNotFound, !noList));
+                        {
+                            listEntry.ErrorCode = ErrorCode.FileNotFound;
+                            output.Add(listEntry);
+                        }
                         else
                         {
                             using (Stream includedFile = File.Open(includedFileName, FileMode.Open))
@@ -370,7 +382,8 @@ namespace Organic
                                         working = 0;
                                     }
                                 }
-                                output.Add(new ListEntry(line, includedFileName, LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                                listEntry.Output = binOutput.ToArray();
+                                output.Add(listEntry);
                                 if (!noList)
                                     currentAddress += (ushort)binOutput.Count;
                             }
@@ -397,7 +410,10 @@ namespace Organic
                             string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("(") + 1);
                             macro.Name = macroDefinition.Remove(macroDefinition.IndexOf("("));
                             if (!paramDefinition.EndsWith(")"))
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidMacroDefintion));
+                            {
+                                listEntry.ErrorCode = ErrorCode.InvalidMacroDefintion;
+                                output.Add(listEntry);
+                            }
                             else
                             {
                                 paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
@@ -441,7 +457,7 @@ namespace Organic
                         {
                             line = lines[i].TrimComments().TrimExcessWhitespace();
                             LineNumbers.Push(LineNumbers.Pop() + 1);
-                            if (line == ".endmacro" || line == "#endmacro" || line == ".end" || line == "#end" || line == "}")
+                            if (line == ".endmacro" || line == "#endmacro" || line == "}")
                             {
                                 foundEndmacro = true;
                                 break;
@@ -451,8 +467,8 @@ namespace Organic
                         }
                         if (!foundEndmacro)
                         {
-                            output.Add(new ListEntry(macroLine, FileNames.Peek(), LineNumbers.Peek(),
-                                currentAddress, ErrorCode.UncoupledStatement));
+                            listEntry.ErrorCode = ErrorCode.UncoupledStatement;
+                            output.Add(listEntry);
                             continue;
                         }
                         macro.Code = macro.Code.Trim('\n');
@@ -490,7 +506,10 @@ namespace Organic
                         string paramDefinition = macroDefinition.Substring(macroDefinition.IndexOf("(") + 1);
                         userMacro.Name = macroDefinition.Remove(macroDefinition.IndexOf("("));
                         if (!paramDefinition.EndsWith(")"))
-                            output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidMacroDefintion));
+                        {
+                            listEntry.ErrorCode = ErrorCode.InvalidMacroDefintion;
+                            output.Add(listEntry);
+                        }
                         else
                         {
                             paramDefinition = paramDefinition.Remove(paramDefinition.Length - 1);
@@ -523,7 +542,7 @@ namespace Organic
                                 if (lines.Length > i + 1)
                                     Array.Copy(lines, i + 1, newLines, i + macroCode.Length, lines.Length - i - 1);
                                 lines = newLines;
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                                output.Add(listEntry);
                                 line = lines[i].TrimComments().TrimExcessWhitespace();
                                 macroMatched = true;
                                 SuspendedLineCounts.Push(macroCode.Length); // Suspend the line counts for the expanded macro
@@ -538,8 +557,6 @@ namespace Organic
                     }
 
                     // Check for OPCodes
-                    ListEntry entry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress);
-                    entry.Listed = !noList;
                     var opcode = MatchString(line, OpcodeTable);
                     bool nonBasic = false;
                     if (opcode == null)
@@ -549,72 +566,72 @@ namespace Organic
                     }
                     if (opcode == null)
                     {
-                        entry.ErrorCode = ErrorCode.InvalidOpcode;
-                        output.Add(entry);
+                        listEntry.ErrorCode = ErrorCode.InvalidOpcode;
+                        output.Add(listEntry);
                         continue;
                     }
                     else
                     {
-                        entry.Opcode = opcode;
+                        listEntry.Opcode = opcode;
                         StringMatch valueA = null, valueB = null;
-                        entry.Output = new ushort[1];
+                        listEntry.Output = new ushort[1];
                         if (!nonBasic)
                         {
-                            entry.CodeType = CodeType.BasicInstruction;
+                            listEntry.CodeType = CodeType.BasicInstruction;
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
                             if (opcode.valueB != null)
                                 valueB = MatchString(opcode.valueB, ValueTable);
                             if (valueA.value == valueB.value && valueA.value != 0x1E && valueB.value != 0x1E)
-                                entry.WarningCode = WarningCode.RedundantStatement;
+                                listEntry.WarningCode = WarningCode.RedundantStatement;
                             if (valueB.value == 0x1F && !opcode.match.Contains("IF"))
-                                entry.WarningCode = WarningCode.AssignToLiteral;
-                            entry.ValueA = valueA;
-                            entry.ValueB = valueB;
+                                listEntry.WarningCode = WarningCode.AssignToLiteral;
+                            listEntry.ValueA = valueA;
+                            listEntry.ValueB = valueB;
                             // De-localize labels
-                            if (entry.ValueA.isLiteral)
+                            if (listEntry.ValueA.isLiteral)
                             {
-                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
-                                var result = ParseExpression(entry.ValueA.literal);
+                                listEntry.Output = listEntry.Output.Concat(new ushort[1]).ToArray();
+                                var result = ParseExpression(listEntry.ValueA.literal);
                                 foreach (var reference in result.References)
                                 {
                                     if (reference.StartsWith("."))
-                                        entry.ValueA.literal = entry.ValueA.literal.Replace(reference,
+                                        listEntry.ValueA.literal = listEntry.ValueA.literal.Replace(reference,
                                             PriorGlobalLabel + "_" + reference.Substring(1));
                                 }
                             }
-                            if (entry.ValueB.isLiteral)
+                            if (listEntry.ValueB.isLiteral)
                             {
-                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
-                                var result = ParseExpression(entry.ValueB.literal);
+                                listEntry.Output = listEntry.Output.Concat(new ushort[1]).ToArray();
+                                var result = ParseExpression(listEntry.ValueB.literal);
                                 foreach (var reference in result.References)
                                 {
                                     if (reference.StartsWith("."))
-                                        entry.ValueB.literal = entry.ValueB.literal.Replace(reference,
+                                        listEntry.ValueB.literal = listEntry.ValueB.literal.Replace(reference,
                                             PriorGlobalLabel + "_" + reference.Substring(1));
                                 }
                             }
                         }
                         else
                         {
-                            entry.CodeType = CodeType.NonBasicInstruction;
+                            listEntry.CodeType = CodeType.NonBasicInstruction;
                             if (opcode.valueA != null)
                                 valueA = MatchString(opcode.valueA, ValueTable);
-                            entry.ValueA = valueA;
+                            listEntry.ValueA = valueA;
                             // De-localize labels
-                            if (entry.ValueA.isLiteral)
+                            if (listEntry.ValueA.isLiteral)
                             {
-                                entry.Output = entry.Output.Concat(new ushort[1]).ToArray();
-                                var result = ParseExpression(entry.ValueA.literal);
+                                listEntry.Output = listEntry.Output.Concat(new ushort[1]).ToArray();
+                                var result = ParseExpression(listEntry.ValueA.literal);
                                 foreach (var reference in result.References)
                                 {
                                     if (reference.StartsWith(".") || reference.StartsWith("_"))
-                                        entry.ValueA.literal = entry.ValueA.literal.Replace(reference,
+                                        listEntry.ValueA.literal = listEntry.ValueA.literal.Replace(reference,
                                             PriorGlobalLabel + "_" + reference.Substring(1));
                                 }
                             }
                         }
-                        output.Add(entry);
+                        output.Add(listEntry);
                         currentAddress++;
                         if (valueA != null)
                             if (valueA.isLiteral)

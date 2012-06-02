@@ -71,7 +71,10 @@
     <Compile Include="Macro.cs" />
     <Compile Include="Plugins.cs" />
     <Compile Include="Plugins\AssemblyCompleteEventArgs.cs" />
+    <Compile Include="Plugins\CustomExpressionOperator.cs" />
+    <Compile Include="Plugins\EvaluateValueEventArgs.cs" />
     <Compile Include="Plugins\HandleCodeEventArgs.cs" />
+    <Compile Include="Plugins\HandleExpressionEventArgs.cs" />
     <Compile Include="Plugins\HandleParameterEventArgs.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Program.cs" />

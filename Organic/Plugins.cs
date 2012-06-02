@@ -48,9 +48,10 @@ namespace Organic
                 }
                 catch
                 {
-                    Console.WriteLine("Error loading plugin: " + file);
                 }
             }
+
+            CustomOperators = new List<CustomExpressionOperator>();
         }
 
         #region Install Stuff
@@ -146,9 +147,27 @@ namespace Organic
 
         #region Events
 
+        /// <summary>
+        /// Run when Organic is unable to parse a command-line parameter itself.
+        /// </summary>
         public event EventHandler<HandleParameterEventArgs> TryHandleParameter;
+        /// <summary>
+        /// Run when Organic completes assembly.
+        /// </summary>
         public event EventHandler<AssemblyCompleteEventArgs> AssemblyComplete;
+        /// <summary>
+        /// Run when Organic handles a line of code.
+        /// The code will be trimmed of whitespace and stripped of comments.
+        /// </summary>
         public event EventHandler<HandleCodeEventArgs> HandleCodeLine;
+        /// <summary>
+        /// Run before an expression is evalulated.
+        /// </summary>
+        public event EventHandler<HandleExpressionEventArgs> HandleExpression;
+        /// <summary>
+        /// Run before handling a value in an expression (in "2+4", 2 and 4 values)
+        /// </summary>
+        public event EventHandler<EvaluateValueEventArgs> EvaluateExpressionValue;
 
         #endregion
 
@@ -157,6 +176,15 @@ namespace Organic
         public void AddHelpEntry(string Entry)
         {
             PluginHelp.Add(Entry);
+        }
+
+        /// <summary>
+        /// Adds an operator to the expression evaluation system
+        /// </summary>
+        /// <param name="Operator"></param>
+        public void AddCustomOperator(CustomExpressionOperator Operator)
+        {
+            CustomOperators.Add(Operator);
         }
 
         #endregion

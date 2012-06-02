@@ -66,7 +66,11 @@ namespace Organic
         /// <summary>
         /// A macro was defined improperly.
         /// </summary>
-        InvalidMacroDefintion = 13
+        InvalidMacroDefintion = 13,
+        /// <summary>
+        /// A plugin reported an error.  Check ErrorMessage for details.
+        /// </summary>
+        PluginError = 14,
     }
 
     /// <summary>
@@ -86,6 +90,10 @@ namespace Organic
         /// The code attempted to assign a value to a literal, which fails silently on DCPU.
         /// Example: "SET 5, A"
         /// </summary>
-        AssignToLiteral = 2
+        AssignToLiteral = 2,
+        /// <summary>
+        /// A plugin reported a warning.  Check WarningMessage for details.
+        /// </summary>
+        PluginWarning = 3,
     }
 }

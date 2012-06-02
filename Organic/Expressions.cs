@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Globalization;
+using Organic.Plugins;
 
 namespace Organic
 {
@@ -19,6 +20,13 @@ namespace Organic
             expressionResult.Successful = true;
             expressionResult.References = new List<string>();
             value = value.Trim();
+            if (HandleExpression != null)
+            {
+                HandleExpressionEventArgs heea = new HandleExpressionEventArgs(value);
+                HandleExpression(this, heea);
+                value = heea.Expression;
+            }
+
             if (value.Contains("("))
             {
                 return EvaluateParenthesis(value);
@@ -34,7 +42,17 @@ namespace Organic
             {
                 // Parse value
                 ushort result;
-                if (value.StartsWith("0d"))
+                EvaluateValueEventArgs args = new EvaluateValueEventArgs(value);
+                if (EvaluateExpressionValue != null)
+                {
+                    EvaluateExpressionValue(this, args);
+                }
+                if (args.Handled)
+                {
+                    expressionResult.Value = args.Result;
+                    return expressionResult;
+                }
+                else if (value.StartsWith("0d"))
                     value = value.Substring(2);
                 if (value.StartsWith("'")) // Character
                 {
@@ -353,6 +371,8 @@ namespace Organic
             }
             return result;
         }
+
+        private List<CustomExpressionOperator> CustomOperators;
 
         string[] MathOperators = new string[] { "*", "/", "+", "-", "<<", ">>", "||", "&&", "^^", "|", "^", "&", "%", "===", "!==", "==", "!=", "<>", ">", "<", ">=", "<=" };
 
