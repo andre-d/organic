@@ -372,15 +372,12 @@ namespace Organic
                                 includedFile.Read(rawData, 0, (int)includedFile.Length);
 
                                 List<ushort> binOutput = new List<ushort>();
-                                ushort working = 0;
-                                for (int j = 0; i < rawData.Length; i++)
+                                for (int j = 0; j < rawData.Length; j += 2)
                                 {
-                                    working |= (ushort)(rawData[j] << ((j % 2) * 8));
-                                    if (j % 2 == 1)
-                                    {
-                                        binOutput.Add(working);
-                                        working = 0;
-                                    }
+                                    binOutput.Add((ushort)(
+                                        rawData[j + 1] |
+                                        (rawData[j] << 8)
+                                        ));
                                 }
                                 listEntry.Output = binOutput.ToArray();
                                 output.Add(listEntry);

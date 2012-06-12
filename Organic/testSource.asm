@@ -1,2 +1,4 @@
-﻿SET [0x1000], [Z + 1]
-SET A, #10
+﻿:start
+    SET A, B
+    .incpack "testbin.bin"
+    SET B, A

@@ -279,7 +279,8 @@ namespace Organic
                     listentry.Code.StartsWith(".asciiz") || listentry.Code.StartsWith(".asciip") ||
                     listentry.Code.StartsWith(".asciic") || listentry.Code.StartsWith(".align") ||
                     listentry.Code.StartsWith(".fill") || listentry.Code.StartsWith(".pad") ||
-                    listentry.Code.StartsWith(".incbin") || listentry.Code.StartsWith(".reserve"))
+                    listentry.Code.StartsWith(".incbin") || listentry.Code.StartsWith(".reserve") ||
+                    listentry.Code.StartsWith(".incpack"))
                     && listentry.ErrorCode == ErrorCode.Success) // TODO: Move these to an array?
                 {
                     // Write code line
@@ -346,8 +347,11 @@ namespace Organic
                         tsb.WriteAt(maxLength, "[NOLIST] ");
                     if (listentry.Output != null)
                     {
-                        tsb.WriteAt(maxLength + 8, DumpArray(listentry.Output));
-                        tsb.WriteAt(maxLength + 25, listentry.Code);
+                        if (listentry.Output.Length > 0)
+                        {
+                            tsb.WriteAt(maxLength + 8, DumpArray(listentry.Output));
+                            tsb.WriteAt(maxLength + 25, listentry.Code);
+                        }
                     }
                     else
                         tsb.WriteAt(maxLength + 23, listentry.Code);
