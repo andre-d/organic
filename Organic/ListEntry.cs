@@ -95,6 +95,10 @@ namespace Organic
         /// </summary>
         public int LineNumber;
         /// <summary>
+        /// The line number it will end up in after all included files are accounted for.
+        /// </summary>
+        internal int RootLineNumber;
+        /// <summary>
         /// The assembled output.
         /// </summary>
         public ushort[] Output;

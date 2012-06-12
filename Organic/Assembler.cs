@@ -159,6 +159,9 @@ namespace Organic
                     continue;
                 }
                 ListEntry listEntry = new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, !noList);
+                listEntry.RootLineNumber = 0;
+                foreach (var num in LineNumbers)
+                    listEntry.RootLineNumber += num;
                 if (HandleCodeLine != null)
                 {
                     HandleCodeEventArgs args = new HandleCodeEventArgs();
@@ -232,6 +235,7 @@ namespace Organic
                     {
                         LineNumber = LineNumbers.Peek(),
                         Name = label.ToLower(),
+                        RootLineNumber = listEntry.RootLineNumber,
                         Address = currentAddress
                     });
                     output.Add(listEntry);

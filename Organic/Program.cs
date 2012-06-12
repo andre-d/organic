@@ -201,7 +201,6 @@ namespace Organic
             }
 
             ushort currentAddress = 0;
-            bool foundIssue = false;
             Stream binStream = null;
             if (outputFile != "-")
                 binStream = File.Open(outputFile, FileMode.Create);
@@ -209,11 +208,6 @@ namespace Organic
             {
                 if (entry.Output != null)
                 {
-                    if (currentAddress != entry.Address && !foundIssue)
-                    {
-                        Console.WriteLine("Inconsistent address: " + entry.FileName + " " + entry.LineNumber);
-                        foundIssue = true;
-                    }
                     foreach (ushort value in entry.Output)
                     {
                         currentAddress++;

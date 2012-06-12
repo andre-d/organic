@@ -10,5 +10,6 @@ namespace Organic
         public ushort Address { get; set; }
         public string Name { get; set; }
         public int LineNumber { get; set; }
+        internal int RootLineNumber { get; set; }
     }
 }
