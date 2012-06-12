@@ -1,5 +1,5 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
+Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Organic", "Organic\Organic.csproj", "{11FF5CE7-BD0B-48EE-9236-C91AF6B9FF6A}"
 EndProject
