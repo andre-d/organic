@@ -9,6 +9,9 @@ namespace Organic
 {
     public partial class Assembler
     {
+        public delegate ushort ExpressionExtension(string value);
+        public Dictionary<string, ExpressionExtension> ExpressionExtensions;
+
         /// <summary>
         /// Given an expression, it will parse it and return the result as a nullable ushort
         /// </summary>
@@ -26,9 +29,19 @@ namespace Organic
                 HandleExpression(this, heea);
                 value = heea.Expression;
             }
-
             if (value.Contains("("))
             {
+                // Check for advanced expression handlers
+                foreach (var item in ExpressionExtensions)
+                {
+                    if (value.StartsWith(item.Key.ToLower() + "("))
+                    {
+                        string expr = value.Substring(value.IndexOf("(") + 1);
+                        expr = expr.Remove(expr.Length - 1);
+                        expressionResult.Value = item.Value(expr);
+                        return expressionResult;
+                    }
+                }
                 return EvaluateParenthesis(value);
             }
             if (value.StartsWith("~"))
@@ -216,6 +229,8 @@ namespace Organic
                     else
                         expressionResult.Successful = false;
                     expressionResult.References.Add(value.ToLower());
+                    if (!ReferencedValues.Contains(value.ToLower()))
+                        ReferencedValues.Add(value.ToLower());
                     return expressionResult;
                 }
             }

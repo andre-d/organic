@@ -24,6 +24,7 @@ namespace Organic
         public Dictionary<string, byte> NonBasicOpcodeTable;
         public Dictionary<string, byte> ValueTable;
         public Dictionary<int, ushort> RelativeLabels; // line, value
+        public List<string> ReferencedValues;
         public string PriorGlobalLabel = "";
         public Stack<bool> IfStack;
         public bool noList;
@@ -75,6 +76,10 @@ namespace Organic
             LineNumbers = new Stack<int>();
             SuspendedLineCounts = new Stack<int>();
             FileNames = new Stack<string>();
+
+            ExpressionExtensions = new Dictionary<string, ExpressionExtension>();
+            ReferencedValues = new List<string>();
+            LoadInternalExpressionExtensions();
 
             LoadPlugins();
         }
