@@ -29,6 +29,8 @@ namespace Organic
             bool bigEndian = true, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
             assembler.IncludePath = Environment.GetEnvironmentVariable("ORGINCLUDE");
+            if (string.IsNullOrEmpty(assembler.IncludePath))
+                assembler.IncludePath = "";
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
