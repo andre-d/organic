@@ -28,6 +28,7 @@ namespace Organic
             string workingDirectory = Directory.GetCurrentDirectory();
             bool bigEndian = true, quiet = false, verbose = false;
             Assembler assembler = new Assembler();
+            assembler.IncludePath = Environment.GetEnvironmentVariable("ORGINCLUDE");
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
@@ -83,7 +84,7 @@ namespace Organic
                                 break;
                             case "--include":
                             case "-i":
-                                assembler.IncludePath = args[++i];
+                                assembler.IncludePath = Environment.GetEnvironmentVariable("ORGINCLUDE") + ";" + args[++i];
                                 break;
                             case "--plugins":
                                 ListPlugins(assembler);
@@ -175,6 +176,7 @@ namespace Organic
             }
             else
                 contents = pipe;
+
 
             List<ListEntry> output;
             string wdOld = Directory.GetCurrentDirectory();
