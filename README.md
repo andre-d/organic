@@ -130,6 +130,10 @@ You may also use instructions as literals, placed between "{" and "}".  For exam
 
 Which will translate to SET A, 0x160.  Only the first word of the instruction is taken.
 
+### Advanced Expression Extensions
+
+There are a number of expression extensions that have been 
+
 ### Relative Addressing
 
 You may create any number of labels called "$".  These are relative labels.  You can reference the value of a relative label with "$+" or "$-" with any number of + or - characters.  The calculated value will be the value of the relative label that many relative labels away.  For example:
@@ -242,6 +246,8 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 **.nolist**: Stops assembly until .list
 
 **.org \[origin]**: Sets the origin to \[origin]
+
+**.ref [value]**: Adds a reference to value, so that ifref(value) will be true without actually using the value.
 
 **.region** and **.endregion**: These are ignored, but do not cause an error.  You may use them to organize a file, and your IDE may support collapsing them.
 

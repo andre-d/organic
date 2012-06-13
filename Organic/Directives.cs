@@ -150,6 +150,10 @@ namespace Organic
                         output.Add(new ListEntry(consoleOutput, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
                     }
                 }
+                else if (directive.ToLower().StartsWith("ref"))
+                {
+                    ReferencedValues.Add(directive.Substring(directive.IndexOf(" ") + 1));
+                }
                 else if (directive.ToLower().StartsWith("ascii"))
                 {
                     if (parameters.Length == 1)
