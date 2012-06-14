@@ -272,13 +272,13 @@ namespace Organic
             foreach (var listentry in output)
             {
                 tsb = new TabifiedStringBuilder();
-                if ((listentry.Code.StartsWith(".dat") || listentry.Code.StartsWith(".dw") || 
-                    listentry.Code.StartsWith(".db") || listentry.Code.StartsWith(".ascii") ||
-                    listentry.Code.StartsWith(".asciiz") || listentry.Code.StartsWith(".asciip") ||
-                    listentry.Code.StartsWith(".asciic") || listentry.Code.StartsWith(".align") ||
-                    listentry.Code.StartsWith(".fill") || listentry.Code.StartsWith(".pad") ||
-                    listentry.Code.StartsWith(".incbin") || listentry.Code.StartsWith(".reserve") ||
-                    listentry.Code.StartsWith(".incpack"))
+                if ((listentry.Code.ToLower().StartsWith(".dat") || listentry.Code.ToLower().StartsWith(".dw") ||
+                    listentry.Code.ToLower().StartsWith(".db") || listentry.Code.ToLower().StartsWith(".ascii") ||
+                    listentry.Code.ToLower().StartsWith(".asciiz") || listentry.Code.ToLower().StartsWith(".asciip") ||
+                    listentry.Code.ToLower().StartsWith(".asciic") || listentry.Code.ToLower().StartsWith(".align") ||
+                    listentry.Code.ToLower().StartsWith(".fill") || listentry.Code.ToLower().StartsWith(".pad") ||
+                    listentry.Code.ToLower().StartsWith(".incbin") || listentry.Code.ToLower().StartsWith(".reserve") ||
+                    listentry.Code.ToLower().StartsWith(".incpack"))
                     && listentry.ErrorCode == ErrorCode.Success) // TODO: Move these to an array?
                 {
                     // Write code line
