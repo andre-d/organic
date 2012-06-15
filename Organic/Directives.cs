@@ -418,7 +418,10 @@ namespace Organic
                         var expression = directive.Substring(7).Trim();
                         var result = ParseExpression(expression);
                         if (result.Successful)
+                        {
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), new ushort[result.Value], currentAddress, !noList));
+                            currentAddress += result.Value;
+                        }
                         else
                             output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
                     }
