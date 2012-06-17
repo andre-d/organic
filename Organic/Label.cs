@@ -11,5 +11,6 @@ namespace Organic
         public string Name { get; set; }
         public int LineNumber { get; set; }
         internal int RootLineNumber { get; set; }
+        internal int RelocationGroup { get; set; }
     }
 }

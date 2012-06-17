@@ -278,7 +278,7 @@ namespace Organic
                     listentry.Code.ToLower().StartsWith(".asciic") || listentry.Code.ToLower().StartsWith(".align") ||
                     listentry.Code.ToLower().StartsWith(".fill") || listentry.Code.ToLower().StartsWith(".pad") ||
                     listentry.Code.ToLower().StartsWith(".incbin") || listentry.Code.ToLower().StartsWith(".reserve") ||
-                    listentry.Code.ToLower().StartsWith(".incpack"))
+                    listentry.Code.ToLower().StartsWith(".incpack") || listentry.Code.ToLower().StartsWith(".relocate"))
                     && listentry.ErrorCode == ErrorCode.Success) // TODO: Move these to an array?
                 {
                     // Write code line

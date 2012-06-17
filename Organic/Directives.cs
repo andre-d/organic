@@ -452,6 +452,22 @@ namespace Organic
                     else
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
                 }
+                else if (directive == "relocate")
+                {
+                    OldAddress = currentAddress;
+                    currentAddress = 0;
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    output[output.Count - 1].CodeType = CodeType.RelocationTable;
+                    RelocationGroup++;
+                    IsRelocating = true;
+                }
+                else if (directive == "endrelocate")
+                {
+                    // TODO: Errors
+                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress));
+                    currentAddress = OldAddress;
+                    IsRelocating = false;
+                }
                 else
                 {
                     output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InvalidDirective));

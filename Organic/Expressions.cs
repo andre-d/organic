@@ -225,7 +225,10 @@ namespace Organic
                     if (Values.ContainsKey(value.ToLower()))
                         expressionResult.Value = Values[value.ToLower()];
                     else if (LabelValues.ContainsKey(value.ToLower()))
+                    {
+                        expressionResult.Relocate = true;
                         expressionResult.Value = LabelValues.GetValue(value.ToLower());
+                    }
                     else
                         expressionResult.Successful = false;
                     expressionResult.References.Add(value.ToLower());
@@ -494,5 +497,7 @@ namespace Organic
         /// All values referenced by name in the expression.
         /// </summary>
         public List<string> References { get; set; }
+
+        public bool Relocate { get; set; }
     }
 }

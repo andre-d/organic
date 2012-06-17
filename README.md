@@ -197,6 +197,10 @@ If you prepend a label with ".", that label will have the name of the previous g
 
 Note that this also works with Notch-style labels, so ":.label" is a local label.  Also permitted is "_label", in accordance with the 0x10c standards committee.
 
+### Relocatable Code
+
+Organic allows you to use "relocation sections", where you can mark a particular section of code relocatable.  When you use .relocate, a length-prefixed relocation table will be inserted at that location, and $ is set to zero.
+
 ### Pre-processor directives
 
 Organic offers several pre-processor directives to ease use.  These may be used with either "." or "#".
@@ -218,6 +222,8 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 **.elseif \[expression]** and **.elif \[expression]**: If the matching .if statement was false, this will execute as a .if statement.
 
 **.endif** and **.end**: Closes a matching .if* statement.
+
+**.endrelocate**: Ends a relocation section.
 
 **.equ \[key] (value)** and **.define \[key] (value)**: Equates a value with a key.  The value is optional - if left out, the default is 1.  You may also use "\[key] .equ \[value]" for TASM compatibility.
 
@@ -246,6 +252,8 @@ Organic offers several pre-processor directives to ease use.  These may be used 
 **.nolist**: Stops assembly until .list
 
 **.org \[origin]**: Sets the origin to \[origin]
+
+**.relocate**: Begins a relocation section.  $ is set to zero and a length-prefixed relocation table is inserted into the output.
 
 **.ref [value]**: Adds a reference to value, so that ifref(value) will be true without actually using the value.
 

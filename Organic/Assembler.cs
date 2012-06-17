@@ -29,6 +29,11 @@ namespace Organic
         public Stack<bool> IfStack;
         public bool noList;
         public bool ForceLongLiterals = false;
+        private List<ushort> RelocatedAddresses { get; set; }
+        private int TableInsertionIndex { get; set; }
+        private ushort OldAddress { get; set; }
+        private int RelocationGroup { get; set; }
+        public bool IsRelocating { get; set; }
 
         /// <summary>
         /// Values (such as labels and equates) found in the code
@@ -80,6 +85,9 @@ namespace Organic
             ExpressionExtensions = new Dictionary<string, ExpressionExtension>();
             ReferencedValues = new List<string>();
             LoadInternalExpressionExtensions();
+
+            TableInsertionIndex = -1;
+            RelocationGroup = -1;
 
             LoadPlugins();
         }
@@ -241,8 +249,13 @@ namespace Organic
                         LineNumber = LineNumbers.Peek(),
                         Name = label.ToLower(),
                         RootLineNumber = listEntry.RootLineNumber,
-                        Address = currentAddress
+                        Address = currentAddress,
                     });
+                    if (!IsRelocating)
+                        LabelValues[LabelValues.Count - 1].RelocationGroup = -1;
+                    else
+                        LabelValues[LabelValues.Count - 1].RelocationGroup = RelocationGroup;
+                    listEntry.CodeType = CodeType.Label;
                     output.Add(listEntry);
                 }
                 if (string.IsNullOrEmpty(line))
@@ -655,6 +668,8 @@ namespace Organic
         {
             bool finishedAssembly = false;
             int iterations = 0;
+            List<string> RelocatedLabels = new List<string>();
+            RelocationGroup = -1;
             while (!finishedAssembly)
             {
                 finishedAssembly = true;
@@ -691,6 +706,17 @@ namespace Organic
                         ForceLongLiterals = false;
                         continue;
                     }
+                    if (output[i].Code.ToLower() == ".relocate" || output[i].Code.ToLower() == "#relocate")
+                    {
+                        RelocatedAddresses = new List<ushort>();
+                        TableInsertionIndex = i;
+                        RelocationGroup++;
+                    }
+                    if (output[i].Code.ToLower() == ".endrelocate" || output[i].Code.ToLower() == "#endrelocate")
+                    {
+                        output[TableInsertionIndex].Output = new ushort[] { (ushort)RelocatedAddresses.Count }.Concat(RelocatedAddresses).ToArray();
+                        TableInsertionIndex = -1;
+                    }
                     if (output[i].Opcode != null)
                     {
                         // Assemble output
@@ -701,9 +727,22 @@ namespace Organic
                             byte valueB = output[i].ValueB.value;
                             ushort? valueBResult = null;
                             ushort? valueAResult = null;
+                            bool relocateA = false, relocateB = false;
                             if (output[i].ValueB.isLiteral)
                             {
                                 ExpressionResult result = ParseExpression(output[i].ValueB.literal);
+                                if (TableInsertionIndex != -1)
+                                {
+                                    foreach (var label in LabelValues.Where(l => l.RelocationGroup == RelocationGroup))
+                                    {
+                                        foreach (var needle in result.References)
+                                            if (needle.ToLower() == label.Name.ToLower())
+                                            {
+                                                relocateB = true;
+                                                break;
+                                            }
+                                    }
+                                }
                                 if (!result.Successful)
                                 {
                                     output[i].ErrorCode = ErrorCode.IllegalExpression;
@@ -714,12 +753,24 @@ namespace Organic
                             if (output[i].ValueA.isLiteral) // next-word
                             {
                                 ExpressionResult result = ParseExpression(output[i].ValueA.literal);
+                                if (TableInsertionIndex != -1)
+                                {
+                                    foreach (var label in LabelValues.Where(l => l.RelocationGroup == RelocationGroup))
+                                    {
+                                        foreach (var needle in result.References)
+                                            if (needle.ToLower() == label.Name.ToLower())
+                                            {
+                                                relocateA = true;
+                                                break;
+                                            }
+                                    }
+                                }
                                 if (!result.Successful)
                                 {
                                     output[i].ErrorCode = ErrorCode.IllegalExpression;
                                     continue;
                                 }
-                                if ((result.Value == 0xFFFF || result.Value <= 30) && !ForceLongLiterals && output[i].ValueA.value == 0x1F)
+                                if ((result.Value == 0xFFFF || result.Value <= 30) && !ForceLongLiterals && TableInsertionIndex == -1 && output[i].ValueA.value == 0x1F)
                                 {
                                     // Short form literal
                                     valueA = (byte)(result.Value + 0x21);
@@ -759,9 +810,17 @@ namespace Organic
                             output[i].Output = output[i].Output.Take(1).ToArray();
                             output[i].Output[0] = (ushort)(value | (valueB << 5) | (valueA << 10));
                             if (valueAResult.HasValue)
+                            {
+                                if (relocateA)
+                                    RelocatedAddresses.Add((ushort)(output[i].Address + 1));
                                 output[i].Output = output[i].Output.Concat(new ushort[] { valueAResult.Value }).ToArray();
+                            }
                             if (valueBResult.HasValue)
+                            {
+                                if (relocateB)
+                                    RelocatedAddresses.Add((ushort)(output[i].Address + 1 + (valueAResult.HasValue ? 1 : 0)));
                                 output[i].Output = output[i].Output.Concat(new ushort[] { valueBResult.Value }).ToArray();
+                            }
                         }
                         else if (output[i].CodeType == CodeType.NonBasicInstruction)
                         {

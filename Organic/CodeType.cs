@@ -11,5 +11,6 @@ namespace Organic
         NonBasicInstruction,
         Label,
         Directive,
+        RelocationTable,
     }
 }

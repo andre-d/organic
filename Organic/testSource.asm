@@ -1,16 +1,13 @@
-﻿; Test for isref(value)
-.org 0x8000
-
-SET A, label1
-
-.if isref(label1)
+﻿SET A, B
 label1:
-    SET B, C
-    SET A, .test
-.test:
-.end
-
-.if isref(label2)
+SET B, C
+.relocate
+SET A, label2
 label2:
-    SET C, B
-.end
+SET B, 10
+SET C, label1
+SET X, label2
+JSR label1
+ADD B, 10
+SET label2, label1
+.endrelocate
