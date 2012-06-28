@@ -38,7 +38,7 @@ An alternative way to specify the input file.
 
 **--include [path]**
 
-Adds [path] to the paths to search through for include files.  This only affects files included with <>, such as .include <stdio.asm>.  This is a semicolon-delimited list of directories.
+Adds [path] to the paths to search through for include files.  This only affects files included with <>, such as .include \<stdio.asm\>.  This is a semicolon-delimited list of directories.
 
 Shorthand: -i
 
@@ -132,7 +132,9 @@ Which will translate to SET A, 0x160.  Only the first word of the instruction is
 
 ### Advanced Expression Extensions
 
-There are a number of expression extensions that have been 
+There are a number of expression extensions that have been added for more advanced evaluation of expressions.
+
+**isref(value)**: Returns 1 if "value" has been used thus far by code being assembled, or 0 otherwise.
 
 ### Relative Addressing
 
