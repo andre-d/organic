@@ -162,6 +162,11 @@ To define a macro, use the .macro and .endmacro directives.  Here is an example 
 The parameters defined in the .macro directive may be freely used inside of the macro itself.  To use a macro:
 
     test(A, B)
+    
+This will expand to the following:
+
+    SET A, B
+    ADD B, A
 
 You may also use quotes in a parameter if you wish to pass a statement that uses commas, for instance:
 
@@ -172,11 +177,6 @@ You may also use quotes in a parameter if you wish to pass a statement that uses
     test(", 5)
 
 This will pass a quotation mark as the parameter.  If you wish to pass more than one, you should escape it in the string: test("\"\"", 5) will pass two in a row.
-
-This will expand to the following:
-
-    SET A, B
-    ADD B, A
 
 You may recursively use macros in a macro definition, for instance:
 
