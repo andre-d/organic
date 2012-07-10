@@ -9,3 +9,5 @@ TestResults/
 *.testsettings
 *.vsmdi
 *.cache
+*.pidb
+*.userprefs

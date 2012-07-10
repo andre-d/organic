@@ -154,39 +154,6 @@ namespace Organic
                 {
                     ReferencedValues.Add(directive.Substring(directive.IndexOf(" ") + 1));
                 }
-                else if (directive.ToLower().StartsWith("ascii"))
-                {
-                    if (parameters.Length == 1)
-                    {
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
-                    }
-                    else
-                    {
-                        string[] dataStrings = directive.Substring(directive.IndexOf(" ")).SafeSplit(',');
-                        List<ushort> binOutput = new List<ushort>();
-                        foreach (string data in dataStrings)
-                        {
-                            if (data.Trim().StartsWith("\""))
-                            {
-                                if (!data.Trim().EndsWith("\""))
-                                {
-                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
-                                }
-                                else
-                                {
-                                    string str = data.Trim().Substring(1, data.Trim().Length - 2).Unescape();
-                                    foreach (byte b in Encoding.ASCII.GetBytes(str))
-                                        binOutput.Add(b);
-                                }
-                            }
-                            else
-                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
-                        }
-                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
-                        if (!noList)
-                            currentAddress += (ushort)binOutput.Count;
-                    }
-                }
                 else if (directive.ToLower().StartsWith("asciip"))
                 {
                     if (parameters.Length == 1)
@@ -245,6 +212,39 @@ namespace Organic
                                     foreach (byte b in Encoding.ASCII.GetBytes(str))
                                         binOutput.Add(b);
                                     binOutput.Add(0);
+                                }
+                            }
+                            else
+                                output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                        }
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), binOutput.ToArray(), currentAddress, !noList));
+                        if (!noList)
+                            currentAddress += (ushort)binOutput.Count;
+                    }
+                }
+				else if (directive.ToLower().StartsWith("ascii"))
+                {
+                    if (parameters.Length == 1)
+                    {
+                        output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
+                    }
+                    else
+                    {
+                        string[] dataStrings = directive.Substring(directive.IndexOf(" ")).SafeSplit(',');
+                        List<ushort> binOutput = new List<ushort>();
+                        foreach (string data in dataStrings)
+                        {
+                            if (data.Trim().StartsWith("\""))
+                            {
+                                if (!data.Trim().EndsWith("\""))
+                                {
+                                    output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.IllegalExpression));
+                                }
+                                else
+                                {
+                                    string str = data.Trim().Substring(1, data.Trim().Length - 2).Unescape();
+                                    foreach (byte b in Encoding.ASCII.GetBytes(str))
+                                        binOutput.Add(b);
                                 }
                             }
                             else
