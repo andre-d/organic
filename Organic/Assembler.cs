@@ -591,16 +591,21 @@ namespace Organic
                     }
                     else
                     {
+                        if (opcode.valueA == null || (!nonBasic && opcode.valueB == null))
+                        {
+                            listEntry.ErrorCode = ErrorCode.InsufficientParamters;
+                            output.Add(listEntry);
+                            continue;
+                        }
+
                         listEntry.Opcode = opcode;
                         StringMatch valueA = null, valueB = null;
                         listEntry.Output = new ushort[1];
                         if (!nonBasic)
                         {
                             listEntry.CodeType = CodeType.BasicInstruction;
-                            if (opcode.valueA != null)
-                                valueA = MatchString(opcode.valueA, ValueTable);
-                            if (opcode.valueB != null)
-                                valueB = MatchString(opcode.valueB, ValueTable);
+                            valueA = MatchString(opcode.valueA, ValueTable);
+                            valueB = MatchString(opcode.valueB, ValueTable);
                             if (valueA.value == valueB.value && valueA.value != 0x1E && valueB.value != 0x1E)
                                 listEntry.WarningCode = WarningCode.RedundantStatement;
                             if (valueB.value == 0x1F && !opcode.match.Contains("IF"))
@@ -634,8 +639,7 @@ namespace Organic
                         else
                         {
                             listEntry.CodeType = CodeType.NonBasicInstruction;
-                            if (opcode.valueA != null)
-                                valueA = MatchString(opcode.valueA, ValueTable);
+                            valueA = MatchString(opcode.valueA, ValueTable);
                             listEntry.ValueA = valueA;
                             // De-localize labels
                             if (listEntry.ValueA.isLiteral)

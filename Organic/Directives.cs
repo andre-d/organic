@@ -404,7 +404,7 @@ namespace Organic
                                 currentAddress += (ushort)padding.Length;
                         }
                     }
-                    else if (parameters.Length == 1)
+                    else if (parameters.Length < 3)
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.InsufficientParamters));
                     else
                         output.Add(new ListEntry(line, FileNames.Peek(), LineNumbers.Peek(), currentAddress, ErrorCode.TooManyParamters));
